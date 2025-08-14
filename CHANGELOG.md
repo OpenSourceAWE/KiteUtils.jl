@@ -1,5 +1,9 @@
 # Changelog
 
+### KiteUtils v0.10.16 14-08-2025
+#### Fixed
+- support subdirectories in data dir
+
 ### KiteUtils v0.10.15 10-07-2025
 #### Added
 - added and exported the interface functions `init!`, `next_step!` and `update_sys_state`
