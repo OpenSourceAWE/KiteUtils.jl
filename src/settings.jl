@@ -18,7 +18,7 @@ $(TYPEDFIELDS)
 @with_kw mutable struct Settings @deftype Float64
     dict::Vector{Dict} = [Dict()]
     "name of the yaml file with the settings"
-    sim_settings::String       = ""
+    sim_settings::String      = ""
 
     "filename without extension  [replay only]"
     log_file::String      = ""
@@ -39,31 +39,31 @@ $(TYPEDFIELDS)
     "name or filepath+filename of alternative fixed pitch font"
     fixed_font::String    = ""
     
-    "initial elevation angle                [deg]"
+    "initial elevation angle             [deg]"
     elevations::Vector{Float64}      = [70]
-    "initial elevation rate               [deg/s]"
+    "initial elevation rate            [deg/s]"
     elevation_rates::Vector{Float64} = [0]
-    "initial azimuth angle                  [deg]"
+    "initial azimuth angle               [deg]"
     azimuths::Vector{Float64}        = [0]
-    "initial azimuth rate                 [deg/s]"
+    "initial azimuth rate              [deg/s]"
     azimuth_rates::Vector{Float64}   = [0] 
-    "initial heading angle                  [deg]"
+    "initial heading angle               [deg]"
     headings::Vector{Float64}        = [0]
-    "initial heading rate                 [deg/s]"
+    "initial heading rate              [deg/s]"
     heading_rates::Vector{Float64}   = [0]
-    "initial tether lengths                   [m]"
+    "initial tether lengths                [m]"
     l_tethers::Vector{Float64}       = [0]
-    "initial kite distances                   [m]"
+    "initial kite distances                [m]"
     kite_distances::Vector{Float64}  = [0]
-    "initial reel out speeds                [m/s]"
+    "initial reel out speeds             [m/s]"
     v_reel_outs::Vector{Float64}     = [0]
-    "initial depower settings                 [%]"
-    depowers::Vector{Float64}         = [0]
-    "initial steering settings                [%]"
-    steerings::Vector{Float64}        = [0]
+    "initial depower settings              [%]"
+    depowers::Vector{Float64}        = [0]
+    "initial steering settings             [%]"
+    steerings::Vector{Float64}       = [0]
 
     # # three values are only needed for RamAirKite, for KPS3 and KPS4 use only the first value
-    # l_tethers: [50.0, 50.0, 50.0] # initial tether lengths      [m]
+    # l_tethers: [50.0, 50.0, 50.0] # initial tether lengths     [m]
     # v_reel_outs: [0.0, 0.0, 0.0]  # initial reel out speeds   [m/s]
 
     "absolute tolerance of the DAE solver [m, m/s]"
@@ -96,7 +96,7 @@ $(TYPEDFIELDS)
     "correction factor for the steering sensitivity four point model"
     cs_4p                 = 1.0
 
-    "max depower angle              [deg]"
+    "max depower angle             [deg]"
     alpha_d_max           = 0
     "at rel_depower=0.236 the kite is fully powered [%]"
     depower_offset        = 23.6
@@ -109,11 +109,11 @@ $(TYPEDFIELDS)
     version::Int64 = 1
     "kite mass incl. sensor unit     [kg]"
     mass                  = 0
-    "projected kite area            [m^2]"
+    "projected kite area           [m^2]"
     area                  = 0
-    "relative side area               [%]"
+    "relative side area              [%]"
     rel_side_area         = 0
-    "height of the kite               [m]"
+    "height of the kite              [m]"
     height_k              = 0
     alpha_cl::Vector{Float64} = []
     cl_list::Vector{Float64}  = []
@@ -121,11 +121,11 @@ $(TYPEDFIELDS)
     cd_list::Vector{Float64}  = []
     "steering dependant moment coefficient"
     cms                   = 0
-    "width of the kite                [m]"
+    "width of the kite               [m]"
 
     # KPS4 specific parameters
     width                 = 0
-    "should be 5                      [degrees]"
+    "should be 5                     [degrees]"
     alpha_zero            = 0
     alpha_ztip            = 0
     "relative nose distance; increasing m_k increases C2 of the turn-rate law"
@@ -154,12 +154,12 @@ $(TYPEDFIELDS)
     
     # Ram air kite specific parameters
     "filename of the foil shape [in dat format]"
-    foil_file::String      = "data/ram_air_kite_foil.dat"
+    foil_file::String     = "data/ram_air_kite_foil.dat"
     "top bridle points that are not on the kite body in CAD frame"
     top_bridle_points::Vector{Vector{Float64}} = [[0.290199, 0.784697, -2.61305],
-                                                 [0.392683, 0.785271, -2.61201],
-                                                 [0.498202, 0.786175, -2.62148],
-                                                 [0.535543, 0.786175, -2.62148]]
+                                                  [0.392683, 0.785271, -2.61201],
+                                                  [0.498202, 0.786175, -2.62148],
+                                                  [0.535543, 0.786175, -2.62148]]
     "bridle tether diameter [mm]"
     bridle_tether_diameter  = 2.0
     "power tether diameter [mm]"
@@ -175,9 +175,9 @@ $(TYPEDFIELDS)
     "wether to use quasi-static tether points or not"
     quasi_static::Bool      = false
 
-    "bridle line diameter                  [mm]"
+    "bridle line diameter                [mm]"
     d_line                = 0
-    "height of the bridle                    [m]"
+    "height of the bridle                  [m]"
     h_bridle              = 0
     "sum of the lengths of the bridle lines [m]"
     l_bridle              = 0
@@ -214,11 +214,11 @@ $(TYPEDFIELDS)
     d_tether              = 0
     "drag coefficient of the tether"
     cd_tether             = 0
-    "unit damping coefficient        [Ns]"
+    "unit damping coefficient       [Ns]"
     damping               = 0
     "unit spring constant coefficient [N]"
     c_spring              = 0
-    "density of Dyneema                   [kg/m³]"
+    "density of Dyneema                [kg/m³]"
     rho_tether            = 0
     "axial tensile modulus of the tether     [Pa]"
     e_tether              = 0
@@ -227,11 +227,11 @@ $(TYPEDFIELDS)
     winch_model::String   = ""
     "maximal (nominal) tether force; short overload allowed [N]"
     max_force             = 4000
-    "maximal reel-out speed                      [m/s]"
+    "maximal reel-out speed                  [m/s]"
     v_ro_max              = 8
     "minimal reel-out speed (=max reel-in speed) [m/s]"
     v_ro_min              = -8
-    "maximal acceleration                       [m/s²]"
+    "maximal acceleration                    [m/s²]"
     max_acc               = 0
     "radius of the drum [m]"
     drum_radius = 0.1615
@@ -248,21 +248,21 @@ $(TYPEDFIELDS)
     "integral gain for the speed controller"
     i_speed = 0
 
-    "wind speed at reference height          [m/s]"
+    "wind speed at reference height      [m/s]"
     v_wind                = 0
-    "initial upwind direction                [deg]"
+    "initial upwind direction          [deg]"
     upwind_dir            = 0
-    "temperature at reference height         [°C]"
+    "temperature at reference height     [°C]"
     temp_ref              = 0
     "height of groundstation above see level  [m]"
     height_gnd            = 0
-    " reference height for the wind speed     [m]"
+    " reference height for the wind speed   [m]"
     h_ref                 = 0
-    "air density at zero height and 15 °C    [kg/m³]"
+    "air density at zero height and 15 °C   [kg/m³]"
     rho_0                 = 0
     "exponent of the wind profile law"
     alpha                 = 0
-    "surface roughness                       [m]"
+    "surface roughness                     [m]"
     z0                    = 0
     "1=EXP, 2=LOG, 3=EXPLOG, 4=FAST_EXP, 5=FAST_LOG, 6=FAST_EXPLOG"
     profile_law::Int64    = 0
@@ -270,7 +270,7 @@ $(TYPEDFIELDS)
     use_turbulence        = 0
     "wind speeds at ref height for calculating the turbulent wind field [m/s]"
     v_wind_gnds::Vector{Float64} = []
-    "average height during reel out           [m]"
+    "average height during reel out          [m]"
     avg_height            = 0
     "relative turbulence at the v_wind_gnds"
     rel_turbs::Vector{Float64} = []
@@ -278,11 +278,11 @@ $(TYPEDFIELDS)
     i_ref                 = 0
     "five times the average wind speed in m/s at hub height over the full year    [m/s]"
     v_ref                 = 0
-    "grid size nx, ny, nz and minimal height z_min                                  [m]"
+    "grid size nx, ny, nz and minimal height z_min                                   [m]"
     grid::Vector{Int64} = []
-    "grid resolution in z direction                                                 [m]"
+    "grid resolution in z direction                                                [m]"
     height_step           = 0 
-    "grid resolution in x and y direction                                           [m]"
+    "grid resolution in x and y direction                                          [m]"
     grid_step             = 0
     "gravitational acceleration"
     g_earth               = 0
@@ -503,18 +503,32 @@ The project file must be located in the directory specified by the data path [`g
 function se(settings::Settings, project=PROJECT; relax=false)
     se_dict = settings.dict
     global PROJECT
-    if settings.segments == 0 || basename(project) != PROJECT
+
+    # Process project path: remove leading "data/" if present
+    path_parts = splitpath(project)
+    processed_project = project
+    if !isempty(path_parts) && path_parts[1] == "data"
+        processed_project = joinpath(path_parts[2:end]...)
+    end
+
+    if settings.segments == 0 || processed_project != PROJECT
         # determine which sim_settings to load
-        dict = YAML.load_file(joinpath(DATA_PATH[1], basename(project)))
-        PROJECT = basename(project)
+        project_path = joinpath(DATA_PATH[1], processed_project)
+        dict = YAML.load_file(project_path)
+        PROJECT = processed_project
         try
             settings.sim_settings = dict["system"]["sim_settings"]
         catch
             settings.sim_settings = dict["system"]["project"]
             # println("Warning! Key sim_settings not found in $project .")
         end
+
+        # The sim_settings file is resolved relative to the project file's directory.
+        project_dir = dirname(processed_project)
+        sim_settings_path = joinpath(project_dir, settings.sim_settings)
+
         # load sim_settings from YAML
-        dict = YAML.load_file(joinpath(DATA_PATH[1], settings.sim_settings))
+        dict = YAML.load_file(joinpath(DATA_PATH[1], sim_settings_path))
         se_dict[1] = dict
         # update the settings struct from the dictionary
         oblig_sections = ["system", "initial", "solver", "kite", "tether", "environment"]
