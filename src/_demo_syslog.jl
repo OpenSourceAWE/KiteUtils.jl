@@ -48,6 +48,8 @@ function demo_syslog(P, name="Test flight"; duration=10)
     CD2_vec = Vector{MyFloat}(undef, steps)
     aero_force_b_vec = Vector{MVector{3, MyFloat}}(undef, steps)
     aero_moment_b_vec = Vector{MVector{3, MyFloat}}(undef, steps)
+    tether_force_vec = Vector{MVector{3, MyFloat}}(undef, steps)
+    tether_moment_vec = Vector{MVector{3, MyFloat}}(undef, steps)
     twist_angles_vec = Vector{MVector{4, MyFloat}}(undef, steps)
     vel_kite_vec = Vector{MVector{3, MyFloat}}(undef, steps)
     acc_vec = Vector{MyFloat}(undef, steps)
@@ -113,6 +115,8 @@ function demo_syslog(P, name="Test flight"; duration=10)
         CD2_vec[i+1] = state.CD2
         aero_force_b_vec[i+1] = state.aero_force_b
         aero_moment_b_vec[i+1] = state.aero_moment_b
+        tether_force_vec[i+1] = state.tether_force
+        tether_moment_vec[i+1] = state.tether_moment
         twist_angles_vec[i+1] = state.twist_angles
         vel_kite_vec[i+1] = state.vel_kite
         acc_vec[i+1] = state.acc
@@ -147,10 +151,10 @@ function demo_syslog(P, name="Test flight"; duration=10)
                               force_vec, depower_vec, steering_vec, kcu_steering_vec, set_steering_vec, heading_vec, 
                               heading_rate_vec, course_vec, bearing_vec, attractor_vec, v_app_vec, v_wind_gnd_vec, 
                               v_wind_200m_vec, v_wind_kite_vec, AoA_vec, side_slip_vec, alpha3_vec, alpha4_vec, 
-                              CL2_vec, CD2_vec, aero_force_b_vec, aero_moment_b_vec, twist_angles_vec, vel_kite_vec, 
-                              acc_vec, X_vec, Y_vec, Z_vec, set_torque_vec, set_speed_vec, 
-                              set_force_vec, roll_vec, pitch_vec, yaw_vec, var_01_vec, var_02_vec, 
-                              var_03_vec, var_04_vec, var_05_vec, var_06_vec, var_07_vec, var_08_vec, 
-                              var_09_vec, var_10_vec, var_11_vec, var_12_vec, var_13_vec, var_14_vec, 
-                              var_15_vec, var_16_vec))
+                              CL2_vec, CD2_vec, aero_force_b_vec, aero_moment_b_vec, tether_force_vec, tether_moment_vec, 
+                              twist_angles_vec, vel_kite_vec, acc_vec, X_vec, Y_vec, Z_vec, 
+                              set_torque_vec, set_speed_vec, set_force_vec, roll_vec, pitch_vec, yaw_vec, 
+                              var_01_vec, var_02_vec, var_03_vec, var_04_vec, var_05_vec, var_06_vec, 
+                              var_07_vec, var_08_vec, var_09_vec, var_10_vec, var_11_vec, var_12_vec, 
+                              var_13_vec, var_14_vec, var_15_vec, var_16_vec))
 end

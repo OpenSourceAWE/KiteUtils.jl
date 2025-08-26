@@ -33,6 +33,8 @@ sysstate:
     CD2: "MyFloat"                      # drag coefficient
     aero_force_b: "MVector{3, MyFloat}" # aerodynamic force in KB reference frame [N]
     aero_moment_b: "MVector{3, MyFloat}" # aerodynamic moment in KB reference frame [Nm]
+    tether_force: "MVector{3, MyFloat}"  # net tether force on kite [N]
+    tether_moment: "MVector{3, MyFloat}" # net tether moment on kite [Nm]
     twist_angles: "MVector{4, MyFloat}" # twist angles for the 4 segment groups [rad]
     vel_kite: "MVector{3, MyFloat}"     # velocity vector of the kite [m/s]
     acc: "MyFloat"                      # acceleration [m/s²]

@@ -55,6 +55,8 @@ $(TYPEDFIELDS)
     CD2_vec::Vector{MyFloat} = zeros(MyFloat, Q)
     aero_force_b_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
     aero_moment_b_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
+    tether_force_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
+    tether_moment_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
     twist_angles_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
     vel_kite_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
     acc_vec::Vector{MyFloat} = zeros(MyFloat, Q)
