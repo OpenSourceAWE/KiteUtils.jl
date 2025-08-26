@@ -82,7 +82,7 @@ Base.@kwdef mutable struct SysState{P}
     aero_force_b::MVector{3, MyFloat} = [0.0, 0.0, 0.0]
     "aerodynamic moment in KB reference frame [Nm]"
     aero_moment_b::MVector{3, MyFloat} = [0.0, 0.0, 0.0]
-    "net tether force acting on kite [N]"
+    "net tether force vector acting on kite [N]"
     tether_induced_force::MVector{3, MyFloat} = [0.0, 0.0, 0.0]
     "net tether moment acting on kite [Nm]"
     tether_induced_moment::MVector{3, MyFloat} = [0.0, 0.0, 0.0]
