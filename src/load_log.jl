@@ -62,6 +62,8 @@ function load_log(filename::String; path="", debug=false)
     CD2 = Vector{Float32}(undef, n)
     aero_force_b = Vector{MVector{3, Float32}}(undef, n)
     aero_moment_b = Vector{MVector{3, Float32}}(undef, n)
+    tether_force = Vector{MVector{3, Float32}}(undef, n)
+    tether_moment = Vector{MVector{3, Float32}}(undef, n)
     twist_angles = Vector{MVector{4, Float32}}(undef, n)
     acc = Vector{Float32}(undef, n)
     set_torque = Vector{MVector{4, Float32}}(undef, n)
@@ -74,7 +76,8 @@ function load_log(filename::String; path="", debug=false)
     for name in [:cycle, :fig_8, :turn_rates, :kcu_steering,
                  :set_steering, :heading_rate, :bearing, :attractor, :v_wind_gnd,
                  :v_wind_200m, :v_wind_kite, :AoA, :side_slip, :alpha3, :alpha4, :CL2, :CD2,
-                 :aero_force_b, :aero_moment_b, :twist_angles, :acc, :set_torque, :set_speed,
+                 :aero_force_b, :aero_moment_b, :tether_force, :tether_moment,
+                 :twist_angles, :acc, :set_torque, :set_speed,
                  :set_force, :roll, :pitch, :yaw]
         if haskey(table, name)
             if name == :cycle
@@ -115,6 +118,10 @@ function load_log(filename::String; path="", debug=false)
                 aero_force_b = table.aero_force_b 
             elseif name == :aero_moment_b 
                 aero_moment_b = table.aero_moment_b 
+            elseif name == :tether_force 
+                tether_force = table.tether_force 
+            elseif name == :tether_moment 
+                tether_moment = table.tether_moment 
             elseif name == :twist_angles 
                 twist_angles = table.twist_angles
             elseif name == :acc
@@ -144,7 +151,8 @@ function load_log(filename::String; path="", debug=false)
                                        kcu_steering, set_steering, table.heading, heading_rate, table.course, 
                                        bearing, attractor, table.v_app, v_wind_gnd, v_wind_200m, 
                                        v_wind_kite, AoA, side_slip, alpha3, alpha4, 
-                                       CL2, CD2, aero_force_b, aero_moment_b, twist_angles, 
+                                       CL2, CD2, aero_force_b, aero_moment_b, tether_force,
+                                       tether_moment, twist_angles, 
                                        table.vel_kite, acc, table.X, table.Y, table.Z, 
                                        set_torque, set_speed, set_force, roll, pitch, 
                                        yaw, table.var_01, table.var_02, table.var_03, table.var_04, 
