@@ -107,7 +107,7 @@ function import_log(filename)
         ss.azimuth = row.azimuth
         ss.l_tether[1] = row.l_tether
         ss.v_reelout[1] = row.v_reelout
-        ss.force[1] = row.force
+        ss.winch_force[1] = row.winch_force
         ss.depower = row.depower
         ss.steering = row.steering
         ss.heading = row.heading

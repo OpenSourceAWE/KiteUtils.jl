@@ -26,7 +26,7 @@ function demo_syslog(P, name="Test flight"; duration=10)
     azimuth_vec = Vector{MyFloat}(undef, steps)
     l_tether_vec = Vector{MVector{4, MyFloat}}(undef, steps)
     v_reelout_vec = Vector{MVector{4, MyFloat}}(undef, steps)
-    force_vec = Vector{MVector{4, MyFloat}}(undef, steps)
+    winch_force_vec = Vector{MVector{4, MyFloat}}(undef, steps)
     depower_vec = Vector{MyFloat}(undef, steps)
     steering_vec = Vector{MyFloat}(undef, steps)
     kcu_steering_vec = Vector{MyFloat}(undef, steps)
@@ -48,8 +48,8 @@ function demo_syslog(P, name="Test flight"; duration=10)
     CD2_vec = Vector{MyFloat}(undef, steps)
     aero_force_b_vec = Vector{MVector{3, MyFloat}}(undef, steps)
     aero_moment_b_vec = Vector{MVector{3, MyFloat}}(undef, steps)
-    tether_force_vec = Vector{MVector{3, MyFloat}}(undef, steps)
-    tether_moment_vec = Vector{MVector{3, MyFloat}}(undef, steps)
+    tether_induced_force_vec = Vector{MVector{3, MyFloat}}(undef, steps)
+    tether_induced_moment_vec = Vector{MVector{3, MyFloat}}(undef, steps)
     twist_angles_vec = Vector{MVector{4, MyFloat}}(undef, steps)
     vel_kite_vec = Vector{MVector{3, MyFloat}}(undef, steps)
     acc_vec = Vector{MyFloat}(undef, steps)
@@ -93,7 +93,7 @@ function demo_syslog(P, name="Test flight"; duration=10)
         azimuth_vec[i+1] = state.azimuth
         l_tether_vec[i+1] = state.l_tether
         v_reelout_vec[i+1] = state.v_reelout
-        force_vec[i+1] = state.force
+        winch_force_vec[i+1] = state.winch_force
         depower_vec[i+1] = state.depower
         steering_vec[i+1] = state.steering
         kcu_steering_vec[i+1] = state.kcu_steering
@@ -115,8 +115,8 @@ function demo_syslog(P, name="Test flight"; duration=10)
         CD2_vec[i+1] = state.CD2
         aero_force_b_vec[i+1] = state.aero_force_b
         aero_moment_b_vec[i+1] = state.aero_moment_b
-        tether_force_vec[i+1] = state.tether_force
-        tether_moment_vec[i+1] = state.tether_moment
+        tether_induced_force_vec[i+1] = state.tether_induced_force
+        tether_induced_moment_vec[i+1] = state.tether_induced_moment
         twist_angles_vec[i+1] = state.twist_angles
         vel_kite_vec[i+1] = state.vel_kite
         acc_vec[i+1] = state.acc
@@ -148,10 +148,10 @@ function demo_syslog(P, name="Test flight"; duration=10)
     end
     StructArray{SysState{P}}((time_vec, t_sim_vec, sys_state_vec, cycle_vec, fig_8_vec, e_mech_vec, 
                               orient_vec, turn_rates_vec, elevation_vec, azimuth_vec, l_tether_vec, v_reelout_vec, 
-                              force_vec, depower_vec, steering_vec, kcu_steering_vec, set_steering_vec, heading_vec, 
+                              winch_force_vec, depower_vec, steering_vec, kcu_steering_vec, set_steering_vec, heading_vec, 
                               heading_rate_vec, course_vec, bearing_vec, attractor_vec, v_app_vec, v_wind_gnd_vec, 
                               v_wind_200m_vec, v_wind_kite_vec, AoA_vec, side_slip_vec, alpha3_vec, alpha4_vec, 
-                              CL2_vec, CD2_vec, aero_force_b_vec, aero_moment_b_vec, tether_force_vec, tether_moment_vec, 
+                              CL2_vec, CD2_vec, aero_force_b_vec, aero_moment_b_vec, tether_induced_force_vec, tether_induced_moment_vec, 
                               twist_angles_vec, vel_kite_vec, acc_vec, X_vec, Y_vec, Z_vec, 
                               set_torque_vec, set_speed_vec, set_force_vec, roll_vec, pitch_vec, yaw_vec, 
                               var_01_vec, var_02_vec, var_03_vec, var_04_vec, var_05_vec, var_06_vec, 

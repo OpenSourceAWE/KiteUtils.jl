@@ -142,9 +142,9 @@ $(TYPEDFIELDS)
 
     # KPS5 specific parameters
     "unit spring constant coefficient of the kite springs [N]"
-    c_spring_kite = 0
+    axial_stiffness_kite = 0
     "unit damping coefficient of the kite springs [Ns]"
-    damping_kite_springs = 0
+    axial_damping_kite = 0
     "relative mass of p2"
     rel_mass_p2 = 0
     "relative mass of p3"
@@ -215,9 +215,9 @@ $(TYPEDFIELDS)
     "drag coefficient of the tether"
     cd_tether             = 0
     "unit damping coefficient       [Ns]"
-    damping               = 0
+    axial_damping         = 0
     "unit spring constant coefficient [N]"
-    c_spring              = 0
+    axial_stiffness       = 0
     "density of Dyneema                [kg/m³]"
     rho_tether            = 0
     "axial tensile modulus of the tether     [Pa]"

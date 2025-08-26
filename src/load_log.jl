@@ -62,8 +62,8 @@ function load_log(filename::String; path="", debug=false)
     CD2 = Vector{Float32}(undef, n)
     aero_force_b = Vector{MVector{3, Float32}}(undef, n)
     aero_moment_b = Vector{MVector{3, Float32}}(undef, n)
-    tether_force = Vector{MVector{3, Float32}}(undef, n)
-    tether_moment = Vector{MVector{3, Float32}}(undef, n)
+    tether_induced_force = Vector{MVector{3, Float32}}(undef, n)
+    tether_induced_moment = Vector{MVector{3, Float32}}(undef, n)
     twist_angles = Vector{MVector{4, Float32}}(undef, n)
     acc = Vector{Float32}(undef, n)
     set_torque = Vector{MVector{4, Float32}}(undef, n)
@@ -72,13 +72,14 @@ function load_log(filename::String; path="", debug=false)
     roll = Vector{Float32}(undef, n)
     pitch = Vector{Float32}(undef, n)
     yaw = Vector{Float32}(undef, n)
+    winch_force = Vector{MVector{4, Float32}}(undef, n)
 
     for name in [:cycle, :fig_8, :turn_rates, :kcu_steering,
                  :set_steering, :heading_rate, :bearing, :attractor, :v_wind_gnd,
                  :v_wind_200m, :v_wind_kite, :AoA, :side_slip, :alpha3, :alpha4, :CL2, :CD2,
-                 :aero_force_b, :aero_moment_b, :tether_force, :tether_moment,
+                 :aero_force_b, :aero_moment_b, :tether_induced_force, :tether_induced_moment,
                  :twist_angles, :acc, :set_torque, :set_speed,
-                 :set_force, :roll, :pitch, :yaw]
+                 :set_force, :roll, :pitch, :yaw, :force, :winch_force]
         if haskey(table, name)
             if name == :cycle
                 cycle = table.cycle
@@ -118,10 +119,10 @@ function load_log(filename::String; path="", debug=false)
                 aero_force_b = table.aero_force_b 
             elseif name == :aero_moment_b 
                 aero_moment_b = table.aero_moment_b 
-            elseif name == :tether_force 
-                tether_force = table.tether_force 
-            elseif name == :tether_moment 
-                tether_moment = table.tether_moment 
+            elseif name == :tether_induced_force 
+                tether_induced_force = table.tether_induced_force 
+            elseif name == :tether_induced_moment 
+                tether_induced_moment = table.tether_induced_moment 
             elseif name == :twist_angles 
                 twist_angles = table.twist_angles
             elseif name == :acc
@@ -138,6 +139,10 @@ function load_log(filename::String; path="", debug=false)
                 pitch = table.pitch
             elseif name == :yaw
                 yaw = table.yaw
+            elseif name == :force
+                winch_force = table.force
+            elseif name == :winch_force
+                winch_force = table.winch_force
             else
                 error("Unknown field: $name")
             end
@@ -147,12 +152,12 @@ function load_log(filename::String; path="", debug=false)
     end
     syslog = StructArray{SysState{P}}((table.time, table.t_sim, table.sys_state, cycle, fig_8, 
                                        table.e_mech, table.orient, turn_rates, table.elevation, table.azimuth, 
-                                       table.l_tether, table.v_reelout, table.force, table.depower, table.steering, 
+                                       table.l_tether, table.v_reelout, winch_force, table.depower, table.steering, 
                                        kcu_steering, set_steering, table.heading, heading_rate, table.course, 
                                        bearing, attractor, table.v_app, v_wind_gnd, v_wind_200m, 
                                        v_wind_kite, AoA, side_slip, alpha3, alpha4, 
-                                       CL2, CD2, aero_force_b, aero_moment_b, tether_force,
-                                       tether_moment, twist_angles, 
+                                       CL2, CD2, aero_force_b, aero_moment_b, tether_induced_force,
+                                       tether_induced_moment, twist_angles, 
                                        table.vel_kite, acc, table.X, table.Y, table.Z, 
                                        set_torque, set_speed, set_force, roll, pitch, 
                                        yaw, table.var_01, table.var_02, table.var_03, table.var_04, 
