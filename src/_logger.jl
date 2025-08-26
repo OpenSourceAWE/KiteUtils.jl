@@ -33,7 +33,7 @@ $(TYPEDFIELDS)
     azimuth_vec::Vector{MyFloat} = zeros(MyFloat, Q)
     l_tether_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
     v_reelout_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
-    force_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
+    winch_force_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
     depower_vec::Vector{MyFloat} = zeros(MyFloat, Q)
     steering_vec::Vector{MyFloat} = zeros(MyFloat, Q)
     kcu_steering_vec::Vector{MyFloat} = zeros(MyFloat, Q)
@@ -55,6 +55,8 @@ $(TYPEDFIELDS)
     CD2_vec::Vector{MyFloat} = zeros(MyFloat, Q)
     aero_force_b_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
     aero_moment_b_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
+    tether_induced_force_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
+    tether_induced_moment_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
     twist_angles_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
     vel_kite_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
     acc_vec::Vector{MyFloat} = zeros(MyFloat, Q)

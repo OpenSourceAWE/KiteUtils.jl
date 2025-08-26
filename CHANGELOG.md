@@ -1,5 +1,11 @@
 # Changelog
 
+### KiteUtils v0.11.0 26-08-2025
+#### Changed
+- BREAKING: renamed c_spring to axial_stiffness and damping to axial_damping
+#### Added
+- the fields tether_induced_force and tether_induced_moment
+
 ### KiteUtils v0.10.16 14-08-2025
 #### Fixed
 - support subdirectories in data dir

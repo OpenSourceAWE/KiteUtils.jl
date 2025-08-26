@@ -38,8 +38,8 @@ Base.@kwdef mutable struct SysState{P}
     l_tether::MVector{4, MyFloat} = [0.0, 0.0, 0.0, 0.0]
     "reelout speed, tether 1 to 4 [m/s]"
     v_reelout::MVector{4, MyFloat} = [0.0, 0.0, 0.0, 0.0]
-    "tether force, tether 1 to 4 [N]"
-    force::MVector{4, MyFloat} = [0.0, 0.0, 0.0, 0.0]
+    "tether force at the winch, tether 1 to 4 [N]"
+    winch_force::MVector{4, MyFloat} = [0.0, 0.0, 0.0, 0.0]
     "depower settings [0..1]"
     depower::MyFloat = 0
     "actual steering [-1..1]"
@@ -82,6 +82,10 @@ Base.@kwdef mutable struct SysState{P}
     aero_force_b::MVector{3, MyFloat} = [0.0, 0.0, 0.0]
     "aerodynamic moment in KB reference frame [Nm]"
     aero_moment_b::MVector{3, MyFloat} = [0.0, 0.0, 0.0]
+    "net tether force vector acting on kite [N]"
+    tether_induced_force::MVector{3, MyFloat} = [0.0, 0.0, 0.0]
+    "net tether moment acting on kite [Nm]"
+    tether_induced_moment::MVector{3, MyFloat} = [0.0, 0.0, 0.0]
     "twist angles for the 4 segment groups [rad]"
     twist_angles::MVector{4, MyFloat} = [0.0, 0.0, 0.0, 0.0]
     "velocity vector of the kite [m/s]"

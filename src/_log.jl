@@ -28,7 +28,7 @@ function log!(logger::Logger, state::SysState)
     logger.azimuth_vec[i] = state.azimuth
     logger.l_tether_vec[i] .= state.l_tether
     logger.v_reelout_vec[i] .= state.v_reelout
-    logger.force_vec[i] .= state.force
+    logger.winch_force_vec[i] .= state.winch_force
     logger.depower_vec[i] = state.depower
     logger.steering_vec[i] = state.steering
     logger.kcu_steering_vec[i] = state.kcu_steering
@@ -50,6 +50,8 @@ function log!(logger::Logger, state::SysState)
     logger.CD2_vec[i] = state.CD2
     logger.aero_force_b_vec[i] .= state.aero_force_b
     logger.aero_moment_b_vec[i] .= state.aero_moment_b
+    logger.tether_induced_force_vec[i] .= state.tether_induced_force
+    logger.tether_induced_moment_vec[i] .= state.tether_induced_moment
     logger.twist_angles_vec[i] .= state.twist_angles
     logger.vel_kite_vec[i] .= state.vel_kite
     logger.acc_vec[i] = state.acc
