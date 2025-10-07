@@ -514,7 +514,7 @@ The project file defaults to the currently active PROJECT.
 function vsm_settings(project=PROJECT)
     # determine which vsm_settings to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
-    dict["system"]["fpp_settings"]
+    dict["system"]["vsm_settings"]
 end
 
 """
