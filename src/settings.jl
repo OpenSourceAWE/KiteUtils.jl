@@ -461,6 +461,14 @@ function update_settings(dict, sections, settings=SETTINGS)
     StructTypes.constructfrom!(settings, result)
 end
 
+"""
+    wc_settings(project=PROJECT)
+
+Get the winch controller (WC) settings filename from the project file.
+
+Returns the filename specified in the `wc_settings` field of the system section.
+The project file defaults to the currently active PROJECT.
+"""
 function wc_settings(project=PROJECT)
     # determine which wc_settings to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
@@ -475,6 +483,12 @@ end
 
 function fpp_settings(project=PROJECT)
     # determine which fpc_settings to load
+    dict = YAML.load_file(joinpath(DATA_PATH[1], project))
+    dict["system"]["fpp_settings"]
+end
+
+function vsm_settings(project=PROJECT)
+    # determine which vsm_settings to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
     dict["system"]["fpp_settings"]
 end
