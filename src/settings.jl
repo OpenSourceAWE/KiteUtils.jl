@@ -475,18 +475,42 @@ function wc_settings(project=PROJECT)
     dict["system"]["wc_settings"]
 end
 
+"""
+    fpc_settings(project=PROJECT)
+
+Get the flight path controller (FPC) settings filename from the project file.
+
+Returns the filename specified in the `fpc_settings` field of the system section.
+The project file defaults to the currently active PROJECT.
+"""
 function fpc_settings(project=PROJECT)
     # determine which fpc_settings to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
     dict["system"]["fpc_settings"]
 end
 
+"""
+    fpp_settings(project=PROJECT)
+
+Get the flight path planner (FPP) settings filename from the project file.
+
+Returns the filename specified in the `fpp_settings` field of the system section.
+The project file defaults to the currently active PROJECT.
+"""
 function fpp_settings(project=PROJECT)
-    # determine which fpc_settings to load
+    # determine which fpp_settings to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
     dict["system"]["fpp_settings"]
 end
 
+"""
+    vsm_settings(project=PROJECT)
+
+Get the vortex step model (VSM) settings filename from the project file.
+
+Returns the filename specified in the `fpp_settings` field of the system section.
+The project file defaults to the currently active PROJECT.
+"""
 function vsm_settings(project=PROJECT)
     # determine which vsm_settings to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
