@@ -508,7 +508,7 @@ end
 
 Get the vortex step model (VSM) settings filename from the project file.
 
-Returns the filename specified in the `fpp_settings` field of the system section.
+Returns the filename specified in the `vsm_settings` field of the system section.
 The project file defaults to the currently active PROJECT.
 """
 function vsm_settings(project=PROJECT)
