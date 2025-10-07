@@ -58,7 +58,7 @@ export fromEG2W, fromENU2EG,fromW2SE, fromKS2EX, fromEX2EG               # refer
 export azn2azw, calc_heading_w, calc_heading, calc_course                # geometric functions
 export calc_orient_rot, is_right_handed_orthonormal, enu2ned, ned2enu
 export set_data_path, get_data_path, load_settings, copy_settings        # functions for reading and copying parameters
-export se, se_dict, update_settings, wc_settings, fpc_settings, fpp_settings
+export se, se_dict, update_settings, wc_settings, fpc_settings, fpp_settings, vsm_settings
 export calculate_rotational_inertia
 export AbstractKiteModel
 export init!, next_step!, update_sys_state!
