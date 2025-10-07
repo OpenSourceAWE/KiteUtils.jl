@@ -105,9 +105,12 @@ end
 end
 
 @testset "KiteUtils.jl: system.yaml    " begin
-    @test wc_settings() == "wc_settings.yaml"
-    @test fpc_settings() == "fpc_settings.yaml"
-    @test fpp_settings() == "fpp_settings.yaml"
+    # Ensure we're using the correct data path and file
+    set_data_path("data")
+    @test wc_settings("system.yaml") == "wc_settings.yaml"
+    @test fpc_settings("system.yaml") == "fpc_settings.yaml"
+    @test fpp_settings("system.yaml") == "fpp_settings.yaml"
+    @test vsm_settings("system.yaml") == "vsm_settings.yaml"
 end
 
 @testset "KiteUtils.jl: New Constructors" begin
