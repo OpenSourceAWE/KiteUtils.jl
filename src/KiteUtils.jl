@@ -42,10 +42,16 @@ SOFTWARE. =#
 # the parameter P is the number of points of the tether, equal to segments+1
 # in addition helper functions for working with rotations
 
-using PrecompileTools: @setup_workload, @compile_workload 
+using PrecompileTools: @setup_workload, @compile_workload
 using Rotations, StaticArrays, StructArrays, RecursiveArrayTools, Arrow, YAML, LinearAlgebra, DocStringExtensions
 using Parameters, StructTypes, CSV, Parsers, Pkg
 export Settings, SysState, SysLog, Logger, MyFloat
+export SimFloat, KVec3, KVec4, SVec3
+export SegmentType, POWER_LINE, STEERING_LINE, BRIDLE
+export DynamicsType, DYNAMIC, QUASI_STATIC, WING, STATIC
+export Point, Group, Segment, Pulley, Tether, Winch
+export AbstractWing, BaseWing
+export Transform, SystemStructure
 
 import Base.length
 import ReferenceFrameRotations as RFR
@@ -88,6 +94,7 @@ include("settings.jl")
 include("yaml_utils.jl")
 include("transformations.jl")
 include("trafo.jl")
+include("system_structure.jl")
 
 include("_sysstate.jl")
 
