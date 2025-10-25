@@ -29,6 +29,7 @@ makedocs(;
         "Reference frames" => "reference_frames.md",
         "Exported Functions" => "functions.md",
         "Exported Types" => "types.md",
+        "System Structure" => "system_structure.md",
         "Examples" => "examples.md",
     ],
 )

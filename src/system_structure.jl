@@ -167,6 +167,8 @@ The governing equation is:
 \\end{aligned}
 ```
 
+![System Overview](assets/group_slice.svg)
+
 where:
 - ``\\tau`` is the total torque about the twist axis
 - ``r_{b,i}`` is the position vector of bridle point ``i`` relative to the twist center
