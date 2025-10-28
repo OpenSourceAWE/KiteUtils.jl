@@ -6,22 +6,25 @@
 
 using Pkg
 
-function globaldependencies()
-    projectpath = Pkg.project().path
-    basepath, _ = splitdir(projectpath)
-    Pkg.activate()
-    globaldependencies = keys(Pkg.project().dependencies)
-    Pkg.activate(basepath)
-    globaldependencies
-end
+# Check if LiveServer is installed globally
+current_project = Pkg.project().path
+Pkg.activate()
+has_liveserver = "LiveServer" in keys(Pkg.project().dependencies)
+Pkg.activate(current_project)
 
-if !("LiveServer" in globaldependencies())
+if !has_liveserver
     println("Installing LiveServer globally!")
     run(`julia -e 'using Pkg; Pkg.add("LiveServer")'`)
 end
 
-if !("Documenter" ∈ keys(Pkg.project().dependencies))
-    using TestEnv
-    TestEnv.activate()
+# Activate the docs environment
+basepath = dirname(current_project)
+docs_path = joinpath(basepath, "docs")
+Pkg.activate(docs_path)
+
+# Instantiate to ensure all dependencies are installed
+if !isfile(joinpath(docs_path, "Manifest.toml"))
+    Pkg.instantiate()
 end
+
 using LiveServer; servedocs(launch_browser=true)
