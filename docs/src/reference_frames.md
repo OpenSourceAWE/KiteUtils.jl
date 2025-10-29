@@ -6,6 +6,30 @@ CurrentModule = KiteUtils
 ## Position and velocity
 For position and velocity vectors of the model the **ENU** (East North Up) reference frame is used.
 
+## World Frame and CAD Frame
+
+### World Frame
+The **world frame** is the general inertial reference frame used for all simulation dynamics in the system structure. By default, the **ENU** (East-North-Up) frame is used as the world frame in [`SystemStructure`](@ref), with the following properties:
+- **Origin**: Located at the winch position (0, 0, 0)
+- **x-axis**: Points East
+- **y-axis**: Points North
+- **z-axis**: Points Up (vertical, opposite to gravity)
+
+All dynamic quantities (positions, velocities, forces) are expressed in this world frame during simulation.
+
+### CAD Frame
+The **CAD frame** is the coordinate system in which the system geometry is initially defined (e.g., in CAD software). The CAD frame can have an arbitrary origin and orientation - it does not need to match the world frame.
+
+When constructing a [`SystemStructure`](@ref):
+- All points are initially specified with `pos_cad` positions in the CAD frame
+- [`Transform`](@ref) objects convert these CAD frame coordinates to world frame coordinates
+- The `base_pos` argument in a Transform specifies where the CAD frame origin should be placed in the world frame
+- After transformation, all simulation proceeds in the world frame
+
+This separation allows system geometry to be defined in whatever coordinate system is most convenient for design, then automatically converted to the simulation frame.
+
+## Wind and Controller Frames
+
 The controller is using the **W** (Wind) reference frame as shown in the figure below, y-axis downwind and z-axis up.
 
 The orientation of the kite is expressed with respect to the **EX** (Earth XSense = North East Down) reference frame.
