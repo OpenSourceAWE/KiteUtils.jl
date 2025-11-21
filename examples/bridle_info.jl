@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-using KiteUtils, LinearAlgebra
+using KiteUtils
+using LinearAlgebra
 
 if basename(pwd()) == "examples" 
     set_data_path("../data")
