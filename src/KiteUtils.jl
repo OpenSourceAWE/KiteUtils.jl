@@ -200,7 +200,7 @@ the apparent wind speed.
 
 Parameters:
 - `vec_c`: (`pos_n`-2) - (`pos_n`-1) n: number of particles without the three kite particles
-                                    that do not belong to the main thether (P1, P2 and P3).
+                                    that do not belong to the main tether (P1, P2 and P3).
 - `v_app`: vector of the apparent wind speed
 
 Returns:
@@ -217,7 +217,7 @@ end
     get_particles(height_k, height_b, width, m_k, pos_pod= [ 75., 0., 129.90381057], vec_c=[-15., 0., -25.98076211], 
                   v_app=[10.4855, 0, -3.08324])
 
-Calculate the initial positions of the particels representing 
+Calculate the initial positions of the particles representing 
 a 4-point kite, connected to a kite control unit (KCU). 
 
 Parameters:
@@ -238,7 +238,7 @@ function get_particles(height_k, height_b, width, m_k, pos_pod= [ 75., 0., 129.9
     h_kz = height_k * sin(beta); # print 'h_kz: ', h_kz
     h_bx = height_b * cos(beta)
     h_bz = height_b * sin(beta)
-    pos_kite = pos_pod - (h_kz + h_bz) * z + (h_kx + h_bx) * x   # top,        poing B in diagram
+    pos_kite = pos_pod - (h_kz + h_bz) * z + (h_kx + h_bx) * x   # top,        point B in diagram
     pos_C = pos_kite + h_kz * z + 0.5 * width * y + h_kx * x     # side point, point C in diagram
     pos_A = pos_kite + h_kz * z + (h_kx + width * m_k) * x       # nose,       point A in diagram
     pos_D = pos_kite + h_kz * z - 0.5 * width * y + h_kx * x     # side point, point D in diagram
@@ -337,7 +337,7 @@ end
 """
     save_log(flight_log::SysLog, compress=true; path="")
 
-Save a fligh log of type SysLog as .arrow file. By default lz4 compression is used, 
+Save a flight log of type SysLog as .arrow file. By default lz4 compression is used, 
 if you use **false** as second parameter no compression is used.
 """
 function save_log(flight_log::SysLog, compress=true; path="")
