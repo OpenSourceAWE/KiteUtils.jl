@@ -117,7 +117,7 @@ function calc_heading(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=
     angle
 end
 
-""" 
+"""
     calc_course(velocityENU, elevation, azimuth, down_wind_direction = π/2, respos=true)
 
 Calculate the course angle in radian.
