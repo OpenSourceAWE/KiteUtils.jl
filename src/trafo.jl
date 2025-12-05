@@ -125,7 +125,7 @@ Calculate the course angle in radian.
 - velocityENU:         Kite velocity in EastNorthUp reference frame
 - down_wind_direction: The direction the wind is going to; zero at north;
                        clockwise positive from above; default: going to east.
-- respos:              If true, the result is in the range 0 .. 2π, otherwis -π .. π
+- respos:              If true, the result is in the range 0 .. 2π, otherwise -π .. π
 """
 function calc_course(velocityENU, elevation, azimuth, upwind_dir=-pi/2, respos=true)
     down_wind_direction = wrap2pi(upwind_dir + π)
