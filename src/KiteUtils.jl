@@ -253,7 +253,7 @@ Create a demo state, using the 4 point kite model with a given height and time. 
 
 Returns a SysState instance.
 """
-function demo_state_4p(P, height=6.0, time=0.0; azimuth_north=-pi/2)
+function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
     ss = SysState{P+4}()
     a = 10
     turn_angle = azimuth_north+pi/2
@@ -300,7 +300,7 @@ function demo_state_4p(P, height=6.0, time=0.0; azimuth_north=-pi/2)
     ss.v_wind_gnd = [10.4855, 0, -3.08324]
     ss.v_wind_200m = [10.4855, 0, -3.08324]
     ss.v_wind_kite = [10.4855, 0, -3.08324]
-    ss.t_sim = 0.014
+    ss.t_sim = time
     ss
 end
 
@@ -355,7 +355,7 @@ end
 """
     export_log(flight_log; path="")
 
-Save a fligh log of type SysLog as .csv file.
+Save a flight log of type SysLog as .csv file.
 """
 function export_log(flight_log; path="")
     if path == ""
