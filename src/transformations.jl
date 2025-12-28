@@ -6,7 +6,7 @@
 
 Calculate the rotation matrix that needs to be applied on the reference frame (ax, ay, az) to match 
 the reference frame (bx, by, bz).
-All parameters must be 3-element vectors. Both refrence frames must be orthogonal,
+All parameters must be 3-element vectors. Both reference frames must be orthogonal,
 all vectors must already be normalized.
 
 Source: [TRIAD_Algorithm](http://en.wikipedia.org/wiki/User:Snietfeld/TRIAD_Algorithm)
@@ -59,7 +59,7 @@ function rot(pos_kite, pos_before, v_app)
     y = normalize(cross(-v_app, c))
     x = normalize(cross(y, c))
     one_ = one(eltype(delta))
-    rot = rot3d(SVector(0,-one_,0), SVector(one_,0,0), SVector(0,0,-one_), z, y, x)
+    rot3d(SVector(0,-one_,0), SVector(one_,0,0), SVector(0,0,-one_), z, y, x)
 end
 
 

@@ -88,7 +88,7 @@ end
 Calculate the heading vector in wind reference frame.
 """
 function calc_heading_w(orientation, down_wind_direction = pi/2.0)
-    # create a unit heading vector in the xsense reference frame
+    # create a unit heading vector in the Xsens reference frame
     heading_sensor =  SVector(1, 0, 0)
     # rotate headingSensor to the Earth Xsens reference frame
     headingEX = fromKS2EX(heading_sensor, orientation)
