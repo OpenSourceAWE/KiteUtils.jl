@@ -254,6 +254,13 @@ Create a demo state, using the 4 point kite model with a given height and time. 
 Returns a SysState instance.
 """
 function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
+    function get_particle(particle, X, Y, Z)
+        x, y, z = particle[1], particle[2], particle[3]
+        push!(X, x)
+        push!(Y, y)
+        push!(Z, z)
+        return SVector(x,y,z)
+    end
     ss = SysState{P+4}()
     a = 10
     turn_angle = azimuth_north+pi/2
@@ -266,22 +273,10 @@ function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
     pod_pos = [X[end], Y[end], Z[end]]
     vec_c = [X[end-2] - X[end-1], Y[end-2] - Y[end-1], Z[end-2] - Z[end-1]]  
     particles = get_particles(se().height_k, se().h_bridle, se().width, se().m_k, pod_pos, vec_c, v_app)[3:end]
-    local pos_B, pos_C, pos_D
-    for i in 1:4
-        particle=particles[i]
-        x, y, z = particle[1], particle[2], particle[3]
-    
-        if i==2
-            pos_B = SVector(x,y,z)
-        elseif  i==3
-            pos_C = SVector(x,y,z)
-        elseif i==4
-            pos_D = SVector(x,y,z)
-        end
-        push!(X, x)
-        push!(Y, y)
-        push!(Z, z)
-    end
+    get_particle(particles[1], X, Y, Z)
+    pos_B = get_particle(particles[2], X, Y, Z)
+    pos_C = get_particle(particles[3], X, Y, Z)
+    pos_D = get_particle(particles[4], X, Y, Z)
     ss.X .= X
     ss.Y .= Y
     ss.Z .= Z
