@@ -78,7 +78,7 @@ $(TYPEDFIELDS)
     max_order::Int64      = 4
     "max number of iterations of the steady-state-solver"
     max_iter::Int64       = 1
-    "relaxation factor for Newton solver for quasy-steady tether model"
+    "relaxation factor for Newton solver for quasi-steady tether model"
     relaxation = 0
 
     "steering offset   -0.0032           [-]"
@@ -531,15 +531,15 @@ function se(settings::Settings, project=PROJECT; relax=false)
         dict = YAML.load_file(joinpath(DATA_PATH[1], sim_settings_path))
         se_dict[1] = dict
         # update the settings struct from the dictionary
-        oblig_sections = ["system", "initial", "solver", "kite", "tether", "environment"]
+        required_sections = ["system", "initial", "solver", "kite", "tether", "environment"]
         if relax
-            for section in oblig_sections
+            for section in required_sections
                 if section in keys(dict)
                     update_settings(dict, [section], settings)
                 end
             end
         else
-            update_settings(dict, oblig_sections, settings)
+            update_settings(dict, required_sections, settings)
         end
         for section in ["steering", "depower", "kps4", "kps5", "bridle", "winch", "kcu"]
             if section in keys(dict)
