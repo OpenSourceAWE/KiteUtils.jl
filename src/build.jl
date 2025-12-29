@@ -25,7 +25,7 @@ of tether particles.
 
 \$(TYPEDFIELDS)
 \"\"\"
-Base.@kwdef mutable struct SysState{P}"""
+@with_kw_noshow mutable struct SysState{P}"""
 FOOTER = "end"
 inputfile = joinpath("src", "sysstate.yaml")
 outputfile = joinpath("src", "_sysstate.jl")
