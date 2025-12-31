@@ -91,7 +91,7 @@ end
 @testset "KiteUtils.jl: Copy           " begin
     datapath = get_data_path()
     tmpdir = joinpath(mktempdir(), "data")
-    oldir = pwd()
+    olddir = pwd()
     cd(dirname(tmpdir))
     set_data_path(tmpdir)
     @test get_data_path() == tmpdir
@@ -100,7 +100,7 @@ end
     @test isfile(joinpath(tmpdir, "system.yaml"))
     @test isfile(joinpath(tmpdir, "settings_ram.yaml"))
     @test isfile(joinpath(tmpdir, "system_ram.yaml"))
-    cd(oldir)
+    cd(olddir)
     set_data_path(datapath)
 end
 
