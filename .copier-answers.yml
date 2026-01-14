@@ -1,0 +1,38 @@
+# Changes here will be overwritten by Copier
+AddAllcontributors: false
+AddCitationCFF: false
+AddCodeOfConduct: false
+AddCopierCI: false
+AddDocs: false
+AddDocsCI: true
+AddFormatterAndLinterConfigFiles: true
+AddGitHubPRTemplate: true
+AddGitHubTemplates: false
+AddLintCI: false
+AddLychee: true
+AddMacToCI: true
+AddPrecommit: false
+AddTagBotCI: true
+AddTestCI: true
+AddWinToCI: true
+Authors: Uwe Fechner <uwe.fechner.msc@gmail.com> and contributors
+CheckExplicitImports: false
+ConfigIndentation: 2
+GitHubActionVersionAutoUpdate: none
+JuliaCompatAutoUpdate: none
+JuliaIndentation: 4
+JuliaMinCIVersion: 1.10, 1.11
+JuliaMinVersion: 1.10, 1.11
+License: MIT
+LicenseCopyrightHolders: Uwe Fechner
+MarkdownIndentation: 2
+PackageName: KiteUtils
+PackageOwner: OpenSourceAWE
+PackageUUID: 90980105-b163-44e5-ba9f-8b1c83bb0533
+RunJuliaNightlyOnCI: false
+StrategyConfirmIncluded: true
+StrategyLevel: 1
+StrategyReviewExcluded: true
+TestingStrategy: basic_auto_discover
+UseCirrusCI: false
+_src_path: /home/ufechner/.julia/packages/BestieTemplate/GuTb8
