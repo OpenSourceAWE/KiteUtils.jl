@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner, Daan van Wolffelaar
 # SPDX-License-Identifier: MIT
 
-using Test
 using KiteUtils
+using Test
 
 @testset "KiteUtils.jl: SettingsRam      " begin
     set_data_path("data")
