@@ -38,4 +38,3 @@ StrategyLevel: 1
 StrategyReviewExcluded: true
 TestingStrategy: basic_auto_discover
 UseCirrusCI: false
-_src_path: /home/ufechner/.julia/packages/BestieTemplate/GuTb8
