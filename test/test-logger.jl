@@ -1,12 +1,14 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner, Bart van de Lint
 # SPDX-License-Identifier: MIT
 
+using KiteUtils, Test
+
 @testset "Logger:                      " begin
     set_data_path(tempdir())
     steps = 20*30
     logger = Logger(7, steps)
     state = demo_state(7)
-    for i in 1:steps
+    for _ in 1:steps
         @test (@allocated log!(logger, state)) == 0
     end
     @test logger.time_vec == zeros(steps)
