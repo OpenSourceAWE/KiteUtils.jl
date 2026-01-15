@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022 Uwe Fechner
+# SPDX-License-Identifier: MIT
+
 using KiteUtils
 using Test
 
