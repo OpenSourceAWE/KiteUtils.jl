@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022 Uwe Fechner
+# SPDX-License-Identifier: MIT
+
 # See https://docs.codecov.com/docs/codecovyml-reference for details
 coverage:
   status:
