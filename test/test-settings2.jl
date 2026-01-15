@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 using KiteUtils, Test
+
 @testset "KiteUtils.jl: Settings2      " begin
     set = se("system2.yaml")
     @test set.sim_settings == "settings2.yaml"
