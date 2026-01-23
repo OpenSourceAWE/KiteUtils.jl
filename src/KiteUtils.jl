@@ -121,7 +121,7 @@ $(TYPEDFIELDS)
 mutable struct SysLog{P}
     "name of the flight log"
     name::String
-    colmeta::Dict{Symbol, Vector{Pair{String, String}}}
+    colmeta::Dict{Symbol, Any}
     "struct of vectors that can also be accessed like a vector of structs"
     syslog::StructArray{SysState{P}}
 end
