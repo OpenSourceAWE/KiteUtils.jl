@@ -282,15 +282,16 @@ function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
     ss.Z .= Z
     pos_centre = 0.5 * (pos_C + pos_D)
     delta = pos_B - pos_centre
-    z = -normalize(delta)
-    y = normalize(pos_C - pos_D)
-    x = y × z
-    pos_kite_ = pod_pos
-    pos_before = pos_kite_ + z
-   
-    rotation = rot(pos_kite_, pos_before, -x)
-    q = QuatRotation(rotation)
-    ss.orient .= MVector{4, Float32}(Rotations.params(q))
+    let z = -normalize(delta),
+        y = normalize(pos_C - pos_D)
+        x = y × z
+        pos_kite_ = pod_pos
+        pos_before = pos_kite_ + z
+       
+        rotation = rot(pos_kite_, pos_before, -x)
+        q = QuatRotation(rotation)
+        ss.orient .= MVector{4, Float32}(Rotations.params(q))
+    end
     ss.elevation = calc_elevation([X[end], 0.0, Z[end]])
     ss.v_wind_gnd = [10.4855, 0, -3.08324]
     ss.v_wind_200m = [10.4855, 0, -3.08324]
