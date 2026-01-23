@@ -1,5 +1,7 @@
 # Copyright (c) 2025 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-cd ..
+if [[ $(basename $(pwd)) == "bin" ]]; then
+    cd ..
+fi
 pipx run reuse lint
