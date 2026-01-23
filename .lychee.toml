@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2022 Uwe Fechner
+# SPDX-License-Identifier: MIT
+
+exclude = [
+  "@ref",
+  "@cite",
+  "^https://github.com/.*/releases/tag/v.*$",
+  "^https://doi.org/FIXME$",
+  "^https://OpenSourceAWE.github.io/KiteUtils.jl/stable$",
+  "zenodo.org/badge/DOI/FIXME$"
+]
+
+exclude_path = [
+  "docs/build"
+]
