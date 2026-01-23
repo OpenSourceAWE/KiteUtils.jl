@@ -43,7 +43,7 @@ StructArrays = "0.6.18"
 StructTypes = "1.11.0"
 Test = "1"
 YAML = "0.4.12"
-julia = "1.10, 1.11"
+julia = "1.10, 1.11, 1.12"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
