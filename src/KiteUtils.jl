@@ -72,6 +72,9 @@ const MyFloat   = Float32           # type to use for position components and sc
 const DATA_PATH = ["data"]          # path for log files and other data
 const MVec3     = MVector{3, Float64}
 
+P = nothing # suppress warning about undefined global variable
+Q = nothing # suppress warning about undefined global variable
+
 function init! end
 function next_step! end
 function update_sys_state! end
@@ -329,7 +332,7 @@ function demo_log(P, name="Test_flight"; duration=10,
                    :var_15 => ["name" => "var_15"],
                    :var_16 => ["name" => "var_16"]
                    ))
-    syslog = demo_syslog(P, name, duration=duration)
+    syslog = demo_syslog(P, duration=duration)
     return SysLog{P}(name, colmeta, syslog)
 end
 

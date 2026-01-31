@@ -75,12 +75,12 @@ open(outputfile2,"w") do io
 end
 HEADER = """
 \"\"\"
-    demo_syslog(P, name="Test flight"; duration=10)
+    demo_syslog(P; duration=10)
 
-Create a demo flight log  with given name [String] and duration [s] as StructArray. P is the number of tether
+Create a demo flight log  with given duration [s] as StructArray. P is the number of tether
 particles.
 \"\"\"
-function demo_syslog(P, name="Test flight"; duration=10)
+function demo_syslog(P; duration=10)
     max_height = 6.03
     steps   = Int(duration * se().sample_freq) + 1
 """
