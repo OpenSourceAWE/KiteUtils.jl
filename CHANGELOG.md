@@ -1,5 +1,10 @@
 # Changelog
 
+### KiteUtils v0.11.1 31-01-2026
+#### Changed
+- fixed many JETLS.jl warnings
+- removed the second parameter from the function demo_syslog because it was not used
+
 ### KiteUtils v0.11.0 26-08-2025
 #### Changed
 - BREAKING: renamed c_spring to axial_stiffness and damping to axial_damping
