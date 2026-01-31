@@ -4,7 +4,8 @@
 #### Changed
 - fixed all `JETLS.jl` warnings; remark: `JETLS.jl` requires Julia 1.12
 - removed the second parameter from the function demo_syslog because it was not used
-- all test sets can now be executed independently when using `JETLS.jl` and `TestRunner.jl` from within the editor
+- all test sets can now be executed independently when using `JETLS.jl` and `https://github.com/aviatesk/TestRunner.jl` 
+  from within the editor
 
 ### KiteUtils v0.11.0 26-08-2025
 #### Changed
