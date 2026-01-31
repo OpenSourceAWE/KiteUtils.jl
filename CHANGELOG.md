@@ -6,6 +6,8 @@
 - removed the second parameter from the function demo_syslog because it was not used
 - all test sets can now be executed independently when using `JETLS.jl` and `https://github.com/aviatesk/TestRunner.jl` 
   from within the editor
+- applied `BestieTemplate.jl`; this added the files `Docs.yml`, `Test.yml`, `TestOnPRs.yml` and `ReusableTest.yml`.
+  Removed the tests from CI.yml and the `docs` section from `CI.yml`. `CI.yml` is now only running `reuse-lint`.
 
 ### KiteUtils v0.11.0 26-08-2025
 #### Changed
