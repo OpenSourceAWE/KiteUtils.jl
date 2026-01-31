@@ -4,6 +4,7 @@
 using KiteUtils, Test
 
 @testset "KiteUtils.jl: Settings       " begin
+    cd(joinpath(@__DIR__, ".."))
     @test se().sim_settings == "settings.yaml"
     @test se().log_file == joinpath("data", "log_8700W_8ms")
     @test se().time_lapse == 1.0

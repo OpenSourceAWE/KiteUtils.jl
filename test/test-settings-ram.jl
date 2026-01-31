@@ -5,6 +5,7 @@ using KiteUtils
 using Test
 
 @testset "KiteUtils.jl: SettingsRam      " begin
+    cd(joinpath(@__DIR__, ".."))
     set_data_path("data")
     set = se("system_ram.yaml")
     @test set.model == "data/ram_air_kite_body.obj"

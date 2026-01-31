@@ -4,6 +4,7 @@
 using KiteUtils, Test
 
 @testset "KiteUtils.jl: Settings2      " begin
+    cd(joinpath(@__DIR__, ".."))
     set = se("system2.yaml")
     @test set.sim_settings == "settings2.yaml"
     @test set.kcu_model == "KCU2"
