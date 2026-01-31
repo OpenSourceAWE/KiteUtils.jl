@@ -118,13 +118,16 @@ Finally it contains meta data like the name of the log file.
 
 $(TYPEDFIELDS)
 """
-mutable struct SysLog{P}
+mutable struct SysLog{P, S <: StructArray{SysState{P}}}
     "name of the flight log"
     name::String
     colmeta::Dict{Symbol, Union{String, Vector{Pair{String, String}}}}
     "struct of vectors that can also be accessed like a vector of structs"
-    syslog::StructArray{SysState{P}}
+    syslog::S
 end
+
+# Outer constructor to infer the second type parameter
+SysLog{P}(name::String, colmeta::Dict, syslog::S) where {P, S <: StructArray{SysState{P}}} = SysLog{P, S}(name, colmeta, syslog)
 
 function prepre_last(vec)
     vec[end-2]

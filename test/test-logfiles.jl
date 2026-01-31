@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner, Bart van de Lint
 # SPDX-License-Identifier: MIT
 
-using KiteUtils, Test
+using KiteUtils, Test, StructArrays
 
 @testset "KiteUtils.jl: Log files      " begin
     state = KiteUtils.demo_state(7)
@@ -18,12 +18,12 @@ using KiteUtils, Test
     set_data_path("data")
     filename="transition"
     log = import_log(filename)
-    @test typeof(log) == SysLog{11}
+    @test log isa SysLog{11}
     @test log.name == "transition"
     @test length(log.syslog) == 8180
     set_data_path(tempdir())
     log = KiteUtils.test(true)
-    @test typeof(log) == SysLog{7}
+    @test log isa SysLog{7}
     @test log.syslog.Z[end][7] ≈ 6 # height of the last particle which represents the kite (1p model)
     @test log.z1[end] ≈ 6.0
     @test log.y1[end] ≈ 0.0
