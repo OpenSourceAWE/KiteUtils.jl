@@ -4,6 +4,7 @@
 using KiteUtils, Test, StructArrays
 
 @testset "KiteUtils.jl: Log files      " begin
+    cd(joinpath(@__DIR__, ".."))
     state = KiteUtils.demo_state(7)
     @test typeof(state) == SysState{7}
     @test state.X[end] == 10.0
