@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-using REPL.TerminalMenus
+using REPL.TerminalMenus: RadioMenu, request
 
 options = ["bridle_info = include(\"bridle_info.jl\")",
            "import_csv = include(\"import_csv.jl\")",
