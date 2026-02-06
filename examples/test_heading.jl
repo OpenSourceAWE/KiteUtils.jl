@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-using KiteUtils, LinearAlgebra
+using KiteUtils, LinearAlgebra, ControlPlots
 
 """
     calc_elevation_azimuth(turn_angle; x=100.0, r=20.0)
@@ -118,3 +118,8 @@ for turn_angle in 0:30:360
     heading = calc_kite_heading(deg2rad(turn_angle))
     println("  $(turn_angle)deg => heading: $(round(rad2deg(heading), digits=2))deg")
 end
+
+# Plot heading as function of turn angle
+turn_angles = 0:1:360
+headings = [rad2deg(calc_kite_heading(deg2rad(ta))) for ta in turn_angles]
+plot(collect(turn_angles), headings; xlabel="turn angle [°]", ylabel="heading [°]", fig="heading")
