@@ -64,7 +64,7 @@ Calculate the orientation of the kite as (roll, pitch, yaw) in radian for a give
 in radian. The kite is assumed to be oriented tangentially to the circle (pointing in the
 direction of motion).
 
-The circle plane is perpendicular to the tether (from origin to `(x, 0, z)`).
+The circle plane is perpendicular to the center line (from origin to `(x, 0, z)`).
 
 The kite reference frame (KS) is defined as:
 - x: from trailing edge to leading edge (flight direction)
