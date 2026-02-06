@@ -26,7 +26,7 @@ end
 
 Calculate the elevation and azimuth angles in radian for a kite flying on a
 circle of radius `r`, centered at `(x, 0, z)` in the ENU reference frame.
-The circle plane is perpendicular to the tether (the line from the origin to
+The circle plane is perpendicular to the center line (the line from the origin to
 the center).
 
 The turn angle is measured from the top of the circle (12 o'clock position), going
