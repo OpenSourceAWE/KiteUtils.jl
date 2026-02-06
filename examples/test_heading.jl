@@ -44,9 +44,53 @@ end
 #   to the circle (pointing in the direction of motion).
 # - then, calculate the orientation of the kite as roll, pitch, yaw vector in radian
 
+"""
+    calc_orientation(turn_angle)
+
+Calculate the orientation of the kite as (roll, pitch, yaw) in radian for a given turn angle
+in degrees. The kite is assumed to be oriented tangentially to the circle (pointing in the
+direction of motion).
+
+The circle is in the plane perpendicular to the east axis, centered at `(x, 0, 0)`.
+The tangent vector is the derivative of the position with respect to the turn angle.
+
+# Arguments
+- `turn_angle`: the position of the kite on the circle in degrees (0 to 360).
+
+# Returns
+A tuple `(roll, pitch, yaw)` in radian.
+"""
+function calc_orientation(turn_angle)
+    θ = deg2rad(turn_angle)
+    # Tangent vector: derivative of position (x, -r*sin(θ), r*cos(θ)) with respect to θ
+    # d/dθ: (0, -r*cos(θ), -r*sin(θ))  — the r factor cancels after normalization
+    tangent = normalize([0.0, -cos(θ), -sin(θ)])
+
+    # In NED convention (used by quat2euler / euler2rot in this codebase):
+    #   x = North, y = East, z = Down
+    # Convert the tangent from ENU (east, north, up) to NED (north, east, down):
+    t_ned = [tangent[2], tangent[1], -tangent[3]]
+
+    # Yaw: heading in the NED horizontal plane (angle from North toward East)
+    yaw   = atan(t_ned[2], t_ned[1])
+    # Pitch: nose-up angle (positive = nose up)
+    pitch = -asin(t_ned[3])
+    # Roll: zero (the kite is not banking in this simple model)
+    roll  = 0.0
+
+    return (roll, pitch, yaw)
+end
+
 # Test the function calc_elevation_azimuth
 println("turn_angle => (elevation, azimuth)")
 for turn_angle in 0:30:360
     el, az = calc_elevation_azimuth(turn_angle)
     println("  $(turn_angle)deg => elevation: $(round(el, digits=2))deg, azimuth: $(round(az, digits=2))deg")
+end
+
+# Test the function calc_orientation
+println("\nturn_angle => (roll, pitch, yaw)")
+for turn_angle in 0:30:360
+    roll, pitch, yaw = calc_orientation(turn_angle)
+    println("  $(turn_angle)deg => roll: $(round(rad2deg(roll), digits=2))deg, pitch: $(round(rad2deg(pitch), digits=2))deg, yaw: $(round(rad2deg(yaw), digits=2))deg")
 end
