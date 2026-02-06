@@ -166,5 +166,5 @@ end
 
 # Plot heading as function of turn angle
 turn_angles = 0:1:360
-headings = [rad2deg(calc_kite_heading(deg2rad(ta); z = 50.0)) for ta in turn_angles]
+headings = [rad2deg(calc_kite_heading(deg2rad(ta); z = 300.0)) for ta in turn_angles]
 plot(collect(turn_angles), headings; xlabel="turn angle [°]", ylabel="heading [°]", fig="heading")
