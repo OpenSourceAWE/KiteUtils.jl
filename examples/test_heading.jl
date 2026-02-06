@@ -18,13 +18,13 @@ Calculate the elevation and azimuth angles in degrees for a kite flying on a ver
 circle of radius `r`, centered at `(x, 0, 0)` in the ENU reference frame.
 
 The turn angle is measured from the top of the circle (12 o'clock position), going
-clockwise when viewed from the north (positive y direction).
+clockwise when viewed from the ground station (looking downwind).
 
 # Arguments
 - `turn_angle`: the position of the kite on the circle in degrees (0 to 360).
                 0° means the top of the circle (highest point), 90° means the kite
-                is further downwind (east), 180° means the bottom, 270° means the kite
-                is closer to the ground station (west).
+                is to the right (south), 180° means the bottom, 270° means the kite
+                is to the left (north).
 - `x`: distance of the circle center from the ground station along the east axis [m]. Default: 100.0.
 - `r`: radius of the circle [m]. Default: 20.0.
 
@@ -35,11 +35,12 @@ A tuple `(elevation, azimuth)` in degrees.
 """
 function calc_elevation_azimuth(turn_angle; x=100.0, r=20.0)
     θ = deg2rad(turn_angle)
-    # Kite position on a vertical circle in the east-up plane (north = 0)
-    # turn_angle = 0° → top of circle, 90° → east (further downwind), etc.
-    kite_east  = x + r * sin(θ)
-    kite_north = 0.0
-    kite_up    = r * cos(θ)
+    # The circle is in the plane perpendicular to the downwind direction (east axis),
+    # centered at (x, 0, 0). The kite sweeps through north/south and up/down.
+    # turn_angle = 0° → top, 90° → right (south), 180° → bottom, 270° → left (north)
+    kite_east  = x
+    kite_north = -r * sin(θ)   # negative because clockwise seen from ground station
+    kite_up    =  r * cos(θ)
     pos = [kite_east, kite_north, kite_up]
     elevation = rad2deg(calc_elevation(pos))
     azimuth   = rad2deg(azimuth_east(pos))
