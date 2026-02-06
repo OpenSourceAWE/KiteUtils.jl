@@ -39,7 +39,12 @@ function calc_elevation_azimuth(turn_angle; x=100.0, r=20.0)
     return (elevation, azimuth)
 end
 
-# Test the function
+# write a function calc_orientation(turn_angle) that returns the orientation of the kite 
+# - first, calculate the unit vector in the ENU frame, assuming the kite is always oriented tangentially 
+#   to the circle (pointing in the direction of motion).
+# - then, calculate the orientation of the kite as roll, pitch, yaw vector in radian
+
+# Test the function calc_elevation_azimuth
 println("turn_angle => (elevation, azimuth)")
 for turn_angle in 0:30:360
     el, az = calc_elevation_azimuth(turn_angle)
