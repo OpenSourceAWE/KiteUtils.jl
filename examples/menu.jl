@@ -8,7 +8,7 @@ options = ["bridle_info = include(\"bridle_info.jl\")",
            "calc_rotational_inertia = include(\"calculate_rotational_inertia.jl\")",
            "quit"]
 
-function example_menu()
+function example_menu(options)
     active = true
     while active
         menu = RadioMenu(options, pagesize=8)
@@ -23,4 +23,4 @@ function example_menu()
     end
 end
 
-example_menu()
+example_menu(options)
