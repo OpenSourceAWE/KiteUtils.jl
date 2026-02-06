@@ -6,65 +6,58 @@ using KiteUtils, LinearAlgebra
 """
     calc_elevation_azimuth(turn_angle; x=100.0, r=20.0)
 
-Calculate the elevation and azimuth angles in degrees for a kite flying on a vertical
+Calculate the elevation and azimuth angles in radian for a kite flying on a vertical
 circle of radius `r`, centered at `(x, 0, 0)` in the ENU reference frame.
 
 The turn angle is measured from the top of the circle (12 o'clock position), going
 clockwise when viewed from the ground station (looking downwind).
 
 # Arguments
-- `turn_angle`: the position of the kite on the circle in degrees (0 to 360).
-                0° means the top of the circle (highest point), 90° means the kite
-                is to the right (south), 180° means the bottom, 270° means the kite
+- `turn_angle`: the position of the kite on the circle in radian (0 to 2π).
+                0 means the top of the circle (highest point), π/2 means the kite
+                is to the right (south), π means the bottom, 3π/2 means the kite
                 is to the left (north).
 - `x`: distance of the circle center from the ground station along the east axis [m]. Default: 100.0.
 - `r`: radius of the circle [m]. Default: 20.0.
 
 # Returns
-A tuple `(elevation, azimuth)` in degrees.
+A tuple `(elevation, azimuth)` in radian.
 - `elevation`: the elevation angle of the kite as seen from the ground station.
 - `azimuth`: the azimuth angle (east-based) of the kite as seen from the ground station.
 """
 function calc_elevation_azimuth(turn_angle; x=100.0, r=20.0)
-    θ = deg2rad(turn_angle)
     # The circle is in the plane perpendicular to the downwind direction (east axis),
     # centered at (x, 0, 0). The kite sweeps through north/south and up/down.
-    # turn_angle = 0° → top, 90° → right (south), 180° → bottom, 270° → left (north)
+    # turn_angle = 0 → top, π/2 → right (south), π → bottom, 3π/2 → left (north)
     kite_east  = x
-    kite_north = -r * sin(θ)   # negative because clockwise seen from ground station
-    kite_up    =  r * cos(θ)
+    kite_north = -r * sin(turn_angle)   # negative because clockwise seen from ground station
+    kite_up    =  r * cos(turn_angle)
     pos = [kite_east, kite_north, kite_up]
-    elevation = rad2deg(calc_elevation(pos))
-    azimuth   = rad2deg(azimuth_east(pos))
+    elevation = calc_elevation(pos)
+    azimuth   = azimuth_east(pos)
     return (elevation, azimuth)
 end
-
-# write a function calc_orientation(turn_angle) that returns the orientation of the kite 
-# - first, calculate the unit vector in the ENU frame, assuming the kite is always oriented tangentially 
-#   to the circle (pointing in the direction of motion).
-# - then, calculate the orientation of the kite as roll, pitch, yaw vector in radian
 
 """
     calc_orientation(turn_angle)
 
 Calculate the orientation of the kite as (roll, pitch, yaw) in radian for a given turn angle
-in degrees. The kite is assumed to be oriented tangentially to the circle (pointing in the
+in radian. The kite is assumed to be oriented tangentially to the circle (pointing in the
 direction of motion).
 
 The circle is in the plane perpendicular to the east axis, centered at `(x, 0, 0)`.
 The tangent vector is the derivative of the position with respect to the turn angle.
 
 # Arguments
-- `turn_angle`: the position of the kite on the circle in degrees (0 to 360).
+- `turn_angle`: the position of the kite on the circle in radian (0 to 2π).
 
 # Returns
 A tuple `(roll, pitch, yaw)` in radian.
 """
 function calc_orientation(turn_angle)
-    θ = deg2rad(turn_angle)
     # Tangent vector: derivative of position (x, -r*sin(θ), r*cos(θ)) with respect to θ
     # d/dθ: (0, -r*cos(θ), -r*sin(θ))  — the r factor cancels after normalization
-    tangent = normalize([0.0, -cos(θ), -sin(θ)])
+    tangent = normalize([0.0, -cos(turn_angle), -sin(turn_angle)])
 
     # In NED convention (used by quat2euler / euler2rot in this codebase):
     #   x = North, y = East, z = Down
@@ -84,13 +77,13 @@ end
 # Test the function calc_elevation_azimuth
 println("turn_angle => (elevation, azimuth)")
 for turn_angle in 0:30:360
-    el, az = calc_elevation_azimuth(turn_angle)
-    println("  $(turn_angle)deg => elevation: $(round(el, digits=2))deg, azimuth: $(round(az, digits=2))deg")
+    el, az = calc_elevation_azimuth(deg2rad(turn_angle))
+    println("  $(turn_angle)deg => elevation: $(round(rad2deg(el), digits=2))deg, azimuth: $(round(rad2deg(az), digits=2))deg")
 end
 
 # Test the function calc_orientation
 println("\nturn_angle => (roll, pitch, yaw)")
 for turn_angle in 0:30:360
-    roll, pitch, yaw = calc_orientation(turn_angle)
+    roll, pitch, yaw = calc_orientation(deg2rad(turn_angle))
     println("  $(turn_angle)deg => roll: $(round(rad2deg(roll), digits=2))deg, pitch: $(round(rad2deg(pitch), digits=2))deg, yaw: $(round(rad2deg(yaw), digits=2))deg")
 end
