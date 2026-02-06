@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-using KiteUtils
+using KiteUtils: load_settings, get_particles, set_data_path, calculate_rotational_inertia
 
-if basename(pwd()) == "examples" 
+if basename(pwd()) == "examples"
     set_data_path("../data")
 else
     set_data_path("data")
@@ -12,8 +12,8 @@ end
 function calculate_inertia_for_setting(settings_file::String, include_kcu::Bool=true, around_kcu::Bool=false)
     set = deepcopy(load_settings(settings_file))
 
-    points = KiteUtils.get_particles(set.height_k, set.h_bridle, set.width, set.m_k, [0, 0, 0], [0, 0, -1], [10, 0, 0])
-    
+    points = get_particles(set.height_k, set.h_bridle, set.width, set.m_k, [0, 0, 0], [0, 0, -1], [10, 0, 0])
+
     pos_matrix = [points[begin+1] points[begin+2] points[begin+3] points[begin+4] points[begin+5]]
     X = pos_matrix[begin, :]
     Y = pos_matrix[begin+1, :]
@@ -22,7 +22,7 @@ function calculate_inertia_for_setting(settings_file::String, include_kcu::Bool=
     k2 = set.rel_top_mass * (1.0 - set.rel_nose_mass)
     k3 = 0.5 * (1.0 - set.rel_top_mass) * (1.0 - set.rel_nose_mass)
     M = [set.kcu_mass, set.rel_nose_mass * set.mass, k2 * set.mass, k3 * set.mass, k3 * set.mass]
-    
+
     if !include_kcu
         X = X[begin+1:end]
         Y = Y[begin+1:end]
@@ -61,7 +61,7 @@ function print_settings(include_kcu::Bool=true, around_kcu::Bool=false)
         out *= " around the kcu."
     else
         out *= " around the center of mass."
-    end 
+    end
 
     println(out)
 end
