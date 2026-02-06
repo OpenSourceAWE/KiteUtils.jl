@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-using KiteUtils, LinearAlgebra, ControlPlots, Rotations
+using ControlPlots, KiteUtils, LinearAlgebra, Rotations
 
 """
     calc_circle_basis(x, z)
