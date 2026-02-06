@@ -74,6 +74,30 @@ function calc_orientation(turn_angle)
     return (roll, pitch, yaw)
 end
 
+"""
+    calc_heading(turn_angle; x=100.0, r=20.0)
+
+Calculate the heading of the kite in radian for a given turn angle in radian.
+The heading is the direction the nose of the kite is pointing to, where 0 means
+the kite is flying upwards (in the SE reference frame).
+
+Uses `calc_orientation` to get the kite orientation and `calc_elevation_azimuth` to get
+the elevation and azimuth, then calls `calc_heading` from KiteUtils.jl.
+
+# Arguments
+- `turn_angle`: the position of the kite on the circle in radian (0 to 2π).
+- `x`: distance of the circle center from the ground station along the east axis [m]. Default: 100.0.
+- `r`: radius of the circle [m]. Default: 20.0.
+
+# Returns
+The heading angle in radian.
+"""
+function calc_kite_heading(turn_angle; x=100.0, r=20.0)
+    orientation = collect(calc_orientation(turn_angle))
+    el, az = calc_elevation_azimuth(turn_angle; x=x, r=r)
+    calc_heading(orientation, el, az)
+end
+
 # Test the function calc_elevation_azimuth
 println("turn_angle => (elevation, azimuth)")
 for turn_angle in 0:30:360
@@ -86,4 +110,11 @@ println("\nturn_angle => (roll, pitch, yaw)")
 for turn_angle in 0:30:360
     roll, pitch, yaw = calc_orientation(deg2rad(turn_angle))
     println("  $(turn_angle)deg => roll: $(round(rad2deg(roll), digits=2))deg, pitch: $(round(rad2deg(pitch), digits=2))deg, yaw: $(round(rad2deg(yaw), digits=2))deg")
+end
+
+# Test the function calc_kite_heading
+println("\nturn_angle => heading")
+for turn_angle in 0:30:360
+    heading = calc_kite_heading(deg2rad(turn_angle))
+    println("  $(turn_angle)deg => heading: $(round(rad2deg(heading), digits=2))deg")
 end
