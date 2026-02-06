@@ -7,17 +7,17 @@ using ControlPlots, KiteUtils, LinearAlgebra, Rotations
     calc_circle_basis(x, z)
 
 Compute the orthonormal basis vectors `(e1, e2)` for the circle plane perpendicular
-to the tether. The tether goes from the origin to `(x, 0, z)` in ENU.
+to the center line. The center line goes from the origin to `(x, 0, z)` in ENU.
 
-- `e1`: the "up" direction in the circle plane (component of world-up perpendicular to tether).
+- `e1`: the "up" direction in the circle plane (component of world-up perpendicular to center line).
 - `e2`: the "right" direction when viewed from the ground station (`cross(d, e1)`).
 """
 function calc_circle_basis(x, z)
-    d = normalize([x, 0.0, z])           # tether direction (ENU)
+    d = normalize([x, 0.0, z])           # center line direction (ENU)
     up = [0.0, 0.0, 1.0]                 # world up
-    e1_raw = up - dot(up, d) * d          # up component ⊥ tether
+    e1_raw = up - dot(up, d) * d         # up component ⊥ center line
     e1 = normalize(e1_raw)
-    e2 = cross(d, e1)                     # right when viewed from ground station
+    e2 = cross(d, e1)                    # right when viewed from ground station
     return (e1, e2)
 end
 
