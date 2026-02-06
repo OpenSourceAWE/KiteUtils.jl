@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-using KiteUtils, LinearAlgebra, ControlPlots
+using KiteUtils, LinearAlgebra, ControlPlots, Rotations
 
 """
     calc_circle_basis(x, z)
@@ -58,37 +58,55 @@ function calc_elevation_azimuth(turn_angle; x=100.0, z=0.0, r=20.0)
 end
 
 """
-    calc_orientation(turn_angle; x=100.0, z=0.0)
+    calc_orientation(turn_angle; x=100.0, z=0.0, r=20.0)
 
 Calculate the orientation of the kite as (roll, pitch, yaw) in radian for a given turn angle
 in radian. The kite is assumed to be oriented tangentially to the circle (pointing in the
 direction of motion).
 
 The circle plane is perpendicular to the tether (from origin to `(x, 0, z)`).
-The tangent vector is the derivative of the kite position with respect to the turn angle.
+
+The kite reference frame (KS) is defined as:
+- x: from trailing edge to leading edge (flight direction)
+- y: to the right looking in flight direction
+- z: down (along the tether toward the ground station)
+
+The orientation is expressed with respect to the NED reference frame using
+`calc_orient_rot` and `quat2euler` from KiteUtils.jl.
 
 # Arguments
 - `turn_angle`: the position of the kite on the circle in radian (0 to 2π).
 - `x`: distance of the circle center from the ground station along the east axis [m]. Default: 100.0.
 - `z`: height of the circle center above the ground [m]. Default: 0.0.
+- `r`: radius of the circle [m]. Default: 20.0.
 
 # Returns
 A tuple `(roll, pitch, yaw)` in radian.
 """
-function calc_orientation(turn_angle; x=100.0, z=0.0)
+function calc_orientation(turn_angle; x=100.0, z=0.0, r=20.0)
+    center = [x, 0.0, z]
     e1, e2 = calc_circle_basis(x, z)
-    # Tangent: d/dθ [center + r*cos(θ)*e1 + r*sin(θ)*e2] = -r*sin(θ)*e1 + r*cos(θ)*e2
+
+    # Kite position on the circle (ENU)
+    pos = center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
+
+    # z_kite (ENU): points down along the tether, from kite toward ground station
+    z_kite = -normalize(pos)
+
+    # Tangent vector = flight direction (ENU)
     tangent = normalize(-sin(turn_angle) * e1 + cos(turn_angle) * e2)
 
-    # Convert tangent from ENU to NED: (north, east, down) = (enu[2], enu[1], -enu[3])
-    t_ned = [tangent[2], tangent[1], -tangent[3]]
+    # x_kite (ENU): leading edge direction, must be ⊥ z_kite
+    # Orthogonalize tangent against z_kite
+    x_kite = normalize(tangent - dot(tangent, z_kite) * z_kite)
 
-    # Yaw: heading in the NED horizontal plane (angle from North toward East)
-    yaw   = atan(t_ned[2], t_ned[1])
-    # Pitch: nose-up angle (positive = nose up)
-    pitch = -asin(clamp(t_ned[3], -1.0, 1.0))
-    # Roll: zero (the kite is not banking in this simple model)
-    roll  = 0.0
+    # y_kite (ENU): to the right looking in flight direction
+    y_kite = cross(z_kite, x_kite)
+
+    # Compute rotation matrix and extract Euler angles (roll, pitch, yaw) w.r.t. NED
+    rotation = calc_orient_rot(x_kite, y_kite, z_kite)
+    q = QuatRotation(rotation)
+    roll, pitch, yaw = quat2euler(q)
 
     return (roll, pitch, yaw)
 end
@@ -113,7 +131,7 @@ the elevation and azimuth, then calls `calc_heading` from KiteUtils.jl.
 The heading angle in radian.
 """
 function calc_kite_heading(turn_angle; x=100.0, z=0.0, r=20.0)
-    orientation = collect(calc_orientation(turn_angle; x=x, z=z))
+    orientation = collect(calc_orientation(turn_angle; x=x, z=z, r=r))
     el, az = calc_elevation_azimuth(turn_angle; x=x, z=z, r=r)
     calc_heading(orientation, el, az)
 end
