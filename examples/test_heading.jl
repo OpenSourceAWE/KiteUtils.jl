@@ -3,14 +3,6 @@
 
 using KiteUtils, LinearAlgebra
 
-# write calc_elevation_azimuth(turn_angle) that returns a tuple (elevation, azimuth) for a given turn angle in degrees. The elevation should be calculated as 90 - turn_angle, and the azimuth should be equal to the turn_angle.   
-# assumptions:
-# - turn_angle is in degrees and ranges from 0 to 360
-# - the kite is flying in a vertical plane on a circle around the center of the circle, 
-#   which is at  (x, 0, 0) (distance x from the attachment point of the tether)
-# - the radius of the circle is r 
-# - the tether is straight and taut, so the kite is always at a distance r from the center of the circle
-
 """
     calc_elevation_azimuth(turn_angle; x=100.0, r=20.0)
 
