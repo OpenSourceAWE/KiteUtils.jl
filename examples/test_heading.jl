@@ -203,12 +203,21 @@ end
 plt.figure("heading and position", figsize=(10, 8))
 
 plt.subplot(2, 1, 1)
+colors = ["C0", "C1", "C2", "C3"]
 for i in eachindex(theta)
-    plt.plot(collect(turn_angles), ys_all[i], label=y_labels[i])
-    plt.plot(collect(turn_angles), zs_all[i], label=z_labels[i])
+    y_lbl = i == 1 ? "y" : nothing
+    z_lbl = i == 1 ? "z" : nothing
+    plt.plot(collect(turn_angles), ys_all[i], "-", color=colors[i], label=y_lbl)
+    plt.plot(collect(turn_angles), zs_all[i], ":", color=colors[i], label=z_lbl)
 end
 plt.ylabel("y, z [m]")
-plt.legend()
+yz_handles = [plt.matplotlib.lines.Line2D([0], [0], color="black", linestyle="-", label="y"),
+              plt.matplotlib.lines.Line2D([0], [0], color="black", linestyle=":", label="z")]
+leg1 = plt.legend(handles=yz_handles, loc="lower left")
+plt.gca().add_artist(leg1)
+# Second legend for theta/color mapping
+theta_handles = [plt.matplotlib.lines.Line2D([0], [0], color=colors[i], label="θ=$(theta[i])°") for i in eachindex(theta)]
+plt.legend(handles=theta_handles, loc="lower right")
 plt.grid(true)
 
 plt.subplot(2, 1, 2)
