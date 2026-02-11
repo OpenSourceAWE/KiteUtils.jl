@@ -42,23 +42,23 @@ SOFTWARE. =#
 # the parameter P is the number of points of the tether, equal to segments+1
 # in addition helper functions for working with rotations
 
-using PrecompileTools: @setup_workload, @compile_workload 
-using Rotations, StaticArrays, StructArrays, RecursiveArrayTools, Arrow, YAML, LinearAlgebra, DocStringExtensions
-using Parameters, StructTypes, CSV, Parsers, Pkg
-export Settings, SysState, SysLog, Logger, MyFloat
+using PrecompileTools: @compile_workload, @setup_workload 
+using Arrow, DocStringExtensions, LinearAlgebra, RecursiveArrayTools, Rotations, StaticArrays, StructArrays, YAML
+using CSV, Parameters, Parsers, Pkg, StructTypes
+export Logger, MyFloat, Settings, SysLog, SysState
 
 import Base.length
 import ReferenceFrameRotations as RFR
-export demo_state, demo_syslog, demo_log, load_log, save_log, export_log, import_log # functions for logging
-export log!, syslog, length, euler2rot, menu
-export demo_state_4p, initial_kite_ref_frame       # functions for four point kite model
-export rot, rot3d, ground_dist, calc_elevation, azimuth_east, azimuth_north, asin2 
-export acos2, wrap2pi, quat2euler, quat2viewer                           # geometric functions
-export fromEG2W, fromENU2EG,fromW2SE, fromKS2EX, fromEX2EG               # reference frame transformations
-export azn2azw, calc_heading_w, calc_heading, calc_course                # geometric functions
-export calc_orient_rot, is_right_handed_orthonormal, enu2ned, ned2enu
-export set_data_path, get_data_path, load_settings, copy_settings        # functions for reading and copying parameters
-export se, se_dict, update_settings, wc_settings, fpc_settings, fpp_settings
+export demo_log, demo_state, demo_syslog, export_log, import_log, load_log, save_log # functions for logging
+export euler2rot, length, log!, menu, syslog
+export demo_state_4p, initial_kite_ref_frame                              # functions for four point kite model
+export asin2, azimuth_east, azimuth_north, calc_elevation, ground_dist, rot, rot3d 
+export acos2, quat2euler, quat2viewer, wrap2pi                            # geometric functions
+export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE               # reference frame transformations
+export azn2azw, calc_heading_w, calc_heading, calc_course                 # geometric functions
+export calc_orient_rot, enu2ned, is_right_handed_orthonormal, ned2enu
+export copy_settings, get_data_path, load_settings, set_data_path         # functions for reading and copying parameters
+export fpc_settings, fpp_settings, se, se_dict, update_settings, wc_settings
 export calculate_rotational_inertia
 export AbstractKiteModel
 export init!, next_step!, update_sys_state!
