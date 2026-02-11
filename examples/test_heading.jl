@@ -149,12 +149,12 @@ function calc_kite_heading(turn_angle; x=100.0, z=0.0, r=20.0)
     calc_heading(orientation, el, az; respos=false)
 end
 
-# Test the function calc_elevation_azimuth
-println("turn_angle => (elevation, azimuth)")
-for turn_angle in 0:30:360
-    el, az = calc_elevation_azimuth(deg2rad(turn_angle))
-    println("  $(turn_angle)deg => elevation: $(round(rad2deg(el), digits=2))deg, azimuth: $(round(rad2deg(az), digits=2))deg")
-end
+# # Test the function calc_elevation_azimuth
+# println("turn_angle => (elevation, azimuth)")
+# for turn_angle in 0:30:360
+#     el, az = calc_elevation_azimuth(deg2rad(turn_angle))
+#     println("  $(turn_angle)deg => elevation: $(round(rad2deg(el), digits=2))deg, azimuth: $(round(rad2deg(az), digits=2))deg")
+# end
 
 # # Test the function calc_orientation
 # println("\nturn_angle => (roll, pitch, yaw)")
@@ -180,7 +180,7 @@ end
 # Compute data for multiple θ values
 const theta = [30, 45, 60, 75]
 turn_angles = 0:1:360
-x = 50.0
+max_height = 50.0  # Desired max height at the top of the circle (turn_angle=0)
 
 ys_all = Vector{Vector{Float64}}()
 zs_all = Vector{Vector{Float64}}()
@@ -190,7 +190,9 @@ z_labels = String[]
 h_labels = String[]
 
 for θ in theta
-    r = calc_r(x, deg2rad(θ))
+    local r
+    r = max_height * sin(deg2rad(θ))  # Set r such that the kite is at max_height at the top of the circle
+    x = r / tan(deg2rad(θ))
     push!(ys_all, [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)[2] for ta in turn_angles])
     push!(zs_all, [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)[3] for ta in turn_angles])
     push!(headings_all, [rad2deg(calc_kite_heading(deg2rad(ta); x=x, z=0.0, r=r)) for ta in turn_angles])
