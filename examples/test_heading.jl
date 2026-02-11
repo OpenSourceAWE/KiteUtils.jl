@@ -178,7 +178,7 @@ function calc_kite_pos(turn_angle; x=100.0, z=0.0, r=20.0)
 end
 
 # Compute data for multiple θ values
-theta = [30, 45, 60, 75]
+const theta = [30, 45, 60, 75]
 turn_angles = 0:1:360
 x = 50.0
 
@@ -200,6 +200,25 @@ for θ in theta
 end
 
 # Combined plot: "y and z" on top, "heading (β)" on bottom
-plotx(collect(turn_angles), vcat(ys_all, zs_all), headings_all;
-      xlabel="turn angle [°]", ylabels=["y, z [m]", "β [°]"],
-      labels=[vcat(y_labels, z_labels), h_labels], fig="heading and position")
+plt.figure("heading and position", figsize=(10, 8))
+
+plt.subplot(2, 1, 1)
+for i in eachindex(theta)
+    plt.plot(collect(turn_angles), ys_all[i], label=y_labels[i])
+    plt.plot(collect(turn_angles), zs_all[i], label=z_labels[i])
+end
+plt.ylabel("y, z [m]")
+plt.legend()
+plt.grid(true)
+
+plt.subplot(2, 1, 2)
+for i in eachindex(theta)
+    plt.plot(collect(turn_angles), headings_all[i], label=h_labels[i])
+end
+plt.xlabel("turn angle [°]")
+plt.ylabel("β [°]")
+plt.legend()
+plt.grid(true)
+
+plt.tight_layout()
+plt.show(block=false)
