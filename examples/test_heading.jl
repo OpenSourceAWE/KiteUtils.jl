@@ -21,6 +21,19 @@ function calc_circle_basis(x, z)
     return (e1, e2)
 end
 
+function calc_theta(x, r)
+    # Calculate the angle θ between the center line and the line from the ground station to the kite
+    # when the kite is at the top of the circle (turn_angle = 0).
+    # This is used to verify that the elevation angle at turn_angle=0 matches θ.
+    return atan(r, x)
+end
+
+function calc_r(x, theta)
+    # Calculate the circle radius r from the distance x and the angle θ.
+    # Inverse of calc_theta: given θ = atan(r, x), we get r = x * tan(θ).
+    return x * tan(theta)
+end
+
 """
     calc_elevation_azimuth(turn_angle; x=100.0, z=0.0, r=20.0)
 
@@ -133,7 +146,7 @@ The heading angle in radian.
 function calc_kite_heading(turn_angle; x=100.0, z=0.0, r=20.0)
     orientation = collect(calc_orientation(turn_angle; x=x, z=z, r=r))
     el, az = calc_elevation_azimuth(turn_angle; x=x, z=z, r=r)
-    calc_heading(orientation, el, az)
+    calc_heading(orientation, el, az; respos=false)
 end
 
 # Test the function calc_elevation_azimuth
@@ -143,28 +156,34 @@ for turn_angle in 0:30:360
     println("  $(turn_angle)deg => elevation: $(round(rad2deg(el), digits=2))deg, azimuth: $(round(rad2deg(az), digits=2))deg")
 end
 
-# Test the function calc_orientation
-println("\nturn_angle => (roll, pitch, yaw)")
-for turn_angle in 0:30:360
-    roll, pitch, yaw = calc_orientation(deg2rad(turn_angle))
-    println("  $(turn_angle)deg => roll: $(round(rad2deg(roll), digits=2))deg, pitch: $(round(rad2deg(pitch), digits=2))deg, yaw: $(round(rad2deg(yaw), digits=2))deg")
-end
+# # Test the function calc_orientation
+# println("\nturn_angle => (roll, pitch, yaw)")
+# for turn_angle in 0:30:360
+#     roll, pitch, yaw = calc_orientation(deg2rad(turn_angle))
+#     println("  $(turn_angle)deg => roll: $(round(rad2deg(roll), digits=2))deg, pitch: $(round(rad2deg(pitch), digits=2))deg, yaw: $(round(rad2deg(yaw), digits=2))deg")
+# end
 
-# Test with elevated center (z=50)
-println("\nturn_angle => (roll, pitch, yaw) [z=50]")
-for turn_angle in 0:30:360
-    roll, pitch, yaw = calc_orientation(deg2rad(turn_angle); z=50.0)
-    println("  $(turn_angle)deg => roll: $(round(rad2deg(roll), digits=2))deg, pitch: $(round(rad2deg(pitch), digits=2))deg, yaw: $(round(rad2deg(yaw), digits=2))deg")
-end
-
-# Test the function calc_kite_heading
-println("\nturn_angle => heading")
-for turn_angle in 0:30:360
-    heading = calc_kite_heading(deg2rad(turn_angle))
-    println("  $(turn_angle)deg => heading: $(round(rad2deg(heading), digits=2))deg")
-end
+# # Test the function calc_kite_heading
+# println("\nturn_angle => heading")
+# for turn_angle in 0:30:360
+#     heading = calc_kite_heading(deg2rad(turn_angle))
+#     println("  $(turn_angle)deg => heading: $(round(rad2deg(heading), digits=2))deg")
+# end
 
 # Plot heading as function of turn angle
 turn_angles = 0:1:360
-headings = [rad2deg(calc_kite_heading(deg2rad(ta); z = 300.0)) for ta in turn_angles]
+x = 50.0
+radius = calc_r(x, deg2rad(30))
+headings = [rad2deg(calc_kite_heading(deg2rad(ta); x=x, z = 0.0, r=radius)) for ta in turn_angles]
 plot(collect(turn_angles), headings; xlabel="turn angle [°]", ylabel="heading [°]", fig="heading")
+
+# Plot y and z of kite position as function of turn angle
+function calc_kite_pos(turn_angle; x=100.0, z=0.0, r=20.0)
+    center = [x, 0.0, z]
+    e1, e2 = calc_circle_basis(x, z)
+    return center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
+end
+
+ys = [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=radius)[2] for ta in turn_angles]
+zs = [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=radius)[3] for ta in turn_angles]
+plot(collect(turn_angles), [ys, zs]; xlabel="turn angle [°]", ylabel="y, z [m]", labels=["y [m]", "z [m]"], fig="y and z")
