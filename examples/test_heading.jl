@@ -185,9 +185,11 @@ max_height = 50.0  # Desired max height at the top of the circle (turn_angle=0)
 ys_all = Vector{Vector{Float64}}()
 zs_all = Vector{Vector{Float64}}()
 headings_all = Vector{Vector{Float64}}()
+psi_dot_all = Vector{Vector{Float64}}()
 y_labels = String[]
 z_labels = String[]
 h_labels = String[]
+pd_labels = String[]
 
 for θ in theta
     local r
@@ -198,13 +200,34 @@ for θ in theta
     push!(headings_all, [rad2deg(calc_kite_heading(deg2rad(ta); x=x, z=0.0, r=r)) for ta in turn_angles])
     push!(y_labels, "y (θ=$(θ)°)")
     push!(z_labels, "z (θ=$(θ)°)")
-    push!(h_labels, "β (θ=$(θ)°)")
+    push!(h_labels, "Ψ (θ=$(θ)°)")
+    # Compute Ψ̇ = dΨ/d(turn_angle) using finite differences
+    # First unwrap the heading to remove ±180° discontinuities
+    h = headings_all[end]
+    h_unwrap = copy(h)
+    for j in 2:length(h_unwrap)
+        while h_unwrap[j] - h_unwrap[j-1] > 180
+            h_unwrap[j] -= 360
+        end
+        while h_unwrap[j] - h_unwrap[j-1] < -180
+            h_unwrap[j] += 360
+        end
+    end
+    dt = 1.0  # turn_angle step in degrees
+    dh = similar(h)
+    for j in 2:length(h_unwrap)-1
+        dh[j] = (h_unwrap[j+1] - h_unwrap[j-1]) / (2 * dt)
+    end
+    dh[1] = (h_unwrap[2] - h_unwrap[1]) / dt
+    dh[end] = (h_unwrap[end] - h_unwrap[end-1]) / dt
+    push!(psi_dot_all, dh)
+    push!(pd_labels, "\$\\dot{\\Psi}\$ (θ=$(θ)°)")
 end
 
-# Combined plot: "y and z" on top, "heading (β)" on bottom
-plt.figure("heading and position", figsize=(10, 8))
+# Combined plot: "y and z" on top, "heading (Ψ)" in middle, "Ψ̇" on bottom
+plt.figure("heading and position", figsize=(10, 11))
 
-plt.subplot(2, 1, 1)
+plt.subplot(3, 1, 1)
 colors = ["C0", "C1", "C2", "C3"]
 for i in eachindex(theta)
     y_lbl = i == 1 ? "y" : nothing
@@ -222,12 +245,20 @@ theta_handles = [plt.matplotlib.lines.Line2D([0], [0], color=colors[i], label="�
 plt.legend(handles=theta_handles, loc="lower right")
 plt.grid(true)
 
-plt.subplot(2, 1, 2)
+plt.subplot(3, 1, 2)
 for i in eachindex(theta)
     plt.plot(collect(turn_angles), headings_all[i], label=h_labels[i])
 end
+plt.ylabel("Ψ [°]")
+plt.legend()
+plt.grid(true)
+
+plt.subplot(3, 1, 3)
+for i in eachindex(theta)
+    plt.plot(collect(turn_angles), psi_dot_all[i], label=pd_labels[i])
+end
 plt.xlabel("turn angle [°]")
-plt.ylabel("β [°]")
+plt.ylabel("\$\\dot{\\Psi}\$ [°/°]")
 plt.legend()
 plt.grid(true)
 
