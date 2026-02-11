@@ -170,20 +170,36 @@ end
 #     println("  $(turn_angle)deg => heading: $(round(rad2deg(heading), digits=2))deg")
 # end
 
-# Plot heading as function of turn angle
-turn_angles = 0:1:360
-x = 50.0
-radius = calc_r(x, deg2rad(30))
-headings = [rad2deg(calc_kite_heading(deg2rad(ta); x=x, z = 0.0, r=radius)) for ta in turn_angles]
-plot(collect(turn_angles), headings; xlabel="turn angle [°]", ylabel="heading [°]", fig="heading")
-
-# Plot y and z of kite position as function of turn angle
+# Helper: kite position on circle
 function calc_kite_pos(turn_angle; x=100.0, z=0.0, r=20.0)
     center = [x, 0.0, z]
     e1, e2 = calc_circle_basis(x, z)
     return center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
 end
 
-ys = [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=radius)[2] for ta in turn_angles]
-zs = [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=radius)[3] for ta in turn_angles]
-plot(collect(turn_angles), [ys, zs]; xlabel="turn angle [°]", ylabel="y, z [m]", labels=["y [m]", "z [m]"], fig="y and z")
+# Compute data for multiple θ values
+theta = [30, 45, 60, 75]
+turn_angles = 0:1:360
+x = 50.0
+
+ys_all = Vector{Vector{Float64}}()
+zs_all = Vector{Vector{Float64}}()
+headings_all = Vector{Vector{Float64}}()
+y_labels = String[]
+z_labels = String[]
+h_labels = String[]
+
+for θ in theta
+    r = calc_r(x, deg2rad(θ))
+    push!(ys_all, [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)[2] for ta in turn_angles])
+    push!(zs_all, [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)[3] for ta in turn_angles])
+    push!(headings_all, [rad2deg(calc_kite_heading(deg2rad(ta); x=x, z=0.0, r=r)) for ta in turn_angles])
+    push!(y_labels, "y (θ=$(θ)°)")
+    push!(z_labels, "z (θ=$(θ)°)")
+    push!(h_labels, "β (θ=$(θ)°)")
+end
+
+# Combined plot: "y and z" on top, "heading (β)" on bottom
+plotx(collect(turn_angles), vcat(ys_all, zs_all), headings_all;
+      xlabel="turn angle [°]", ylabels=["y, z [m]", "β [°]"],
+      labels=[vcat(y_labels, z_labels), h_labels], fig="heading and position")
