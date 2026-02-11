@@ -1,5 +1,9 @@
 # Changelog
 
+### KiteUtils v0.11.2 11-02-2026
+#### Changed
+- updated StructArrays to latest version
+
 ### KiteUtils v0.11.1 31-01-2026
 #### Changed
 - fixed all `JETLS.jl` warnings; remark: `JETLS.jl` requires Julia 1.12
