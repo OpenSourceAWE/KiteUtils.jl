@@ -1,6 +1,11 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
+using Pkg
+if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+    Pkg.activate("examples")
+end
+
 using ControlPlots, KiteUtils, LinearAlgebra, Rotations
 
 """
