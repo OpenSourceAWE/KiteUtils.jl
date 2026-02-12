@@ -228,43 +228,55 @@ for θ in theta
     push!(pd_labels, "\$\\dot{\\Psi}\$ (θ=$(θ)°)")
 end
 
-# Combined plot: "y and z" on top, "heading (Ψ)" in middle, "heading rate" on bottom
-plt.figure("heading and position", figsize=(10, 11))
+function plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_all, psi_dot_all, h_labels, pd_labels)
+    # Combined plot: "y and z" on top, "heading (Ψ)" in middle, "heading rate" on bottom
+    plt.figure("heading and position", figsize=(10, 11))
 
-plt.subplot(3, 1, 1)
-colors = ["C0", "C1", "C2", "C3"]
-for i in eachindex(theta)
-    y_lbl = i == 1 ? "y" : nothing
-    z_lbl = i == 1 ? "z" : nothing
-    plt.plot(collect(turn_angles), ys_all[i], "-", color=colors[i], label=y_lbl)
-    plt.plot(collect(turn_angles), zs_all[i], ":", color=colors[i], label=z_lbl)
+    plt.subplot(3, 1, 1)
+    colors = ["C0", "C1", "C2", "C3"]
+    for i in eachindex(theta)
+        y_lbl = i == 1 ? "y" : nothing
+        z_lbl = i == 1 ? "z" : nothing
+        plt.plot(collect(turn_angles), ys_all[i], "-", color=colors[i], label=y_lbl)
+        plt.plot(collect(turn_angles), zs_all[i], ":", color=colors[i], label=z_lbl)
+    end
+    plt.ylabel("y, z [m]")
+    yz_handles = [plt.matplotlib.lines.Line2D([0], [0], color="black", linestyle="-", label="y"),
+                  plt.matplotlib.lines.Line2D([0], [0], color="black", linestyle=":", label="z")]
+    leg1 = plt.legend(handles=yz_handles, loc="lower left")
+    plt.gca().add_artist(leg1)
+    # Second legend for theta/color mapping
+    theta_handles = [plt.matplotlib.lines.Line2D([0], [0], color=colors[i], label="θ=$(theta[i])°") for i in eachindex(theta)]
+    plt.legend(handles=theta_handles, loc="lower right")
+    plt.grid(true)
+
+    plt.subplot(3, 1, 2)
+    for i in eachindex(theta)
+        plt.plot(collect(turn_angles), headings_all[i], label=h_labels[i])
+    end
+    plt.ylabel("Ψ [°]")
+    plt.legend()
+    plt.grid(true)
+
+    plt.subplot(3, 1, 3)
+    for i in eachindex(theta)
+        plt.plot(collect(turn_angles), psi_dot_all[i], label=pd_labels[i])
+    end
+    plt.xlabel("turn angle [°]")
+    plt.ylabel("\$\\dot{\\Psi}\$ [°/°]")
+    plt.legend()
+    plt.grid(true)
+
+    plt.tight_layout()
+    plt.show(block=false)
 end
-plt.ylabel("y, z [m]")
-yz_handles = [plt.matplotlib.lines.Line2D([0], [0], color="black", linestyle="-", label="y"),
-              plt.matplotlib.lines.Line2D([0], [0], color="black", linestyle=":", label="z")]
-leg1 = plt.legend(handles=yz_handles, loc="lower left")
-plt.gca().add_artist(leg1)
-# Second legend for theta/color mapping
-theta_handles = [plt.matplotlib.lines.Line2D([0], [0], color=colors[i], label="θ=$(theta[i])°") for i in eachindex(theta)]
-plt.legend(handles=theta_handles, loc="lower right")
-plt.grid(true)
 
-plt.subplot(3, 1, 2)
-for i in eachindex(theta)
-    plt.plot(collect(turn_angles), headings_all[i], label=h_labels[i])
+# plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_all, psi_dot_all, h_labels, pd_labels)
+
+# Print orientation and position for each turn angle
+println("turn_angle => orientation (roll, pitch, yaw) and position (x, y, z)")
+for ta in turn_angles
+    roll, pitch, yaw = calc_orientation(deg2rad(ta))
+    pos = calc_kite_pos(deg2rad(ta))
+    println("  $(ta)° => orientation: ($(round(rad2deg(roll), digits=2))°, $(round(rad2deg(pitch), digits=2))°, $(round(rad2deg(yaw), digits=2))°)  position: ($(round(pos[1], digits=2)), $(round(pos[2], digits=2)), $(round(pos[3], digits=2)))")
 end
-plt.ylabel("Ψ [°]")
-plt.legend()
-plt.grid(true)
-
-plt.subplot(3, 1, 3)
-for i in eachindex(theta)
-    plt.plot(collect(turn_angles), psi_dot_all[i], label=pd_labels[i])
-end
-plt.xlabel("turn angle [°]")
-plt.ylabel("\$\\dot{\\Psi}\$ [°/°]")
-plt.legend()
-plt.grid(true)
-
-plt.tight_layout()
-plt.show(block=false)
