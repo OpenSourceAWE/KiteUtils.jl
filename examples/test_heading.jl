@@ -278,29 +278,31 @@ println("turn_angle => orientation (roll, pitch, yaw) and position (x, y, z)")
 viewer::Viewer3D = Viewer3D(true);
 segments = viewer.set.segments  # default: 6
 N = segments + 1                # number of tether particles (including ground and kite)
-for ta in turn_angles
-    roll, pitch, yaw = calc_orientation(deg2rad(ta))
-    pos = calc_kite_pos(deg2rad(ta))
-    el, az = calc_elevation_azimuth(deg2rad(ta))
-    heading = calc_kite_heading(deg2rad(ta))
-    q = QuatRotation(RotZYX(yaw, pitch, roll))
-    # Interpolate tether particle positions from origin to kite position
-    xs = MVector{N, Float64}([pos[1] * i / segments for i in 0:segments])
-    ys = MVector{N, Float64}([pos[2] * i / segments for i in 0:segments])
-    zs = MVector{N, Float64}([pos[3] * i / segments for i in 0:segments])
-    state = SysState{N}(
-        orient    = MVector{4, Float32}(Rotations.params(q)),
-        elevation = el,
-        azimuth   = az,
-        heading   = heading,
-        roll      = roll,
-        pitch     = pitch,
-        yaw       = yaw,
-        X         = xs,
-        Y         = ys,
-        Z         = zs,
-    )
-    update_system(viewer, state, kite_scale=0.25, ned=false)
-    sleep(0.05)
-    # println("  $(ta)° => orientation: ($(round(rad2deg(roll), digits=2))°, $(round(rad2deg(pitch), digits=2))°, $(round(rad2deg(yaw), digits=2))°)  position: ($(round(pos[1], digits=2)), $(round(pos[2], digits=2)), $(round(pos[3], digits=2)))")
+for loops in 1:3
+    for ta in turn_angles
+        roll, pitch, yaw = calc_orientation(deg2rad(ta))
+        pos = calc_kite_pos(deg2rad(ta))
+        el, az = calc_elevation_azimuth(deg2rad(ta))
+        heading = calc_kite_heading(deg2rad(ta))
+        q = QuatRotation(RotZYX(yaw, pitch, roll))
+        # Interpolate tether particle positions from origin to kite position
+        xs = MVector{N, Float64}([pos[1] * i / segments for i in 0:segments])
+        ys = MVector{N, Float64}([pos[2] * i / segments for i in 0:segments])
+        zs = MVector{N, Float64}([pos[3] * i / segments for i in 0:segments])
+        state = SysState{N}(
+            orient    = MVector{4, Float32}(Rotations.params(q)),
+            elevation = el,
+            azimuth   = az,
+            heading   = heading,
+            roll      = roll,
+            pitch     = pitch,
+            yaw       = yaw,
+            X         = xs,
+            Y         = ys,
+            Z         = zs,
+        )
+        update_system(viewer, state; scale=0.25, kite_scale=0.25, ned=true)
+        sleep(0.05)
+        # println("  $(ta)° => orientation: ($(round(rad2deg(roll), digits=2))°, $(round(rad2deg(pitch), digits=2))°, $(round(rad2deg(yaw), digits=2))°)  position: ($(round(pos[1], digits=2)), $(round(pos[2], digits=2)), $(round(pos[3], digits=2)))")
+    end
 end
