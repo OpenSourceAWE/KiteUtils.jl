@@ -302,9 +302,9 @@ t = 0.0
 θ = 30.0
 dt = 0.05
 prev_heading = calc_kite_heading(deg2rad(turn_angles[1]))
-for loops in 1:3
+for θ in theta
     for ta in turn_angles
-        global t, θ, prev_heading, dt
+        global t, prev_heading, dt
         r = tether_length * sin(deg2rad(θ))
         x = r / tan(deg2rad(θ))
         roll, pitch, yaw = calc_orientation(deg2rad(ta); x=x, z=0.0, r=r)
