@@ -130,6 +130,26 @@ function calc_orientation(turn_angle; x=100.0, z=0.0, r=20.0)
 end
 
 """
+    calc_orient_quat(turn_angle; x=100.0, z=0.0, r=20.0)
+
+Calculate the orientation quaternion of the kite directly from the rotation matrix,
+avoiding the Euler angle round-trip that causes discontinuities at ±180° yaw.
+
+Returns a `QuatRotation`.
+"""
+function calc_orient_quat(turn_angle; x=100.0, z=0.0, r=20.0)
+    center = [x, 0.0, z]
+    e1, e2 = calc_circle_basis(x, z)
+    pos = center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
+    z_kite = -normalize(pos)
+    tangent = normalize(-sin(turn_angle) * e1 + cos(turn_angle) * e2)
+    x_kite = normalize(tangent - dot(tangent, z_kite) * z_kite)
+    y_kite = cross(z_kite, x_kite)
+    rotation = calc_orient_rot(x_kite, y_kite, z_kite)
+    return QuatRotation(rotation)
+end
+
+"""
     calc_kite_heading(turn_angle; x=100.0, z=0.0, r=20.0)
 
 Calculate the heading of the kite in radian for a given turn angle in radian.
@@ -196,7 +216,7 @@ h_labels = String[]
 pd_labels = String[]
 
 for θ in theta
-    local r
+    local rf, dt
     r = tether_length * sin(deg2rad(θ))  # r is the radius of the circle
     x = r / tan(deg2rad(θ))
     push!(ys_all, [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)[2] for ta in turn_angles])
@@ -293,7 +313,8 @@ for loops in 1:3
         heading = calc_kite_heading(deg2rad(ta))
         heading_rate = (heading - prev_heading) / dt
         prev_heading = heading
-        q = QuatRotation(RotZYX(yaw, pitch, roll))
+        # Build quaternion directly from rotation matrix to avoid Euler angle wrapping glitches
+        q = calc_orient_quat(deg2rad(ta); x=x, z=0.0, r=r)
         # Interpolate tether particle positions from origin to kite position
         xs = MVector{N, Float64}([pos[1] * i / segments for i in 0:segments])
         ys = MVector{N, Float64}([pos[2] * i / segments for i in 0:segments])
