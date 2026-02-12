@@ -6,7 +6,7 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate("examples")
 end
 
-using ControlPlots, KiteUtils, LinearAlgebra, Rotations, StaticArrays
+using KiteViewers, ControlPlots, KiteUtils, LinearAlgebra, Rotations, StaticArrays
 
 """
     calc_circle_basis(x, z)
@@ -275,13 +275,20 @@ end
 
 # Print orientation and position for each turn angle, and create SysState structs
 println("turn_angle => orientation (roll, pitch, yaw) and position (x, y, z)")
+viewer::Viewer3D = Viewer3D(true);
+segments = viewer.set.segments  # default: 6
+N = segments + 1                # number of tether particles (including ground and kite)
 for ta in turn_angles
     roll, pitch, yaw = calc_orientation(deg2rad(ta))
     pos = calc_kite_pos(deg2rad(ta))
     el, az = calc_elevation_azimuth(deg2rad(ta))
     heading = calc_kite_heading(deg2rad(ta))
     q = QuatRotation(RotZYX(yaw, pitch, roll))
-    state = SysState{2}(
+    # Interpolate tether particle positions from origin to kite position
+    xs = MVector{N, Float64}([pos[1] * i / segments for i in 0:segments])
+    ys = MVector{N, Float64}([pos[2] * i / segments for i in 0:segments])
+    zs = MVector{N, Float64}([pos[3] * i / segments for i in 0:segments])
+    state = SysState{N}(
         orient    = MVector{4, Float32}(Rotations.params(q)),
         elevation = el,
         azimuth   = az,
@@ -289,9 +296,11 @@ for ta in turn_angles
         roll      = roll,
         pitch     = pitch,
         yaw       = yaw,
-        X         = MVector(0.0, pos[1]),
-        Y         = MVector(0.0, pos[2]),
-        Z         = MVector(0.0, pos[3]),
+        X         = xs,
+        Y         = ys,
+        Z         = zs,
     )
-    println("  $(ta)° => orientation: ($(round(rad2deg(roll), digits=2))°, $(round(rad2deg(pitch), digits=2))°, $(round(rad2deg(yaw), digits=2))°)  position: ($(round(pos[1], digits=2)), $(round(pos[2], digits=2)), $(round(pos[3], digits=2)))")
+    update_system(viewer, state, kite_scale=0.25, ned=false)
+    sleep(0.05)
+    # println("  $(ta)° => orientation: ($(round(rad2deg(roll), digits=2))°, $(round(rad2deg(pitch), digits=2))°, $(round(rad2deg(yaw), digits=2))°)  position: ($(round(pos[1], digits=2)), $(round(pos[2], digits=2)), $(round(pos[3], digits=2)))")
 end
