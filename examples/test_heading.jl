@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
+# TODO: add the option to fly at any elevation angle of the center point
+
 using Pkg
 if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate("examples")
@@ -340,4 +342,4 @@ function play_circle_flight_video(θ)
 end
 
 # plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_all, psi_dot_all, h_labels, pd_labels)
-play_circle_flight_video(30)
+play_circle_flight_video(5)
