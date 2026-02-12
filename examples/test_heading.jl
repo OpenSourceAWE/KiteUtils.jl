@@ -280,15 +280,19 @@ segments = viewer.set.segments  # default: 6
 N = segments + 1                # number of tether particles (including ground and kite)
 t = 0.0
 θ = 30.0
+dt = 0.05
+prev_heading = calc_kite_heading(deg2rad(turn_angles[1]))
 for loops in 1:3
     for ta in turn_angles
-        global t, θ
+        global t, θ, prev_heading, dt
         r = tether_length * sin(deg2rad(θ))
         x = r / tan(deg2rad(θ))
         roll, pitch, yaw = calc_orientation(deg2rad(ta); x=x, z=0.0, r=r)
         pos = calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)
         el, az = calc_elevation_azimuth(deg2rad(ta))
         heading = calc_kite_heading(deg2rad(ta))
+        heading_rate = (heading - prev_heading) / dt
+        prev_heading = heading
         q = QuatRotation(RotZYX(yaw, pitch, roll))
         # Interpolate tether particle positions from origin to kite position
         xs = MVector{N, Float64}([pos[1] * i / segments for i in 0:segments])
@@ -301,6 +305,8 @@ for loops in 1:3
             elevation = el,
             azimuth   = az,
             heading   = heading,
+            course    = heading_rate,
+            heading_rate = heading_rate,
             roll      = roll,
             pitch     = pitch,
             yaw       = yaw,
@@ -310,7 +316,7 @@ for loops in 1:3
         )
         t += 0.05
         update_system(viewer, state; scale=0.25, kite_scale=0.25, ned=true)
-        sleep(0.05)
+        sleep(dt)
         # println("  $(ta)° => orientation: ($(round(rad2deg(roll), digits=2))°, $(round(rad2deg(pitch), digits=2))°, $(round(rad2deg(yaw), digits=2))°)  position: ($(round(pos[1], digits=2)), $(round(pos[2], digits=2)), $(round(pos[3], digits=2)))")
     end
 end
