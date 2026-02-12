@@ -6,7 +6,7 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate("examples")
 end
 
-using ControlPlots, KiteUtils, LinearAlgebra, Rotations
+using ControlPlots, KiteUtils, LinearAlgebra, Rotations, StaticArrays
 
 """
     calc_circle_basis(x, z)
@@ -273,10 +273,25 @@ end
 
 # plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_all, psi_dot_all, h_labels, pd_labels)
 
-# Print orientation and position for each turn angle
+# Print orientation and position for each turn angle, and create SysState structs
 println("turn_angle => orientation (roll, pitch, yaw) and position (x, y, z)")
 for ta in turn_angles
     roll, pitch, yaw = calc_orientation(deg2rad(ta))
     pos = calc_kite_pos(deg2rad(ta))
+    el, az = calc_elevation_azimuth(deg2rad(ta))
+    heading = calc_kite_heading(deg2rad(ta))
+    q = QuatRotation(RotZYX(yaw, pitch, roll))
+    state = SysState{2}(
+        orient    = MVector{4, Float32}(Rotations.params(q)),
+        elevation = el,
+        azimuth   = az,
+        heading   = heading,
+        roll      = roll,
+        pitch     = pitch,
+        yaw       = yaw,
+        X         = MVector(0.0, pos[1]),
+        Y         = MVector(0.0, pos[2]),
+        Z         = MVector(0.0, pos[3]),
+    )
     println("  $(ta)° => orientation: ($(round(rad2deg(roll), digits=2))°, $(round(rad2deg(pitch), digits=2))°, $(round(rad2deg(yaw), digits=2))°)  position: ($(round(pos[1], digits=2)), $(round(pos[2], digits=2)), $(round(pos[3], digits=2)))")
 end
