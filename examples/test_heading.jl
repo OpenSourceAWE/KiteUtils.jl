@@ -180,8 +180,7 @@ end
 # Compute data for multiple θ values
 const theta = [30, 45, 60, 75]
 turn_angles = 0:1:360
-max_height = 50.0  # Desired max height at the top of the circle (turn_angle=0)
-
+tether_length = 50.0  
 ys_all = Vector{Vector{Float64}}()
 zs_all = Vector{Vector{Float64}}()
 headings_all = Vector{Vector{Float64}}()
@@ -193,7 +192,7 @@ pd_labels = String[]
 
 for θ in theta
     local r
-    r = max_height * sin(deg2rad(θ))  # Set r such that the kite is at max_height at the top of the circle
+    r = tether_length * sin(deg2rad(θ))  # r is the radius of the circle
     x = r / tan(deg2rad(θ))
     push!(ys_all, [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)[2] for ta in turn_angles])
     push!(zs_all, [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)[3] for ta in turn_angles])
@@ -224,7 +223,7 @@ for θ in theta
     push!(pd_labels, "\$\\dot{\\Psi}\$ (θ=$(θ)°)")
 end
 
-# Combined plot: "y and z" on top, "heading (Ψ)" in middle, "Ψ̇" on bottom
+# Combined plot: "y and z" on top, "heading (Ψ)" in middle, "heading rate" on bottom
 plt.figure("heading and position", figsize=(10, 11))
 
 plt.subplot(3, 1, 1)
