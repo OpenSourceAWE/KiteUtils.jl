@@ -342,4 +342,4 @@ function play_circle_flight_video(θ)
 end
 
 # plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_all, psi_dot_all, h_labels, pd_labels)
-play_circle_flight_video(5)
+play_circle_flight_video(30)
