@@ -4,7 +4,7 @@ authors = ["Uwe Fechner <uwe.fechner.msc@gmail.com> and contributors"]
 version = "0.11.2"
 
 [workspace]
-projects = ["examples"]
+projects = ["examples", "test", "docs"]
 
 [deps]
 Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45"
@@ -25,12 +25,9 @@ StructTypes = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
 [compat]
-Aqua = "0.8"
 Arrow = "2.7.3"
-BenchmarkTools = "1.6"
 CSV = "0.10.14"
 DocStringExtensions = "0.9.3"
-Documenter = "1.8"
 LinearAlgebra = "1"
 OrderedCollections = "1.6.3"
 Parameters = "0.12.3"
@@ -39,21 +36,9 @@ Pkg = "1"
 PrecompileTools = "1.2.1"
 RecursiveArrayTools = "3.27"
 ReferenceFrameRotations = "3.0.2"
-REPL = "1"
 Rotations = "1.7.1"
 StaticArrays = "1.9.7"
 StructArrays = "0.7.2"
 StructTypes = "1.11.0"
-Test = "1"
 YAML = "0.4.12"
 julia = "1.10, 1.11, 1.12"
-
-[extras]
-Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
-BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
-Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test", "REPL", "Documenter", "BenchmarkTools", "Aqua"]
