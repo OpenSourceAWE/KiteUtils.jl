@@ -12,6 +12,10 @@ const PLOT_3D = false  # set to true to visualize the kite flight in 3D (require
 
 if PLOT_3D
     using KiteViewers
+else
+    Viewer3D = nothing  # dummy placeholder to avoid warnings when PLOT_3D is false
+    update_system = nothing
+    play_circle_flight_video = nothing
 end
 using ControlPlots
 using KiteUtils
