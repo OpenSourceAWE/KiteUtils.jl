@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2022 Uwe Fechner
-# SPDX-License-Identifier: MIT
-
 function calc_kite_pos(dummy; x=100.0, z=0.0, r=20.0)
     center = [x, 0.0, z]
     return center .+ r
