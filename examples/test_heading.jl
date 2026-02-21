@@ -8,7 +8,16 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate("examples")
 end
 
-using KiteViewers, ControlPlots, KiteUtils, LinearAlgebra, Rotations, StaticArrays
+const PLOT_3D = false  # set to true to visualize the kite flight in 3D (requires KiteViewers.jl)
+
+if PLOT_3D
+    using KiteViewers
+end
+using ControlPlots
+using KiteUtils
+using LinearAlgebra: cross, dot, norm, normalize
+using Rotations
+using StaticArrays
 
 """
     calc_circle_basis(x, z)
@@ -293,53 +302,57 @@ function plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_
     plt.show(block=false)
 end
 
-function play_circle_flight_video(θ)
-    # Print orientation and position for each turn angle, and create SysState structs
-    println("turn_angle => orientation (roll, pitch, yaw) and position (x, y, z)")
-    viewer = Viewer3D(true)
-    segments = viewer.set.segments  # default: 6
-    N = segments + 1                # number of tether particles (including ground and kite)
-    t = 0.0
-    dt = 0.05
-    prev_heading = calc_kite_heading(deg2rad(turn_angles[1]))
-    for _ in 1:3  # repeat the circle flight a few times
-        for ta in turn_angles
-            r = tether_length * sin(deg2rad(θ))
-            x = r / tan(deg2rad(θ))
-            roll, pitch, yaw = calc_orientation(deg2rad(ta); x=x, z=0.0, r=r)
-            pos = calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)
-            el, az = calc_elevation_azimuth(deg2rad(ta))
-            heading = calc_kite_heading(deg2rad(ta); x=x, z=0.0, r=r)
-            heading_rate = (heading - prev_heading) / dt
-            prev_heading = heading
-            # Build quaternion directly from rotation matrix to avoid Euler angle wrapping glitches
-            q = calc_orient_quat(deg2rad(ta); x=x, z=0.0, r=r)
-            # Interpolate tether particle positions from origin to kite position
-            xs = MVector{N, Float64}([pos[1] * i / segments for i in 0:segments])
-            ys = MVector{N, Float64}([pos[2] * i / segments for i in 0:segments])
-            zs = MVector{N, Float64}([pos[3] * i / segments for i in 0:segments])
-            state = SysState{N}(
-                time      = t,
-                l_tether  = MVector{4, Float64}(norm(pos), 0.0, 0.0, 0.0),
-                orient    = MVector{4, Float32}(Rotations.params(q)),
-                elevation = el,
-                azimuth   = az,
-                heading   = heading,
-                course    = heading_rate,
-                heading_rate = heading_rate,
-                roll      = roll,
-                pitch     = pitch,
-                yaw       = yaw,
-                X         = xs,
-                Y         = ys,
-                Z         = zs,
-            )
-            t += 0.05
-            update_system(viewer, state; scale=0.25, kite_scale=0.25, ned=true)
-            sleep(dt)
+if PLOT_3D
+    function play_circle_flight_video(θ)
+        # Print orientation and position for each turn angle, and create SysState structs
+        println("turn_angle => orientation (roll, pitch, yaw) and position (x, y, z)")
+        viewer = Viewer3D(true)
+        segments = viewer.set.segments  # default: 6
+        N = segments + 1                # number of tether particles (including ground and kite)
+        t = 0.0
+        dt = 0.05
+        prev_heading = calc_kite_heading(deg2rad(turn_angles[1]))
+        for _ in 1:3  # repeat the circle flight a few times
+            for ta in turn_angles
+                r = tether_length * sin(deg2rad(θ))
+                x = r / tan(deg2rad(θ))
+                roll, pitch, yaw = calc_orientation(deg2rad(ta); x=x, z=0.0, r=r)
+                pos = calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)
+                el, az = calc_elevation_azimuth(deg2rad(ta))
+                heading = calc_kite_heading(deg2rad(ta); x=x, z=0.0, r=r)
+                heading_rate = (heading - prev_heading) / dt
+                prev_heading = heading
+                # Build quaternion directly from rotation matrix to avoid Euler angle wrapping glitches
+                q = calc_orient_quat(deg2rad(ta); x=x, z=0.0, r=r)
+                # Interpolate tether particle positions from origin to kite position
+                xs = MVector{N, Float64}([pos[1] * i / segments for i in 0:segments])
+                ys = MVector{N, Float64}([pos[2] * i / segments for i in 0:segments])
+                zs = MVector{N, Float64}([pos[3] * i / segments for i in 0:segments])
+                state = SysState{N}(
+                    time      = t,
+                    l_tether  = MVector{4, Float64}(norm(pos), 0.0, 0.0, 0.0),
+                    orient    = MVector{4, Float32}(Rotations.params(q)),
+                    elevation = el,
+                    azimuth   = az,
+                    heading   = heading,
+                    course    = heading_rate,
+                    heading_rate = heading_rate,
+                    roll      = roll,
+                    pitch     = pitch,
+                    yaw       = yaw,
+                    X         = xs,
+                    Y         = ys,
+                    Z         = zs,
+                )
+                t += 0.05
+                update_system(viewer, state; scale=0.25, kite_scale=0.25, ned=true)
+                sleep(dt)
+            end
         end
     end
-end
+end  #= if PLOT_3D =#
 
-# plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_all, psi_dot_all, h_labels, pd_labels)
-play_circle_flight_video(30)
+plot_heading_and_position(turn_angles, THETA, ys_all, zs_all, headings_all, psi_dot_all, h_labels, pd_labels)
+if PLOT_3D
+    play_circle_flight_video(30)
+end
