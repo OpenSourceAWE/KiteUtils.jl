@@ -6,8 +6,8 @@
 
 Utility functions for the kite simulators.
 
-This module provides data structures for the flight state and the flight log, 
-functions for creating a demo flight state, demo flight log, loading and saving flight logs, 
+This module provides data structures for the flight state and the flight log,
+functions for creating a demo flight state, demo flight log, loading and saving flight logs,
 functions for reading the settings, and helper functions for working with rotations.
 
 See https://ufechner7.github.io/KiteUtils.jl/stable/ for more information.
@@ -68,7 +68,7 @@ export init!, next_step!, update_sys_state!
 
 Type used for position components and scalar SysState members.
 """
-const MyFloat   = Float32           # type to use for position components and scalar SysState members  
+const MyFloat   = Float32           # type to use for position components and scalar SysState members
 const DATA_PATH = ["data"]          # path for log files and other data
 const MVec3     = MVector{3, Float64}
 
@@ -83,7 +83,7 @@ function update_sys_state! end
     abstract type AbstractKiteModel
 
 All kite models must inherit from this type. All methods that are defined on this type must work
-with all kite models, or a specific method has to be defined for the specific kite model. 
+with all kite models, or a specific method has to be defined for the specific kite model.
 """
 abstract type AbstractKiteModel end
 
@@ -115,7 +115,7 @@ include("_show.jl")
     SysLog{P}
 
 Flight log, containing the basic data as struct of vectors which can be accessed as if it would
-be an array structs. 
+be an array structs.
 In addition an extended view on the data that includes derived/ calculated values for plotting.
 Finally it contains meta data like the name of the log file.
 
@@ -186,7 +186,7 @@ function demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2)
     dist = collect(range(0, stop=10, length=P))
     ss.X .= dist .* cos(turn_angle)
     ss.Y .= dist .* sin(turn_angle)
-    ss.Z .= (a .* cosh.(dist./a) .- a) * height/ 5.430806 
+    ss.Z .= (a .* cosh.(dist./a) .- a) * height/ 5.430806
     r_xyz = RotXYZ(pi/2, -pi/2, 0)
     q = QuatRotation(r_xyz)
     ss.orient .= MVector{4, Float32}(Rotations.params(q))
@@ -216,17 +216,16 @@ function initial_kite_ref_frame(vec_c, v_app)
     z = normalize(vec_c)
     y = normalize(cross(v_app, vec_c))
     x = normalize(cross(y, vec_c))
-    return (x, y, z)    
+    return (x, y, z)
 end
 
 """
-    get_particles(height_k, height_b, width, m_k, pos_pod= [ 75., 0., 129.90381057], vec_c=[-15., 0., -25.98076211], 
-                  v_app=[10.4855, 0, -3.08324])
+    get_particles(height_k, height_b, width, m_k, pos_pod= [ 75., 0., 129.90381057], vec_c=[-15., 0., -25.98076211], v_app=[10.4855, 0, -3.08324])
 
-Calculate the initial positions of the particles representing 
-a 4-point kite, connected to a kite control unit (KCU). 
+Calculate the initial positions of the particles representing
+a 4-point kite, connected to a kite control unit (KCU).
 
-Parameters:
+**Parameters:**
 - height_k: height of the kite itself, not above ground [m]
 - height_b: height of the bridle [m]
 - width: width of the kite [m]
@@ -274,10 +273,10 @@ function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
     X = dist .* cos(turn_angle)
     Y = dist .* sin(turn_angle)
     v_app = [10*cos(turn_angle), 10*sin(turn_angle), 0]
-    Z = (a .* cosh.(dist./a) .- a) * height/ 5.430806 
+    Z = (a .* cosh.(dist./a) .- a) * height/ 5.430806
     # append the kite particles to X, Y and z
     pod_pos = [X[end], Y[end], Z[end]]
-    vec_c = [X[end-2] - X[end-1], Y[end-2] - Y[end-1], Z[end-2] - Z[end-1]]  
+    vec_c = [X[end-2] - X[end-1], Y[end-2] - Y[end-1], Z[end-2] - Z[end-1]]
     particles = get_particles(se().height_k, se().h_bridle, se().width, se().m_k, pod_pos, vec_c, v_app)[3:end]
     get_particle(particles[1], X, Y, Z)
     pos_B = get_particle(particles[2], X, Y, Z)
@@ -293,7 +292,7 @@ function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
         x = y × z
         pos_kite_ = pod_pos
         pos_before = pos_kite_ + z
-       
+
         rotation = rot(pos_kite_, pos_before, -x)
         q = QuatRotation(rotation)
         ss.orient .= MVector{4, Float32}(Rotations.params(q))
@@ -314,7 +313,7 @@ include("_demo_syslog.jl")
 Create an artificial SysLog struct for demonstration purposes. P is the number of tether
 particles.
 """
-function demo_log(P, name="Test_flight"; duration=10,     
+function demo_log(P, name="Test_flight"; duration=10,
     colmeta = Dict(:var_01 => ["name" => "var_01"],
                    :var_02 => ["name" => "var_02"],
                    :var_03 => ["name" => "var_03"],
@@ -339,7 +338,7 @@ end
 """
     save_log(flight_log::SysLog, compress=true; path="")
 
-Save a flight log of type SysLog as .arrow file. By default lz4 compression is used, 
+Save a flight log of type SysLog as .arrow file. By default lz4 compression is used,
 if you use **false** as second parameter no compression is used.
 """
 function save_log(flight_log::SysLog, compress=true; path="")
@@ -371,10 +370,10 @@ include("load_log.jl")
 
 
 """
-    calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector,  
+    calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector,
           around_center_of_mass::Bool=true, rotation_point::Vector=[0, 0, 0])
 
-Calculate the rotational inertia (Ixx, Ixy, Ixz, Iyy, Iyz, Izz) of a collection of point masses around a point. 
+Calculate the rotational inertia (Ixx, Ixy, Ixz, Iyy, Iyz, Izz) of a collection of point masses around a point.
 By default this point is the center of mass which will be calculated, but any point can be given to rotation_point.
 
 Parameters:
@@ -385,20 +384,20 @@ Parameters:
 - `around_center_of_mass`: Calculate the rotational inertia around the center of mass?
 - `rotation_point`: Rotation point used if not rotating around the center of mass.
 
-Returns:  
+Returns:
 The tuple  Ixx, Ixy, Ixz, Iyy, Iyz, Izz where:
 - Ixx: rotational inertia around the x-axis.
 - Ixy: rotational inertia around the xy-plane.
 - Ixz: rotational inertia around the xz-plane.
 - Iyy: rotational inertia around the y-axis.
 - Iyz: rotational inertia around the yz-plane.
-- Izz: rotational inertia around the z-axis. 
+- Izz: rotational inertia around the z-axis.
 
 """
-function calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector, around_center_of_mass::Bool=true, 
+function calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector, around_center_of_mass::Bool=true,
     rotation_point::Vector=[0, 0, 0])
     @assert size(X) == size(Y) == size(Z) == size(M)
-    
+
     if around_center_of_mass
         # First loop to determine the center of mass
         x_com = y_com = z_com = m_total = 0.0
@@ -406,7 +405,7 @@ function calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector
             x_com += x * m
             y_com += y * m
             z_com += z * m
-            m_total += m 
+            m_total += m
         end
 
         x_com = x_com / m_total
@@ -430,7 +429,7 @@ function calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector
         Ixz += m * x * z
         Iyz += m * y * z
     end
-    
+
     Ixx, Ixy, Ixz, Iyy, Iyz, Izz
 end
 
@@ -455,7 +454,7 @@ Copy all example scripts to the folder "examples"
 """
 function copy_examples()
     PATH = "examples"
-    if ! isdir(PATH) 
+    if ! isdir(PATH)
         mkdir(PATH)
     end
     src_path = joinpath(dirname(pathof(@__MODULE__)), "..", PATH)
