@@ -205,7 +205,7 @@ function calc_kite_pos(turn_angle; x=100.0, z=0.0, r=20.0)
 end
 
 # Compute data for multiple θ values
-const theta = [30, 45, 60, 75]
+const THETA = [30, 45, 60, 75]
 turn_angles = 0:1:360
 tether_length = 50.0  
 ys_all = Vector{Vector{Float64}}()
@@ -217,8 +217,8 @@ z_labels = String[]
 h_labels = String[]
 pd_labels = String[]
 
-for θ in theta
-    local rf, dt
+for θ in THETA
+    local dt
     r = tether_length * sin(deg2rad(θ))  # r is the radius of the circle
     x = r / tan(deg2rad(θ))
     push!(ys_all, [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)[2] for ta in turn_angles])
@@ -231,7 +231,7 @@ for θ in theta
     # First unwrap the heading to remove ±180° discontinuities
     h = headings_all[end]
     h_unwrap = copy(h)
-    for j in 2:length(h_unwrap)
+    for j in 2:lastindex(h_unwrap)
         while h_unwrap[j] - h_unwrap[j-1] > 180
             h_unwrap[j] -= 360
         end
@@ -241,7 +241,7 @@ for θ in theta
     end
     dt = 1.0  # turn_angle step in degrees
     dh = similar(h)
-    for j in 2:length(h_unwrap)-1
+    for j in 2:lastindex(h_unwrap)-1
         dh[j] = (h_unwrap[j+1] - h_unwrap[j-1]) / (2 * dt)
     end
     dh[1] = (h_unwrap[2] - h_unwrap[1]) / dt
