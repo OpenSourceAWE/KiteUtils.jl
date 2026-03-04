@@ -30,6 +30,7 @@ solver:
     max_order: 4           # maximal order, usually between 3 and 5
     max_iter:  10000       # max number of iterations of the steady-state-solver
     relaxation: 0.4        # relaxation factor of Newton solver, need for quasi-steady solver
+    dtmax:     0.01        # max internal step size of the DAE solver [s]; Inf means no limit
 
 kite:
     model: "data/ram_air_kite_body.obj"     # 3D model of the kite
