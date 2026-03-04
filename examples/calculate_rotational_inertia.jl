@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-using KiteUtils: load_settings, get_particles, set_data_path, calculate_rotational_inertia, Settings
+using KiteUtils: Settings, calculate_rotational_inertia, get_particles, load_settings, set_data_path
 
 if basename(pwd()) == "examples"
     set_data_path("../data")
