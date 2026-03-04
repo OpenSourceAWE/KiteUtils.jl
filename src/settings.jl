@@ -78,6 +78,8 @@ $(TYPEDFIELDS)
     max_order::Int64      = 4
     "max number of iterations of the steady-state-solver"
     max_iter::Int64       = 1
+    "max internal step size of the DAE solver; Inf means no limit"
+    dtmax                 = Inf
     "relaxation factor for Newton solver for quasi-steady tether model"
     relaxation = 0
 
