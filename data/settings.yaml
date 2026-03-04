@@ -23,6 +23,9 @@ initial:
     v_reel_outs: [0.0, 0.0, 0.0]     # initial reel out speeds   [m/s]
     depowers: [25.0]                 # initial depower settings    [%]
     steerings: [0.0]                 # initial steering settings   [%]
+    # adapt the following parameters if you get a warning about the initial equilibrium not being found
+    delta: 0.001                     # initial quotient of actual and unstretched tether length    
+    stiffness_factor: 0.1            # relative stiffness of the first round of solving the initial equilibrium 
 
 solver:
     abs_tol: 0.0006        # absolute tolerance of the DAE solver [m, m/s]
@@ -32,7 +35,7 @@ solver:
     max_order: 4           # maximal order, usually between 3 and 5 (IDA and DFBDF)
     max_iter:  200         # max number of iterations of the steady-state-solver
     relaxation: 0.4        # not used for KPS4, only for RamAirKite
-    dtmax:     0.01        # max internal step size of the DAE solver [s]; Inf means no limit
+    dtmax:     0.025       # max internal step size of the DAE solver [s]; Inf means no limit
 
 steering:
     c0:       0.0          # steering offset   -0.0032           [-]

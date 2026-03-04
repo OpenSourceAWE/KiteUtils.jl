@@ -21,6 +21,9 @@ initial:
     v_reel_outs: [0.0, 0.0, 0.0]  # initial reel out speeds   [m/s]
     depowers: [0.0]              # initial depower value                 [%]
     steerings: [0.0]             # initial steering value                [%]
+    # adapt the following parameters if you get a warning about the initial equilibrium not being found
+    delta: 0.001                     # initial quotient of actual and unstretched tether length    
+    stiffness_factor: 0.1            # relative stiffness of the first round of solving the initial equilibrium 
 
 solver:
     abs_tol: 0.006         # absolute tolerance of the DAE solver [m, m/s]

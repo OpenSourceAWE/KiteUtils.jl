@@ -61,6 +61,10 @@ $(TYPEDFIELDS)
     depowers::Vector{Float64}        = [0]
     "initial steering settings             [%]"
     steerings::Vector{Float64}       = [0]
+    "initial quotient of actual and unstretched tether length"
+    delta                            = 0.001
+    "relative stiffness of the first round of solving the initial equilibrium"
+    stiffness_factor                 = 0.1
 
     # # three values are only needed for RamAirKite, for KPS3 and KPS4 use only the first value
     # l_tethers: [50.0, 50.0, 50.0] # initial tether lengths     [m]
