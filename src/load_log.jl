@@ -13,10 +13,11 @@ function load_log(filename::String; path="", debug=false)
     end
     fullname = filename
     if ! isfile(filename)
-        if isnothing(findlast(isequal('.'), filename))
-            fullname = joinpath(path, basename(filename)) * ".arrow"
+        candidate = joinpath(path, basename(filename)) * ".arrow"
+        if isfile(candidate)
+            fullname = candidate
         else
-            fullname = joinpath(path, basename(filename)) 
+            fullname = joinpath(path, basename(filename))
         end
     end
     table   = Arrow.Table(fullname)

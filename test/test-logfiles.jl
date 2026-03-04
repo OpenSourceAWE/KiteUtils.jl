@@ -33,4 +33,16 @@ using KiteUtils, Test, StructArrays
     @test log.y[end] ≈  0.0
     @test log.z[end] ≈  2.5474184 # height of the prepre-last particle which represents the kite (4p model)
     @test export_log(log) == joinpath(tempdir(), "Test_flight.csv")
+    # test that load_log works with a dot in the filename (e.g. log_1.11.arrow)
+    dotted_name = "transition.1.11"
+    src = joinpath("data", "transition.arrow")
+    dst = joinpath(tempdir(), dotted_name * ".arrow")
+    cp(src, dst; force=true)
+    set_data_path(tempdir())
+    log2 = load_log(dotted_name)           # without extension
+    @test log2 isa SysLog
+    @test length(log2.syslog) == 8180
+    log3 = load_log(dotted_name * ".arrow") # with extension
+    @test log3 isa SysLog
+    @test length(log3.syslog) == 8180
 end
