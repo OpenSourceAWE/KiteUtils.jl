@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-using KiteUtils: load_settings, get_particles, set_data_path, calculate_rotational_inertia
+using KiteUtils: Settings, calculate_rotational_inertia, get_particles, load_settings, set_data_path
 
 if basename(pwd()) == "examples"
     set_data_path("../data")
@@ -10,7 +10,7 @@ else
 end
 
 function calculate_inertia_for_setting(settings_file::String, include_kcu::Bool=true, around_kcu::Bool=false)
-    set = deepcopy(load_settings(settings_file))
+    set::Settings = deepcopy(load_settings(settings_file))
 
     points = get_particles(set.height_k, set.h_bridle, set.width, set.m_k, [0, 0, 0], [0, 0, -1], [10, 0, 0])
 
