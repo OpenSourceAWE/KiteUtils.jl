@@ -1,5 +1,9 @@
 # Changelog
 
+## KiteUtils v0.11.4 04-03-2026
+### Added
+- added fields `delta` and `stiffness_factor` to the `initial` section of `settings.yaml` and the `Settings` struct
+
 ## KiteUtils v0.11.3 04-03-2026
 ### Changed
 - add field `dtmax` to the solver settings and the yaml files
