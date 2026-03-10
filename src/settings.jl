@@ -16,7 +16,6 @@ Flat struct, defining the settings of the Simulator and the Viewer.
 $(TYPEDFIELDS)
 """
 @with_kw mutable struct Settings @deftype Float64
-    dict::Vector{Dict{String, Any}} = [Dict{String, Any}()]
     "name of the yaml file with the settings"
     sim_settings::String      = ""
 
@@ -365,6 +364,7 @@ function Settings(project)
     return se(set, project)
 end
 const SETTINGS = Settings()
+const _SE_DICTS = IdDict{Settings, Dict{String, Any}}()
 
 """
     set_data_path(data_path="")
@@ -507,7 +507,6 @@ The settings.yaml file to load is determined by the content active PROJECT, whic
 The project file must be located in the directory specified by the data path [`get_data_path`](@ref).
 """
 function se(settings::Settings, project=PROJECT; relax=false)
-    se_dict = settings.dict
     global PROJECT
 
     # Process project path: remove leading "data/" if present
@@ -535,7 +534,7 @@ function se(settings::Settings, project=PROJECT; relax=false)
 
         # load sim_settings from YAML
         dict = YAML.load_file(joinpath(DATA_PATH[1], sim_settings_path))
-        se_dict[1] = dict
+        _SE_DICTS[settings] = dict
         # update the settings struct from the dictionary
         required_sections = ["system", "initial", "solver", "kite", "tether", "environment"]
         if relax
@@ -577,5 +576,5 @@ function se_dict(set::Settings=SETTINGS)
     if set.segments == 0
         Base.invokelatest(se, set)
     end
-    set.dict[1]
+    get(_SE_DICTS, set, Dict{String, Any}())
 end
