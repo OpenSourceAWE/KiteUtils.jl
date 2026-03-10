@@ -42,7 +42,7 @@ SOFTWARE. =#
 # the parameter P is the number of points of the tether, equal to segments+1
 # in addition helper functions for working with rotations
 
-using PrecompileTools: @setup_workload, @compile_workload
+using PrecompileTools: @compile_workload, @setup_workload 
 using Arrow, DocStringExtensions, LinearAlgebra, RecursiveArrayTools, Rotations, StaticArrays, StructArrays, YAML
 using CSV, Parameters, Parsers, Pkg, StructTypes
 export Logger, MyFloat, Settings, SysLog, SysState

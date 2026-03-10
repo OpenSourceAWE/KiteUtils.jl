@@ -14,3 +14,15 @@ pattern = "not concretized"
 match_by = "message"
 match_type = "regex"
 severity = "off"
+
+[[diagnostic.patterns]]
+pattern = "Unused import `@compile_workload`"
+match_by = "message"
+match_type = "contains"
+severity = "off"
+
+[[diagnostic.patterns]]
+pattern = "Unused import `@setup_workload`"
+match_by = "message"
+match_type = "contains"
+severity = "off"
