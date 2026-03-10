@@ -18,11 +18,11 @@ severity = "off"
 [[diagnostic.patterns]]
 pattern = "Unused import `@compile_workload`"
 match_by = "message"
-match_type = "contains"
+match_type = "literal"
 severity = "off"
 
 [[diagnostic.patterns]]
 pattern = "Unused import `@setup_workload`"
 match_by = "message"
-match_type = "contains"
+match_type = "literal"
 severity = "off"
