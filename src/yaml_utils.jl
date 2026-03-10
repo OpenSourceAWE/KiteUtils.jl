@@ -46,7 +46,7 @@ function change_value(lines, varname, value::String)
     for line in lines
         if startswith(lstrip(line), varname)
             start = (findfirst(varname, line)).stop+1
-            stop  = findfirst('#', line)-1
+            stop = something(findfirst('#', line), length(line) + 1) - 1
             new_line = ""
             leading = true
             j = 1
