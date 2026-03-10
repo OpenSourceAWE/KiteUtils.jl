@@ -38,7 +38,7 @@ $(TYPEDFIELDS)
     kite_scale            = 1.0
     "name or filepath+filename of alternative fixed pitch font"
     fixed_font::String    = ""
-    
+
     "initial elevation angle             [deg]"
     elevations::Vector{Float64}      = [70]
     "initial elevation rate            [deg/s]"
@@ -46,7 +46,7 @@ $(TYPEDFIELDS)
     "initial azimuth angle               [deg]"
     azimuths::Vector{Float64}        = [0]
     "initial azimuth rate              [deg/s]"
-    azimuth_rates::Vector{Float64}   = [0] 
+    azimuth_rates::Vector{Float64}   = [0]
     "initial heading angle               [deg]"
     headings::Vector{Float64}        = [0]
     "initial heading rate              [deg/s]"
@@ -157,7 +157,7 @@ $(TYPEDFIELDS)
     rel_mass_p3 = 0
     "relative mass of p4 and p5"
     rel_mass_p4 = 0
-    
+
     # Ram air kite specific parameters
     "filename of the foil shape [in dat format]"
     foil_file::String     = "data/ram_air_kite_foil.dat"
@@ -188,9 +188,9 @@ $(TYPEDFIELDS)
     "sum of the lengths of the bridle lines [m]"
     l_bridle              = 0
     "relative compression stiffness of the kite springs"
-    rel_compr_stiffness   = 0 
+    rel_compr_stiffness   = 0
     "relative damping of the kite spring (relative to main tether)"
-    rel_damping           = 0         
+    rel_damping           = 0
 
     "model of the kite control unit, KCU1 or KCU2"
     kcu_model::String     = "KCU1"
@@ -287,7 +287,7 @@ $(TYPEDFIELDS)
     "grid size nx, ny, nz and minimal height z_min                                   [m]"
     grid::Vector{Int64} = []
     "grid resolution in z direction                                                [m]"
-    height_step           = 0 
+    height_step           = 0
     "grid resolution in x and y direction                                          [m]"
     grid_step             = 0
     "gravitational acceleration"
@@ -372,7 +372,7 @@ const SETTINGS = Settings()
 Set the directory for log and config files.
 
 If called without argument, use the data path of the package to obtain the default settings
-when calling se(). 
+when calling se().
 """
 function set_data_path(data_path="")
     if data_path==""
@@ -419,7 +419,7 @@ function update_settings()
 end
 
 function copy_files(relpath, files)
-    if ! isdir(relpath) 
+    if ! isdir(relpath)
         mkdir(relpath)
     end
     src_path = joinpath(dirname(pathof(@__MODULE__)), "..", relpath)
@@ -441,7 +441,7 @@ function copy_settings(extra_files=[])
     if src_path == abspath(DATA_PATH[1])
         DATA_PATH[1] = joinpath(pwd(), "data")
     end
-    if ! isdir(DATA_PATH[1]) 
+    if ! isdir(DATA_PATH[1])
         mkdir(DATA_PATH[1])
     end
     files = ["settings.yaml", "system.yaml", "settings_ram.yaml", "system_ram.yaml", "kite.obj"]
@@ -575,7 +575,7 @@ Usage example:
 """
 function se_dict(set::Settings=SETTINGS)
     if set.segments == 0
-        se(set, set.dict)
+        Base.invokelatest(se, set)
     end
     set.dict[1]
 end
