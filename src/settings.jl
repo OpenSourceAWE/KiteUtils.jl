@@ -16,7 +16,7 @@ Flat struct, defining the settings of the Simulator and the Viewer.
 $(TYPEDFIELDS)
 """
 @with_kw mutable struct Settings @deftype Float64
-    dict::Vector{Dict} = [Dict()]
+    dict::Vector{Dict{String, Any}} = [Dict{String, Any}()]
     "name of the yaml file with the settings"
     sim_settings::String      = ""
 
@@ -272,7 +272,7 @@ $(TYPEDFIELDS)
     z0                    = 0
     "1=EXP, 2=LOG, 3=EXPLOG, 4=FAST_EXP, 5=FAST_LOG, 6=FAST_EXPLOG"
     profile_law::Int64    = 0
-    "turbulence intensity relative to Cabau, NL"
+    "turbulence intensity relative to Cabauw, NL"
     use_turbulence        = 0
     "wind speeds at ref height for calculating the turbulent wind field [m/s]"
     v_wind_gnds::Vector{Float64} = []
@@ -376,7 +376,7 @@ when calling se().
 """
 function set_data_path(data_path="")
     if data_path==""
-        data_path = joinpath(dirname(dirname(pathof(KiteUtils))), "data")
+        data_path = joinpath(dirname(@__DIR__), "data")
     end
     if data_path != DATA_PATH[1]
         DATA_PATH[1] = data_path
@@ -422,7 +422,7 @@ function copy_files(relpath, files)
     if ! isdir(relpath)
         mkdir(relpath)
     end
-    src_path = joinpath(dirname(pathof(@__MODULE__)), "..", relpath)
+    src_path = joinpath(@__DIR__, "..", relpath)
     for file in files
         cp(joinpath(src_path, file), joinpath(relpath, file), force=true)
         chmod(joinpath(relpath, file), 0o774)
@@ -437,7 +437,7 @@ Copy the default settings.yaml and system.yaml files to the folder DATAPATH
 (it will be created if it doesn't exist).
 """
 function copy_settings(extra_files=[])
-    src_path = abspath(joinpath(dirname(pathof(KiteUtils)), "..", "data"))
+    src_path = abspath(joinpath(@__DIR__, "..", "data"))
     if src_path == abspath(DATA_PATH[1])
         DATA_PATH[1] = joinpath(pwd(), "data")
     end
