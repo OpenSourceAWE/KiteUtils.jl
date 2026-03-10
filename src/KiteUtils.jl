@@ -42,7 +42,7 @@ SOFTWARE. =#
 # the parameter P is the number of points of the tether, equal to segments+1
 # in addition helper functions for working with rotations
 
-using PrecompileTools: @setup_workload
+using PrecompileTools: @setup_workload, @compile_workload
 using Arrow, DocStringExtensions, LinearAlgebra, RecursiveArrayTools, Rotations, StaticArrays, StructArrays, YAML
 using CSV, Parameters, Parsers, Pkg, StructTypes
 export Logger, MyFloat, Settings, SysLog, SysState
@@ -458,7 +458,7 @@ function copy_examples()
     if ! isdir(PATH)
         mkdir(PATH)
     end
-    src_path = joinpath(dirname(pathof(@__MODULE__)), "..", PATH)
+    src_path = joinpath(@__DIR__, "..", PATH)
     copy_files("examples", readdir(src_path))
 end
 
