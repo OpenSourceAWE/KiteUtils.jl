@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+### Changed
+- the `build_docu.jl` does no longer use the global environment
+- add `LiveServer` to `docs/Project.toml`
+
 ## KiteUtils v0.11.4 04-03-2026
 ### Added
 - added fields `delta` and `stiffness_factor` to the `initial` section of `settings.yaml` and the `Settings` struct
