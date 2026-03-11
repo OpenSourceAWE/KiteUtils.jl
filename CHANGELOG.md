@@ -4,6 +4,8 @@
 ### Changed
 - the `build_docu.jl` does no longer use the global environment
 - add `LiveServer` to `docs/Project.toml`
+### Added
+- add `jetls` and `jetls_examples` to the bin folder for linting
 
 ## KiteUtils v0.11.4 04-03-2026
 ### Added
