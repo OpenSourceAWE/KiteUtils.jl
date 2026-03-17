@@ -42,7 +42,7 @@ SOFTWARE. =#
 # the parameter P is the number of points of the tether, equal to segments+1
 # in addition helper functions for working with rotations
 
-using PrecompileTools: @compile_workload, @setup_workload 
+using PrecompileTools: @compile_workload, @setup_workload
 using Arrow, DocStringExtensions, LinearAlgebra, RecursiveArrayTools, Rotations, StaticArrays, StructArrays, YAML
 using CSV, Parameters, Parsers, Pkg, StructTypes
 export Logger, MyFloat, Settings, SysLog, SysState
@@ -73,7 +73,6 @@ const DATA_PATH = ["data"]          # path for log files and other data
 const MVec3     = MVector{3, Float64}
 
 P = nothing # suppress warning about undefined global variable
-Q = nothing # suppress warning about undefined global variable
 
 function init! end
 function next_step! end
