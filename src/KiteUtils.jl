@@ -42,7 +42,7 @@ SOFTWARE. =#
 # the parameter P is the number of points of the tether, equal to segments+1
 # in addition helper functions for working with rotations
 
-using PrecompileTools: @compile_workload, @setup_workload 
+using PrecompileTools: @compile_workload, @setup_workload
 using Arrow, DocStringExtensions, LinearAlgebra, RecursiveArrayTools, Rotations, StaticArrays, StructArrays, YAML
 using CSV, Parameters, Parsers, Pkg, StructTypes
 export Logger, MyFloat, Settings, SysLog, SysState
@@ -52,7 +52,7 @@ import ReferenceFrameRotations as RFR
 export demo_log, demo_state, demo_syslog, export_log, import_log, load_log, save_log # functions for logging
 export euler2rot, length, log!, menu, syslog
 export demo_state_4p, initial_kite_ref_frame                              # functions for four point kite model
-export asin2, azimuth_east, azimuth_north, calc_elevation, ground_dist, rot, rot3d 
+export asin2, azimuth_east, azimuth_north, calc_elevation, ground_dist, rot, rot3d
 export acos2, quat2euler, quat2viewer, wrap2pi                            # geometric functions
 export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE               # reference frame transformations
 export azn2azw, calc_heading_w, calc_heading, calc_course                 # geometric functions
@@ -73,7 +73,6 @@ const DATA_PATH = ["data"]          # path for log files and other data
 const MVec3     = MVector{3, Float64}
 
 P = nothing # suppress warning about undefined global variable
-Q = nothing # suppress warning about undefined global variable
 
 function init! end
 function next_step! end
