@@ -1,11 +1,14 @@
 # Changelog
 
-## Unreleased
+## KiteUtils v0.11.5 04-03-2026
 ### Changed
 - the `build_docu.jl` does no longer use the global environment
-- add `LiveServer` to `docs/Project.toml`
 ### Added
+- add `LiveServer` to `docs/Project.toml`
 - add `jetls` and `jetls_examples` to the bin folder for linting
+- add `relax` argument to `Settings(project)` constructor
+### Removed
+- remove `initial` from required keys when `relax = false`
 
 ## KiteUtils v0.11.4 04-03-2026
 ### Added
