@@ -13,6 +13,9 @@
 
 Flat struct, defining the settings of the Simulator and the Viewer.
 
+Use [`load_settings`](@ref) to reload the global module singleton, or
+[`Settings(project)`](@ref) to create a fresh, independent instance.
+
 $(TYPEDFIELDS)
 """
 @with_kw mutable struct Settings @deftype Float64
@@ -355,13 +358,20 @@ StructTypes.StructType(::Type{Settings}) = StructTypes.Mutable()
 PROJECT::String = "system.yaml"
 
 """
-    Settings(project)
+    Settings(project; relax=false)
 
-Constructor for the [`Settings`](@ref) struct, loading settings from the given project file.
+Create a fresh [`Settings`](@ref) instance, loading from the given
+project file. Unlike [`load_settings`](@ref), this does **not** modify
+the global module settings; it returns an independent struct.
+
+## Parameters
+- `project`: The name of the project file to load.
+- `relax`: If true, missing sections in the settings file are
+  skipped instead of raising an error.
 """
-function Settings(project)
+function Settings(project; relax=false)
     set = Settings()
-    return se(set, project)
+    return se(set, project; relax)
 end
 const SETTINGS = Settings()
 const _SE_DICTS = IdDict{Settings, Dict{String, Any}}()
@@ -396,13 +406,18 @@ end
 """
     load_settings(project=PROJECT; relax=false)
 
-Load the project with the given file name.
+Reload the global module [`Settings`](@ref) from the given project
+file. Returns the updated global settings singleton. To obtain an
+independent settings instance instead, use the
+[`Settings(project)`](@ref) constructor.
 
 The project must include the path and the suffix .yaml .
 
 ## Parameters
-- `project`: The name of the project file to load, defaults to the project that was loaded before.
-- `relax`: If true, no section needs to be present in the settings.yaml file.
+- `project`: The name of the project file to load, defaults to
+  the project that was loaded before.
+- `relax`: If true, missing sections in the settings file are
+  skipped instead of raising an error.
 """
 function load_settings(project=PROJECT; relax=false)
     SETTINGS.segments=0
@@ -536,7 +551,7 @@ function se(settings::Settings, project=PROJECT; relax=false)
         dict = YAML.load_file(joinpath(DATA_PATH[1], sim_settings_path))
         _SE_DICTS[settings] = dict
         # update the settings struct from the dictionary
-        required_sections = ["system", "initial", "solver", "kite", "tether", "environment"]
+        required_sections = ["system", "solver", "kite", "tether", "environment"]
         if relax
             for section in required_sections
                 if section in keys(dict)
@@ -546,7 +561,7 @@ function se(settings::Settings, project=PROJECT; relax=false)
         else
             update_settings(dict, required_sections, settings)
         end
-        for section in ["steering", "depower", "kps4", "kps5", "bridle", "winch", "kcu"]
+        for section in ["initial", "steering", "depower", "kps4", "kps5", "bridle", "winch", "kcu"]
             if section in keys(dict)
                 update_settings(dict, [section], settings)
             end
