@@ -154,3 +154,21 @@ end
         @test wv_out ≈ wv_in  atol=1e-10
     end
 end
+
+@testset "sync_wind!" begin
+    set = deepcopy(se())
+    # angles → vec → angles round trip (degrees, non-cardinal)
+    set.use_wind_vec = false
+    set.v_wind = 8.0
+    set.upwind_dir = 35.0
+    set.upwind_elevation = 12.0
+    sync_wind!(set)
+    @test norm(set.wind_vec) ≈ 8.0  atol=1e-10
+    @test set.wind_vec[3] < 0  # positive elevation → downward
+
+    set.use_wind_vec = true
+    sync_wind!(set)
+    @test set.v_wind ≈ 8.0   atol=1e-10
+    @test set.upwind_dir ≈ 35.0  atol=1e-10
+    @test set.upwind_elevation ≈ 12.0  atol=1e-10
+end

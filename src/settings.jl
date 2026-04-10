@@ -442,6 +442,32 @@ function update_settings()
     load_settings(PROJECT)
 end
 
+"""
+    sync_wind!(set::Settings)
+
+Synchronise the wind representation in `set`. If `use_wind_vec` is
+`true`, compute `v_wind`, `upwind_dir` and `upwind_elevation` from
+`wind_vec`. Otherwise compute `wind_vec` from the three scalars.
+
+Angles in `Settings` are stored in **degrees**; the conversion
+functions operate in radians, so this function handles the
+conversion.
+"""
+function sync_wind!(set::Settings)
+    if set.use_wind_vec
+        v, dir, elev = angles_from_wind_vec(set.wind_vec)
+        set.v_wind           = v
+        set.upwind_dir       = rad2deg(dir)
+        set.upwind_elevation = rad2deg(elev)
+    else
+        set.wind_vec = wind_vec_from_angles(
+            set.v_wind,
+            deg2rad(set.upwind_dir),
+            deg2rad(set.upwind_elevation))
+    end
+    nothing
+end
+
 function copy_files(relpath, files)
     if ! isdir(relpath)
         mkdir(relpath)
