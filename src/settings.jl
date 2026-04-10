@@ -260,8 +260,12 @@ $(TYPEDFIELDS)
     v_wind                = 0
     "initial upwind direction          [deg]"
     upwind_dir            = 0
+    "angle between upwind direction and the east-north plane [deg]"
+    upwind_elevation      = 0
     "wind vector at reference height     [m/s]"
     wind_vec::MVec3       = zeros(MVec3)
+    "if true, use wind_vec; if false, use v_wind, upwind_dir and upwind_elevation"
+    use_wind_vec::Bool    = false
     "temperature at reference height     [°C]"
     temp_ref              = 0
     "height of groundstation above see level  [m]"

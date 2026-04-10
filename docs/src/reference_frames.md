@@ -20,8 +20,11 @@ defined in the plane tangential to the half-sphere with a unit radius and the or
 of the ground-station.
 
 ## Wind direction
-The `upwind_direction` is the direction the wind is coming from. Zero is at north; clockwise positive. 
+The `upwind_direction` is the direction the wind is coming from. Zero is at north; clockwise positive.
 Default: `-pi/2`, wind from west.
+
+The `upwind_elevation` is the angle between the upwind direction and the east-north plane (ENU frame).
+Default: `0`, horizontal wind.
 
 ## Elevation and azimuth
 The position of the kite can be described with two angles, the azimuth angle φ and the elevation angle β .The elevation angle is zero when the height of the kite is zero, and 90° when it is at Zenith.

@@ -56,7 +56,9 @@ using KiteUtils, Test
     set_data_path("data")
     set2 = load_settings(joinpath("data", "system.yaml"))
     @test set2.sim_settings == "settings.yaml"
+    @test se().upwind_elevation == 0.0
     @test se().wind_vec == zeros(3)
+    @test se().use_wind_vec == false
     @test se_dict()["environment"]["z0"] == se().z0
     set3 = update_settings()
     @test set3 == se()
