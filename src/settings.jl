@@ -260,6 +260,8 @@ $(TYPEDFIELDS)
     v_wind                = 0
     "initial upwind direction          [deg]"
     upwind_dir            = 0
+    "wind vector at reference height     [m/s]"
+    wind_vec::MVec3       = zeros(MVec3)
     "temperature at reference height     [°C]"
     temp_ref              = 0
     "height of groundstation above see level  [m]"
@@ -355,6 +357,9 @@ function Base.setproperty!(set::Settings, sym::Symbol, val)
 end
 
 StructTypes.StructType(::Type{Settings}) = StructTypes.Mutable()
+function StructTypes.constructfrom(::Type{MVec3}, vec::AbstractVector)
+    MVec3(vec[1], vec[2], vec[3])
+end
 PROJECT::String = "system.yaml"
 
 """
