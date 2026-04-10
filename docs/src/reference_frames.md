@@ -27,10 +27,10 @@ reference frames which is defined in the plane tangential to the half-sphere wit
 radius and the origin at the tether exit point of the ground-station.
 
 ## Wind direction
-The `upwind_direction` is the direction the wind is coming from. Zero is at north; clockwise positive.
-Default: `-pi/2`, wind from west.
+The `upwind_dir` (degrees) is the direction the wind is coming from. Zero is at north; clockwise positive.
+Default: `-90`, wind from west.
 
-The `upwind_elevation` is the angle between the upwind direction and the east-north plane (ENU frame).
+The `upwind_elevation` (degrees) is the angle between the upwind direction and the east-north plane (ENU frame).
 Default: `0`, horizontal wind.
 
 ## Elevation and azimuth
