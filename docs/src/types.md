@@ -23,3 +23,8 @@ SysState{P}
 SysLog{P}
 Logger
 ```
+
+## Module
+```@docs
+KiteUtils
+```
