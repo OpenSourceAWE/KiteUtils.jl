@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner, Bart van de Lint
 # SPDX-License-Identifier: MIT
 
-using KiteUtils, Test
+using KiteUtils, Test, LinearAlgebra
 
 @testset "KiteUtils.jl: Settings       " begin
     cd(joinpath(@__DIR__, ".."))
@@ -57,8 +57,9 @@ using KiteUtils, Test
     set2 = load_settings(joinpath("data", "system.yaml"))
     @test set2.sim_settings == "settings.yaml"
     @test se().upwind_elevation == 0.0
-    @test se().wind_vec == zeros(3)
     @test se().use_wind_vec == false
+    # wind_vec is auto-synced from v_wind/upwind_dir on load
+    @test norm(se().wind_vec) ≈ se().v_wind  atol=1e-10
     @test se_dict()["environment"]["z0"] == se().z0
     set3 = update_settings()
     @test set3 == se()
