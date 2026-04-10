@@ -7,10 +7,12 @@
 Utility functions for the kite simulators.
 
 This module provides data structures for the flight state and the flight log,
-functions for creating a demo flight state, demo flight log, loading and saving flight logs,
-functions for reading the settings, and helper functions for working with rotations.
+functions for creating a demo flight state, demo flight log, loading and
+saving flight logs, functions for reading the settings, and helper functions
+for working with rotations.
 
-See https://ufechner7.github.io/KiteUtils.jl/stable/ for more information.
+See the [documentation](https://OpenSourceAWE.github.io/KiteUtils.jl/stable/)
+for more information.
 """
 module KiteUtils
 
@@ -57,6 +59,7 @@ export acos2, quat2euler, quat2viewer, wrap2pi                           # geome
 export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE              # reference frame transformations
 export azn2azw,  calc_course , calc_heading, calc_heading_w              # geometric functions
 export calc_orient_rot, enu2ned, is_right_handed_orthonormal, ned2enu
+export wind_vec_from_angles, angles_from_wind_vec
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
 export fpc_settings, fpp_settings, se, se_dict, update_settings, wc_settings
 export calculate_rotational_inertia

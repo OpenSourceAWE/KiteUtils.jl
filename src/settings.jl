@@ -262,6 +262,12 @@ $(TYPEDFIELDS)
     v_wind                = 0
     "initial upwind direction          [deg]"
     upwind_dir            = 0
+    "angle between upwind direction and the east-north plane [deg]"
+    upwind_elevation      = 0
+    "wind vector at reference height     [m/s]"
+    wind_vec::MVec3       = zeros(MVec3)
+    "if true, use wind_vec; if false, use v_wind, upwind_dir and upwind_elevation"
+    use_wind_vec::Bool    = false
     "temperature at reference height     [°C]"
     temp_ref              = 0
     "height of groundstation above see level  [m]"
@@ -353,10 +359,17 @@ function Base.setproperty!(set::Settings, sym::Symbol, val)
         else
             setfield!(set, sym, val)
         end
+        if sym in (:use_wind_vec, :wind_vec, :v_wind,
+                   :upwind_dir, :upwind_elevation)
+            sync_wind!(set)
+        end
     end
 end
 
 StructTypes.StructType(::Type{Settings}) = StructTypes.Mutable()
+function StructTypes.constructfrom(::Type{MVec3}, vec::AbstractVector)
+    MVec3(vec[1], vec[2], vec[3])
+end
 PROJECT::String = "system.yaml"
 
 """
@@ -433,6 +446,32 @@ Re-read the settings from a previously loaded project. Returns the new settings.
 """
 function update_settings()
     load_settings(PROJECT)
+end
+
+"""
+    sync_wind!(set::Settings)
+
+Synchronise the wind representation in `set`. If `use_wind_vec` is
+`true`, compute `v_wind`, `upwind_dir` and `upwind_elevation` from
+`wind_vec`. Otherwise compute `wind_vec` from the three scalars.
+
+Angles in `Settings` are stored in **degrees**; the conversion
+functions operate in radians, so this function handles the
+conversion.
+"""
+function sync_wind!(set::Settings)
+    if set.use_wind_vec
+        v, dir, elev = angles_from_wind_vec(set.wind_vec)
+        Core.setfield!(set, :v_wind, v)
+        Core.setfield!(set, :upwind_dir, rad2deg(dir))
+        Core.setfield!(set, :upwind_elevation, rad2deg(elev))
+    else
+        Core.setfield!(set, :wind_vec, wind_vec_from_angles(
+            set.v_wind,
+            deg2rad(set.upwind_dir),
+            deg2rad(set.upwind_elevation)))
+    end
+    nothing
 end
 
 function copy_files(relpath, files)
@@ -575,6 +614,7 @@ function se(settings::Settings, project=PROJECT; relax=false)
         if haskey(dict, "kite") && haskey(dict["kite"], "height")
             settings.height_k = dict["kite"]["height"]
         end
+        sync_wind!(settings)
     end
     return settings
 end
