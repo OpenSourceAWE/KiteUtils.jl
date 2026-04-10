@@ -239,6 +239,8 @@ $(TYPEDFIELDS)
     v_ro_max              = 8
     "minimal reel-out speed (=max reel-in speed) [m/s]"
     v_ro_min              = -8
+    "minimum speed below which the brake is active [m/s]"
+    v_min                 = 0.1
     "maximal acceleration                    [m/s²]"
     max_acc               = 0
     "radius of the drum [m]"

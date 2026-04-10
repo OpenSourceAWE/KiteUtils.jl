@@ -56,6 +56,7 @@ using KiteUtils, Test
     set_data_path("data")
     set2 = load_settings(joinpath("data", "system.yaml"))
     @test set2.sim_settings == "settings.yaml"
+    @test se().v_min == 0.1
     @test se_dict()["environment"]["z0"] == se().z0
     set3 = update_settings()
     @test set3 == se()

@@ -100,6 +100,7 @@ winch:
     max_force: 4000        # maximal (nominal) tether force; short overload allowed [N]
     v_ro_max:  8.0         # maximal reel-out speed                          [m/s]
     v_ro_min: -8.0         # minimal reel-out speed (=max reel-in speed)     [m/s]
+    v_min: 0.1             # min speed below which the brake is active       [m/s]
     drum_radius: 0.1615    # radius of the drum                              [m]
     max_acc: 4.0           # maximal acceleration of the winch               [m/s²]
     gear_ratio: 6.2        # gear ratio of the winch                         [-]   
