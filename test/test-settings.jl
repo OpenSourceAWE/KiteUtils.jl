@@ -60,6 +60,7 @@ using KiteUtils, Test, LinearAlgebra
     @test se().use_wind_vec == false
     # wind_vec is auto-synced from v_wind/upwind_dir on load
     @test norm(se().wind_vec) ≈ se().v_wind  atol=1e-10
+    @test se().v_min == 0.1
     @test se_dict()["environment"]["z0"] == se().z0
     set3 = update_settings()
     @test set3 == se()

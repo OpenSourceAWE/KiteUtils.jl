@@ -54,7 +54,7 @@ and select one of the examples with the cursor keys and press enter.
 - types for the state of a kite power, logging and configuration parameters
 - a function for calculation the inertia matrix of a kite
 
-## Licence
+## License
 This project is licensed under the MIT License. The documentation is licensed under the CC-BY-4.0 License. Please see the below `Copyright notice` in association with the licenses that can be found in the file [LICENSE](LICENSE) in this folder.
 
 ## Copyright notice
