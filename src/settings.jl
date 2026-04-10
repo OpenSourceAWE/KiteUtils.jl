@@ -357,6 +357,10 @@ function Base.setproperty!(set::Settings, sym::Symbol, val)
         else
             setfield!(set, sym, val)
         end
+        if sym in (:use_wind_vec, :wind_vec, :v_wind,
+                   :upwind_dir, :upwind_elevation)
+            sync_wind!(set)
+        end
     end
 end
 
@@ -468,17 +472,6 @@ function sync_wind!(set::Settings)
     nothing
 end
 
-function Base.setproperty!(set::Settings, name::Symbol, value)
-    Core.setfield!(set, name, value)
-    if name === :use_wind_vec ||
-       name === :wind_vec ||
-       name === :v_wind ||
-       name === :upwind_dir ||
-       name === :upwind_elevation
-        sync_wind!(set)
-    end
-    value
-end
 function copy_files(relpath, files)
     if ! isdir(relpath)
         mkdir(relpath)
@@ -619,6 +612,7 @@ function se(settings::Settings, project=PROJECT; relax=false)
         if haskey(dict, "kite") && haskey(dict["kite"], "height")
             settings.height_k = dict["kite"]["height"]
         end
+        sync_wind!(settings)
     end
     return settings
 end
