@@ -456,18 +456,29 @@ conversion.
 function sync_wind!(set::Settings)
     if set.use_wind_vec
         v, dir, elev = angles_from_wind_vec(set.wind_vec)
-        set.v_wind           = v
-        set.upwind_dir       = rad2deg(dir)
-        set.upwind_elevation = rad2deg(elev)
+        Core.setfield!(set, :v_wind, v)
+        Core.setfield!(set, :upwind_dir, rad2deg(dir))
+        Core.setfield!(set, :upwind_elevation, rad2deg(elev))
     else
-        set.wind_vec = wind_vec_from_angles(
+        Core.setfield!(set, :wind_vec, wind_vec_from_angles(
             set.v_wind,
             deg2rad(set.upwind_dir),
-            deg2rad(set.upwind_elevation))
+            deg2rad(set.upwind_elevation)))
     end
     nothing
 end
 
+function Base.setproperty!(set::Settings, name::Symbol, value)
+    Core.setfield!(set, name, value)
+    if name === :use_wind_vec ||
+       name === :wind_vec ||
+       name === :v_wind ||
+       name === :upwind_dir ||
+       name === :upwind_elevation
+        sync_wind!(set)
+    end
+    value
+end
 function copy_files(relpath, files)
     if ! isdir(relpath)
         mkdir(relpath)
