@@ -277,7 +277,7 @@ function wind_vec_from_angles(v_wind, upwind_dir, upwind_elevation)
     east  = horizontal * sin(downwind_azimuth)
     north = horizontal * cos(downwind_azimuth)
     up    = -v_wind * sin(upwind_elevation)
-    SVector(east, north, up)
+    SVec3(east, north, up)
 end
 
 """
