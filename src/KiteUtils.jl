@@ -74,6 +74,7 @@ Type used for position components and scalar SysState members.
 const MyFloat   = Float32           # type to use for position components and scalar SysState members
 const DATA_PATH = ["data"]          # path for log files and other data
 const MVec3     = MVector{3, Float64}
+const SVec3     = SVector{3, Float64}
 
 P = nothing # suppress warning about undefined global variable
 

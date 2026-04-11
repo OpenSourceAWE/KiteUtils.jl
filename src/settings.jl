@@ -265,7 +265,7 @@ $(TYPEDFIELDS)
     "angle between upwind direction and the east-north plane [deg]"
     upwind_elevation      = 0
     "wind vector at reference height     [m/s]"
-    wind_vec::MVec3       = zeros(MVec3)
+    wind_vec::SVec3 = zeros(SVec3)
     "if true, use wind_vec; if false, use v_wind, upwind_dir and upwind_elevation"
     use_wind_vec::Bool    = false
     "temperature at reference height     [°C]"
@@ -356,6 +356,10 @@ function Base.setproperty!(set::Settings, sym::Symbol, val)
     else
         if val isa Int && (getproperty(set, sym)) isa Float64
             setfield!(set, sym, Float64(val))
+        elseif sym == :wind_vec && !(val isa SVec3) &&
+               val isa AbstractVector
+            setfield!(set, sym,
+                      SVec3(val[1], val[2], val[3]))
         else
             setfield!(set, sym, val)
         end
@@ -369,6 +373,9 @@ end
 StructTypes.StructType(::Type{Settings}) = StructTypes.Mutable()
 function StructTypes.constructfrom(::Type{MVec3}, vec::AbstractVector)
     MVec3(vec[1], vec[2], vec[3])
+end
+function StructTypes.constructfrom(::Type{SVec3}, vec::AbstractVector)
+    SVec3(vec[1], vec[2], vec[3])
 end
 PROJECT::String = "system.yaml"
 
