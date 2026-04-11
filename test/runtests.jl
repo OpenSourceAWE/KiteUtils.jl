@@ -19,6 +19,8 @@ The file will be automatically included inside a `@testset` with title "Title Fo
     @test fpc_settings("system.yaml") == "fpc_settings.yaml"
     @test fpp_settings("system.yaml") == "fpp_settings.yaml"
     @test vsm_settings("system.yaml") == "vsm_settings.yaml"
+    @test aero_geometry_settings("system.yaml") == "aero_geometry.yaml"
+    @test struc_geometry_settings("system.yaml") == "struc_geometry.yaml"
 end
 
 @testset "KiteUtils.jl: New Constructors" begin

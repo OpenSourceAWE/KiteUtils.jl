@@ -580,6 +580,34 @@ function vsm_settings(project=PROJECT)
 end
 
 """
+    aero_geometry_settings(project=PROJECT)
+
+Get the aerodynamic geometry filename from the project file.
+
+Returns the filename specified in the `aero_geometry` field of the system section.
+The project file defaults to the currently active PROJECT.
+"""
+function aero_geometry_settings(project=PROJECT)
+    # determine which aero_geometry to load
+    dict = YAML.load_file(joinpath(DATA_PATH[1], project))
+    dict["system"]["aero_geometry"]
+end
+
+"""
+    struc_geometry_settings(project=PROJECT)
+
+Get the structural geometry filename from the project file.
+
+Returns the filename specified in the `struc_geometry` field of the system section.
+The project file defaults to the currently active PROJECT.
+"""
+function struc_geometry_settings(project=PROJECT)
+    # determine which struc_geometry to load
+    dict = YAML.load_file(joinpath(DATA_PATH[1], project))
+    dict["system"]["struc_geometry"]
+end
+
+"""
     se(project=PROJECT; relax=false)
 
 Getter function for the [`Settings`](@ref) struct.
