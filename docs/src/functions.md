@@ -15,6 +15,12 @@ copy_examples
 se
 se_dict
 sync_wind!
+wc_settings
+fpc_settings
+fpp_settings
+vsm_settings
+aero_geometry_settings
+struc_geometry_settings
 ```
 Also look at the default example: [settings.yaml](https://github.com/ufechner7/KiteUtils.jl/blob/main/data/settings.yaml) .
 
