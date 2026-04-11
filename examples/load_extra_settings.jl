@@ -32,6 +32,12 @@ end
 
 StructTypes.StructType(::Type{FPCSettings}) = StructTypes.Mutable()
 
+if basename(pwd()) == "examples"
+    set_data_path("../data")
+else
+    set_data_path("data")
+end
+
 # update the fields of fcs from a config file with the same field names
 # the config file is expected to be in YAML format
 function update(fcs::FPCSettings)
