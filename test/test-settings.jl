@@ -64,6 +64,7 @@ using KiteUtils, Test, LinearAlgebra
 
     # assigning wind_vec with a plain Vector converts to KiteUtils.SVec3
     set_wv = deepcopy(se())
+    set_wv.use_wind_vec = true
     set_wv.wind_vec = [1.0, 2.0, 3.0]
     @test set_wv.wind_vec isa KiteUtils.SVec3
     @test set_wv.wind_vec == KiteUtils.SVec3(1.0, 2.0, 3.0)
