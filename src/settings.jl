@@ -587,6 +587,15 @@ function vsm_settings_file(project=PROJECT)
 end
 
 """
+    vsm_settings(project=PROJECT)
+
+Compatibility wrapper for [`vsm_settings_file`](@ref).
+"""
+function vsm_settings(project=PROJECT)
+    vsm_settings_file(project)
+end
+
+"""
     aero_geometry_file(project=PROJECT)
 
 Get the aerodynamic geometry filename from the project file.
@@ -601,17 +610,36 @@ function aero_geometry_file(project=PROJECT)
 end
 
 """
+    aero_geometry_settings(project=PROJECT)
+
+Compatibility wrapper for [`aero_geometry_file`](@ref).
+"""
+function aero_geometry_settings(project=PROJECT)
+    aero_geometry_file(project)
+end
+
+"""
     structural_geometry_file(project=PROJECT)
 
 Get the structural geometry filename from the project file.
 
 Returns the filename specified in the `structural_geometry` field of the system section.
+Falls back to `struc_geometry` for compatibility.
 The project file defaults to the currently active PROJECT.
 """
 function structural_geometry_file(project=PROJECT)
-    # determine which structural_geometry to load
+    # determine which structural_geometry to load (or legacy struc_geometry)
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
-    dict["system"]["structural_geometry"]
+    get(dict["system"], "structural_geometry", get(dict["system"], "struc_geometry"))
+end
+
+"""
+    struc_geometry_settings(project=PROJECT)
+
+Compatibility wrapper for [`structural_geometry_file`](@ref).
+"""
+function struc_geometry_settings(project=PROJECT)
+    structural_geometry_file(project)
 end
 
 """
