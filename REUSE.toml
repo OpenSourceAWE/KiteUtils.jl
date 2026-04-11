@@ -4,7 +4,7 @@ version = 1
 path = ["data/settings.yaml", "data/settings_cabauw.yaml", "data/system.yaml", "data/system_cabauw.yaml", 
         "data/settings2.yaml", "data/system2.yaml", "data/Test_flight.arrow", "data/transition.arrow2", 
         "data/failure_low_right.csv", "data/transition.csv", "data/failure_low_right.arrow", 
-        "data/failure_low_right.arrow2", "data/sim_log.arrow", "data/transition.arrow"]
+        "data/failure_low_right.arrow2", "data/sim_log.arrow", "data/transition.arrow", "data/fpc_settings.yaml"]
 SPDX-FileCopyrightText = "2025 Uwe Fechner, Bart van de Lint"
 SPDX-License-Identifier = "CC-BY-4.0"
 
