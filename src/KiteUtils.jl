@@ -6,11 +6,13 @@
 
 Utility functions for the kite simulators.
 
-This module provides data structures for the flight state and the flight log, 
-functions for creating a demo flight state, demo flight log, loading and saving flight logs, 
-functions for reading the settings, and helper functions for working with rotations.
+This module provides data structures for the flight state and the flight log,
+functions for creating a demo flight state, demo flight log, loading and
+saving flight logs, functions for reading the settings, and helper functions
+for working with rotations.
 
-See https://ufechner7.github.io/KiteUtils.jl/stable/ for more information.
+See the [documentation](https://OpenSourceAWE.github.io/KiteUtils.jl/stable/)
+for more information.
 """
 module KiteUtils
 
@@ -42,23 +44,25 @@ SOFTWARE. =#
 # the parameter P is the number of points of the tether, equal to segments+1
 # in addition helper functions for working with rotations
 
-using PrecompileTools: @setup_workload, @compile_workload 
-using Rotations, StaticArrays, StructArrays, RecursiveArrayTools, Arrow, YAML, LinearAlgebra, DocStringExtensions
-using Parameters, StructTypes, CSV, Parsers, Pkg
-export Settings, SysState, SysLog, Logger, MyFloat
+using PrecompileTools: @compile_workload, @setup_workload
+using Arrow, DocStringExtensions, LinearAlgebra, RecursiveArrayTools, Rotations, StaticArrays, StructArrays, YAML
+using CSV, Parameters, Parsers, Pkg, StructTypes
+export Logger, MyFloat, Settings, SysLog, SysState
 
 import Base.length
 import ReferenceFrameRotations as RFR
-export demo_state, demo_syslog, demo_log, load_log, save_log, export_log, import_log # functions for logging
-export log!, syslog, length, euler2rot, menu
-export demo_state_4p, initial_kite_ref_frame       # functions for four point kite model
-export rot, rot3d, ground_dist, calc_elevation, azimuth_east, azimuth_north, asin2 
-export acos2, wrap2pi, quat2euler, quat2viewer                           # geometric functions
-export fromEG2W, fromENU2EG,fromW2SE, fromKS2EX, fromEX2EG               # reference frame transformations
-export azn2azw, calc_heading_w, calc_heading, calc_course                # geometric functions
-export calc_orient_rot, is_right_handed_orthonormal, enu2ned, ned2enu
-export set_data_path, get_data_path, load_settings, copy_settings        # functions for reading and copying parameters
-export se, se_dict, update_settings, wc_settings, fpc_settings, fpp_settings, vsm_settings
+
+export demo_log, demo_state, demo_syslog, export_log, import_log, load_log, save_log # functions for logging
+export euler2rot, length, log!, menu, syslog
+export demo_state_4p, initial_kite_ref_frame                                         # functions for four point kite model
+export asin2, azimuth_east, azimuth_north, calc_elevation, ground_dist, rot, rot3d
+export acos2, quat2euler, quat2viewer, wrap2pi                           # geometric functions
+export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE              # reference frame transformations
+export azn2azw,  calc_course , calc_heading, calc_heading_w              # geometric functions
+export calc_orient_rot, enu2ned, is_right_handed_orthonormal, ned2enu
+export wind_vec_from_angles, angles_from_wind_vec
+export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
+export fpc_settings, fpp_settings, se, se_dict, update_settings, wc_settings, fpc_settings, fpp_settings, vsm_settings
 export calculate_rotational_inertia
 export AbstractKiteModel
 export init!, next_step!, update_sys_state!
@@ -68,9 +72,11 @@ export init!, next_step!, update_sys_state!
 
 Type used for position components and scalar SysState members.
 """
-const MyFloat   = Float32           # type to use for position components and scalar SysState members  
+const MyFloat   = Float32           # type to use for position components and scalar SysState members
 const DATA_PATH = ["data"]          # path for log files and other data
 const MVec3     = MVector{3, Float64}
+
+P = nothing # suppress warning about undefined global variable
 
 function init! end
 function next_step! end
@@ -80,7 +86,7 @@ function update_sys_state! end
     abstract type AbstractKiteModel
 
 All kite models must inherit from this type. All methods that are defined on this type must work
-with all kite models, or a specific method has to be defined for the specific kite model. 
+with all kite models, or a specific method has to be defined for the specific kite model.
 """
 abstract type AbstractKiteModel end
 
@@ -112,19 +118,22 @@ include("_show.jl")
     SysLog{P}
 
 Flight log, containing the basic data as struct of vectors which can be accessed as if it would
-be an array structs. 
+be an array structs.
 In addition an extended view on the data that includes derived/ calculated values for plotting.
 Finally it contains meta data like the name of the log file.
 
 $(TYPEDFIELDS)
 """
-mutable struct SysLog{P}
+mutable struct SysLog{P, S <: StructArray{SysState{P}}}
     "name of the flight log"
     name::String
-    colmeta::Dict
+    colmeta::Dict{Symbol, Union{String, Vector{Pair{String, String}}}}
     "struct of vectors that can also be accessed like a vector of structs"
-    syslog::StructArray{SysState{P}}
+    syslog::S
 end
+
+# Outer constructor to infer the second type parameter
+SysLog{P}(name::String, colmeta::Dict, syslog::S) where {P, S <: StructArray{SysState{P}}} = SysLog{P, S}(name, colmeta, syslog)
 
 function prepre_last(vec)
     vec[end-2]
@@ -180,7 +189,7 @@ function demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2)
     dist = collect(range(0, stop=10, length=P))
     ss.X .= dist .* cos(turn_angle)
     ss.Y .= dist .* sin(turn_angle)
-    ss.Z .= (a .* cosh.(dist./a) .- a) * height/ 5.430806 
+    ss.Z .= (a .* cosh.(dist./a) .- a) * height/ 5.430806
     r_xyz = RotXYZ(pi/2, -pi/2, 0)
     q = QuatRotation(r_xyz)
     ss.orient .= MVector{4, Float32}(Rotations.params(q))
@@ -200,7 +209,7 @@ the apparent wind speed.
 
 Parameters:
 - `vec_c`: (`pos_n`-2) - (`pos_n`-1) n: number of particles without the three kite particles
-                                    that do not belong to the main thether (P1, P2 and P3).
+                                    that do not belong to the main tether (P1, P2 and P3).
 - `v_app`: vector of the apparent wind speed
 
 Returns:
@@ -210,15 +219,15 @@ function initial_kite_ref_frame(vec_c, v_app)
     z = normalize(vec_c)
     y = normalize(cross(v_app, vec_c))
     x = normalize(cross(y, vec_c))
-    return (x, y, z)    
+    return (x, y, z)
 end
 
 """
-    get_particles(height_k, height_b, width, m_k, pos_pod= [ 75., 0., 129.90381057], vec_c=[-15., 0., -25.98076211], 
+    get_particles(height_k, height_b, width, m_k, pos_pod= [ 75., 0., 129.90381057], vec_c=[-15., 0., -25.98076211],
                   v_app=[10.4855, 0, -3.08324])
 
-Calculate the initial positions of the particels representing 
-a 4-point kite, connected to a kite control unit (KCU). 
+Calculate the initial positions of the particles representing
+a 4-point kite, connected to a kite control unit (KCU).
 
 Parameters:
 - height_k: height of the kite itself, not above ground [m]
@@ -238,7 +247,7 @@ function get_particles(height_k, height_b, width, m_k, pos_pod= [ 75., 0., 129.9
     h_kz = height_k * sin(beta); # print 'h_kz: ', h_kz
     h_bx = height_b * cos(beta)
     h_bz = height_b * sin(beta)
-    pos_kite = pos_pod - (h_kz + h_bz) * z + (h_kx + h_bx) * x   # top,        poing B in diagram
+    pos_kite = pos_pod - (h_kz + h_bz) * z + (h_kx + h_bx) * x   # top,        point B in diagram
     pos_C = pos_kite + h_kz * z + 0.5 * width * y + h_kx * x     # side point, point C in diagram
     pos_A = pos_kite + h_kz * z + (h_kx + width * m_k) * x       # nose,       point A in diagram
     pos_D = pos_kite + h_kz * z - 0.5 * width * y + h_kx * x     # side point, point D in diagram
@@ -253,7 +262,14 @@ Create a demo state, using the 4 point kite model with a given height and time. 
 
 Returns a SysState instance.
 """
-function demo_state_4p(P, height=6.0, time=0.0; azimuth_north=-pi/2)
+function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
+    function get_particle(particle, X, Y, Z)
+        x, y, z = particle[1], particle[2], particle[3]
+        push!(X, x)
+        push!(Y, y)
+        push!(Z, z)
+        return SVector(x,y,z)
+    end
     ss = SysState{P+4}()
     a = 10
     turn_angle = azimuth_north+pi/2
@@ -261,46 +277,35 @@ function demo_state_4p(P, height=6.0, time=0.0; azimuth_north=-pi/2)
     X = dist .* cos(turn_angle)
     Y = dist .* sin(turn_angle)
     v_app = [10*cos(turn_angle), 10*sin(turn_angle), 0]
-    Z = (a .* cosh.(dist./a) .- a) * height/ 5.430806 
+    Z = (a .* cosh.(dist./a) .- a) * height/ 5.430806
     # append the kite particles to X, Y and z
     pod_pos = [X[end], Y[end], Z[end]]
-    vec_c = [X[end-2] - X[end-1], Y[end-2] - Y[end-1], Z[end-2] - Z[end-1]]  
+    vec_c = [X[end-2] - X[end-1], Y[end-2] - Y[end-1], Z[end-2] - Z[end-1]]
     particles = get_particles(se().height_k, se().h_bridle, se().width, se().m_k, pod_pos, vec_c, v_app)[3:end]
-    local pos_B, pos_C, pos_D
-    for i in 1:4
-        particle=particles[i]
-        x, y, z = particle[1], particle[2], particle[3]
-    
-        if i==2
-            pos_B = SVector(x,y,z)
-        elseif  i==3
-            pos_C = SVector(x,y,z)
-        elseif i==4
-            pos_D = SVector(x,y,z)
-        end
-        push!(X, x)
-        push!(Y, y)
-        push!(Z, z)
-    end
+    get_particle(particles[1], X, Y, Z)
+    pos_B = get_particle(particles[2], X, Y, Z)
+    pos_C = get_particle(particles[3], X, Y, Z)
+    pos_D = get_particle(particles[4], X, Y, Z)
     ss.X .= X
     ss.Y .= Y
     ss.Z .= Z
     pos_centre = 0.5 * (pos_C + pos_D)
     delta = pos_B - pos_centre
-    z = -normalize(delta)
-    y = normalize(pos_C - pos_D)
-    x = y × z
-    pos_kite_ = pod_pos
-    pos_before = pos_kite_ + z
-   
-    rotation = rot(pos_kite_, pos_before, -x)
-    q = QuatRotation(rotation)
-    ss.orient .= MVector{4, Float32}(Rotations.params(q))
+    let z = -normalize(delta),
+        y = normalize(pos_C - pos_D)
+        x = y × z
+        pos_kite_ = pod_pos
+        pos_before = pos_kite_ + z
+
+        rotation = rot(pos_kite_, pos_before, -x)
+        q = QuatRotation(rotation)
+        ss.orient .= MVector{4, Float32}(Rotations.params(q))
+    end
     ss.elevation = calc_elevation([X[end], 0.0, Z[end]])
     ss.v_wind_gnd = [10.4855, 0, -3.08324]
     ss.v_wind_200m = [10.4855, 0, -3.08324]
     ss.v_wind_kite = [10.4855, 0, -3.08324]
-    ss.t_sim = 0.014
+    ss.t_sim = time
     ss
 end
 
@@ -312,7 +317,7 @@ include("_demo_syslog.jl")
 Create an artificial SysLog struct for demonstration purposes. P is the number of tether
 particles.
 """
-function demo_log(P, name="Test_flight"; duration=10,     
+function demo_log(P, name="Test_flight"; duration=10,
     colmeta = Dict(:var_01 => ["name" => "var_01"],
                    :var_02 => ["name" => "var_02"],
                    :var_03 => ["name" => "var_03"],
@@ -330,14 +335,14 @@ function demo_log(P, name="Test_flight"; duration=10,
                    :var_15 => ["name" => "var_15"],
                    :var_16 => ["name" => "var_16"]
                    ))
-    syslog = demo_syslog(P, name, duration=duration)
+    syslog = demo_syslog(P, duration=duration)
     return SysLog{P}(name, colmeta, syslog)
 end
 
 """
     save_log(flight_log::SysLog, compress=true; path="")
 
-Save a fligh log of type SysLog as .arrow file. By default lz4 compression is used, 
+Save a flight log of type SysLog as .arrow file. By default lz4 compression is used,
 if you use **false** as second parameter no compression is used.
 """
 function save_log(flight_log::SysLog, compress=true; path="")
@@ -355,7 +360,7 @@ end
 """
     export_log(flight_log; path="")
 
-Save a fligh log of type SysLog as .csv file.
+Save a flight log of type SysLog as .csv file.
 """
 function export_log(flight_log; path="")
     if path == ""
@@ -369,10 +374,10 @@ include("load_log.jl")
 
 
 """
-    calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector,  
+    calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector,
           around_center_of_mass::Bool=true, rotation_point::Vector=[0, 0, 0])
 
-Calculate the rotational inertia (Ixx, Ixy, Ixz, Iyy, Iyz, Izz) of a collection of point masses around a point. 
+Calculate the rotational inertia (Ixx, Ixy, Ixz, Iyy, Iyz, Izz) of a collection of point masses around a point.
 By default this point is the center of mass which will be calculated, but any point can be given to rotation_point.
 
 Parameters:
@@ -383,20 +388,20 @@ Parameters:
 - `around_center_of_mass`: Calculate the rotational inertia around the center of mass?
 - `rotation_point`: Rotation point used if not rotating around the center of mass.
 
-Returns:  
+Returns:
 The tuple  Ixx, Ixy, Ixz, Iyy, Iyz, Izz where:
 - Ixx: rotational inertia around the x-axis.
 - Ixy: rotational inertia around the xy-plane.
 - Ixz: rotational inertia around the xz-plane.
 - Iyy: rotational inertia around the y-axis.
 - Iyz: rotational inertia around the yz-plane.
-- Izz: rotational inertia around the z-axis. 
+- Izz: rotational inertia around the z-axis.
 
 """
-function calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector, around_center_of_mass::Bool=true, 
+function calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector, around_center_of_mass::Bool=true,
     rotation_point::Vector=[0, 0, 0])
     @assert size(X) == size(Y) == size(Z) == size(M)
-    
+
     if around_center_of_mass
         # First loop to determine the center of mass
         x_com = y_com = z_com = m_total = 0.0
@@ -404,7 +409,7 @@ function calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector
             x_com += x * m
             y_com += y * m
             z_com += z * m
-            m_total += m 
+            m_total += m
         end
 
         x_com = x_com / m_total
@@ -428,7 +433,7 @@ function calculate_rotational_inertia(X::Vector, Y::Vector, Z::Vector, M::Vector
         Ixz += m * x * z
         Iyz += m * y * z
     end
-    
+
     Ixx, Ixy, Ixz, Iyy, Iyz, Izz
 end
 
@@ -453,16 +458,16 @@ Copy all example scripts to the folder "examples"
 """
 function copy_examples()
     PATH = "examples"
-    if ! isdir(PATH) 
+    if ! isdir(PATH)
         mkdir(PATH)
     end
-    src_path = joinpath(dirname(pathof(@__MODULE__)), "..", PATH)
+    src_path = joinpath(@__DIR__, "..", PATH)
     copy_files("examples", readdir(src_path))
 end
 
 function install_examples(add_packages=true)
     copy_examples()
-    copy_settings(["transition.csv"])
+    Base.invokelatest(() -> copy_settings(["transition.csv"]))
     if add_packages
         Pkg.add("ControlPlots")
         Pkg.add("LaTeXStrings")
@@ -478,7 +483,7 @@ end
     @compile_workload begin
         # all calls in this block will be precompiled, regardless of whether
         # they belong to your package or not (on Julia 1.8 and higher)
-        se()
+        Base.invokelatest(se)
         try
             load_log(7, "Test_flight.arrow")
         catch

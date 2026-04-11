@@ -1,7 +1,10 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner, Bart van de Lint
 # SPDX-License-Identifier: MIT
 
+using KiteUtils, Test, StructArrays
+
 @testset "KiteUtils.jl: Log files      " begin
+    cd(joinpath(@__DIR__, ".."))
     state = KiteUtils.demo_state(7)
     @test typeof(state) == SysState{7}
     @test state.X[end] == 10.0
@@ -16,12 +19,12 @@
     set_data_path("data")
     filename="transition"
     log = import_log(filename)
-    @test typeof(log) == SysLog{11}
+    @test log isa SysLog{11}
     @test log.name == "transition"
     @test length(log.syslog) == 8180
     set_data_path(tempdir())
     log = KiteUtils.test(true)
-    @test typeof(log) == SysLog{7}
+    @test log isa SysLog{7}
     @test log.syslog.Z[end][7] ≈ 6 # height of the last particle which represents the kite (1p model)
     @test log.z1[end] ≈ 6.0
     @test log.y1[end] ≈ 0.0
@@ -30,4 +33,16 @@
     @test log.y[end] ≈  0.0
     @test log.z[end] ≈  2.5474184 # height of the prepre-last particle which represents the kite (4p model)
     @test export_log(log) == joinpath(tempdir(), "Test_flight.csv")
+    # test that load_log works with a dot in the filename (e.g. log_1.11.arrow)
+    dotted_name = "transition.1.11"
+    src = joinpath("data", "transition.arrow")
+    dst = joinpath(tempdir(), dotted_name * ".arrow")
+    cp(src, dst; force=true)
+    set_data_path(tempdir())
+    log2 = load_log(dotted_name)           # without extension
+    @test log2 isa SysLog
+    @test length(log2.syslog) == 8180
+    log3 = load_log(dotted_name * ".arrow") # with extension
+    @test log3 isa SysLog
+    @test length(log3.syslog) == 8180
 end

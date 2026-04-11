@@ -88,7 +88,7 @@ end
 Calculate the heading vector in wind reference frame.
 """
 function calc_heading_w(orientation, down_wind_direction = pi/2.0)
-    # create a unit heading vector in the xsense reference frame
+    # create a unit heading vector in the Xsens reference frame
     heading_sensor =  SVector(1, 0, 0)
     # rotate headingSensor to the Earth Xsens reference frame
     headingEX = fromKS2EX(heading_sensor, orientation)
@@ -101,11 +101,21 @@ end
 """
     calc_heading(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=true)
 
-Calculate the heading angle of the kite in radians. The heading is the direction
-the nose of the kite is pointing to. The orientation is given in Euler angles,
-calculated with respect to the North, East, Down reference frame.
-If respos is true the heading angle is defined in the range of 0 .. 2π,
-otherwise in the range -π .. π
+Calculate the heading angle of the kite in radians. The heading is the direction the nose 
+of the kite is pointing to, expressed in the Small Earth (SE) reference frame.
+
+# Arguments
+- `orientation`: Euler angles (roll, pitch, yaw) in radians, calculated with respect to 
+                 the North, East, Down (NED) reference frame
+- `elevation`:   Elevation angle of the kite in radians
+- `azimuth`:     Azimuth angle of the kite in radians
+- `upwind_dir`:  Direction the wind is coming from in radians; zero at north; clockwise 
+                 positive from above (default: -π/2, wind from west)
+- `respos`:      If true, return angle in range [0, 2π]; if false, return in range [-π, π] 
+                 (default: true)
+
+# Returns
+The heading angle in radians, measured from the positive x-axis of the SE reference frame.
 """
 function calc_heading(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=true)
     down_wind_direction = wrap2pi(upwind_dir + π)
@@ -117,7 +127,7 @@ function calc_heading(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=
     angle
 end
 
-""" 
+"""
     calc_course(velocityENU, elevation, azimuth, down_wind_direction = π/2, respos=true)
 
 Calculate the course angle in radian.
@@ -125,7 +135,7 @@ Calculate the course angle in radian.
 - velocityENU:         Kite velocity in EastNorthUp reference frame
 - down_wind_direction: The direction the wind is going to; zero at north;
                        clockwise positive from above; default: going to east.
-- respos:              If true, the result is in the range 0 .. 2π, otherwis -π .. π
+- respos:              If true, the result is in the range 0 .. 2π, otherwise -π .. π
 """
 function calc_course(velocityENU, elevation, azimuth, upwind_dir=-pi/2, respos=true)
     down_wind_direction = wrap2pi(upwind_dir + π)

@@ -25,7 +25,7 @@ of tether particles.
 
 \$(TYPEDFIELDS)
 \"\"\"
-Base.@kwdef mutable struct SysState{P}"""
+@with_kw_noshow mutable struct SysState{P}"""
 FOOTER = "end"
 inputfile = joinpath("src", "sysstate.yaml")
 outputfile = joinpath("src", "_sysstate.jl")
@@ -75,12 +75,12 @@ open(outputfile2,"w") do io
 end
 HEADER = """
 \"\"\"
-    demo_syslog(P, name="Test flight"; duration=10)
+    demo_syslog(P; duration=10)
 
-Create a demo flight log  with given name [String] and duration [s] as StructArray. P is the number of tether
+Create a demo flight log  with given duration [s] as StructArray. P is the number of tether
 particles.
 \"\"\"
-function demo_syslog(P, name="Test flight"; duration=10)
+function demo_syslog(P; duration=10)
     max_height = 6.03
     steps   = Int(duration * se().sample_freq) + 1
 """
@@ -218,7 +218,7 @@ HEADER = """
                                :var_16 => ["name" => "var_16"]
             ))
 
-Save a fligh log from a logger as .arrow file. By default lz4 compression is used, 
+Save a flight log from a logger as .arrow file. By default lz4 compression is used, 
 if you use **false** as second parameter no compression is used.
 \"\"\"
 function save_log(logger::Logger, name="sim_log", compress=true;

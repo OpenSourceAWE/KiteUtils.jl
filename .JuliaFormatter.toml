@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2022 Uwe Fechner
+# SPDX-License-Identifier: MIT
+
+indent = 4
+margin = 120
+normalize_line_endings = "unix"

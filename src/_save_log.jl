@@ -26,7 +26,7 @@
                                :var_16 => ["name" => "var_16"]
             ))
 
-Save a fligh log from a logger as .arrow file. By default lz4 compression is used, 
+Save a flight log from a logger as .arrow file. By default lz4 compression is used, 
 if you use **false** as second parameter no compression is used.
 """
 function save_log(logger::Logger, name="sim_log", compress=true;

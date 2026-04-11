@@ -6,17 +6,18 @@
 
 Read a log file that was saved as .arrow file.
 """
-load_log(P, filename::String) = load_log(filename)
+load_log(_, filename::String) = load_log(filename) # for compatibility, the first argument was P and is ignored
 function load_log(filename::String; path="", debug=false)
     if path == ""
         path = DATA_PATH[1]
     end
     fullname = filename
     if ! isfile(filename)
-        if isnothing(findlast(isequal('.'), filename))
-            fullname = joinpath(path, basename(filename)) * ".arrow"
+        candidate = joinpath(path, basename(filename)) * ".arrow"
+        if isfile(candidate)
+            fullname = candidate
         else
-            fullname = joinpath(path, basename(filename)) 
+            fullname = joinpath(path, basename(filename))
         end
     end
     table   = Arrow.Table(fullname)

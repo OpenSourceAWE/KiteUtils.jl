@@ -10,7 +10,7 @@
 
 Read a log file that was saved as .arrow file.
 """
-load_log(P, filename::String) = load_log(filename)
+load_log(_, filename::String) = load_log(filename)
 function load_log(filename::String; path="")
     if path == ""
         path = DATA_PATH[1]

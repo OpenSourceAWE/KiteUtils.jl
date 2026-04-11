@@ -30,6 +30,7 @@ solver:
     linear_solver: "GMRES" # can be GMRES or LapackDense or Dense (only for IDA)
     max_order: 4           # maximal order, usually between 3 and 5 (IDA and DFBDF)
     max_iter:  200         # max number of iterations of the steady-state-solver
+    dtmax:     0.01        # max internal step size of the DAE solver [s]; Inf means no limit
 
 steering:
     c0:       0.0          # steering offset   -0.0032           [-]
@@ -99,6 +100,7 @@ winch:
     max_force: 4000        # maximal (nominal) tether force; short overload allowed [N]
     v_ro_max:  8.0         # maximal reel-out speed                          [m/s]
     v_ro_min: -8.0         # minimal reel-out speed (=max reel-in speed)     [m/s]
+    v_min: 0.1             # min speed below which the brake is active       [m/s]
     drum_radius: 0.1615    # radius of the drum                              [m]
     max_acc: 4.0           # maximal acceleration of the winch               [m/s²]
     gear_ratio: 6.2        # gear ratio of the winch                         [-]   
@@ -111,6 +113,9 @@ winch:
 environment:
     v_wind: 9.51             # wind speed at reference height          [m/s]
     upwind_dir: -90.0        # upwind direction                        [deg]
+    upwind_elevation: 0.0    # angle between upwind and east-north plane [deg]
+    wind_vec: [0.0, 0.0, 0.0] # wind vector at reference height       [m/s]
+    use_wind_vec: false      # use wind_vec instead of v_wind/upwind_dir/upwind_elevation
     temp_ref: 15.0           # temperature at reference height         [°C]
     height_gnd: 0.0          # height of groundstation above see level [m]
     h_ref:  6.0              # reference height for the wind speed     [m]

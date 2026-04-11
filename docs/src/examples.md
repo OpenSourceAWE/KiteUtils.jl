@@ -5,7 +5,7 @@ CurrentModule = KiteUtils
 
 ## Create a test project
 
-```
+```bash
 mkdir test
 cd test
 julia --project

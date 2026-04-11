@@ -89,7 +89,7 @@ function import_log(filename)
     P = length(X)
     logger = Logger(P, length(lg))
 
-    for (i,row) in pairs(lg)
+    for row in lg
         local X
         X = parse_vector(row.X)
         Y = parse_vector(row.Y)

@@ -54,7 +54,7 @@ and select one of the examples with the cursor keys and press enter.
 - types for the state of a kite power, logging and configuration parameters
 - a function for calculation the inertia matrix of a kite
 
-## Licence
+## License
 This project is licensed under the MIT License. The documentation is licensed under the CC-BY-4.0 License. Please see the below `Copyright notice` in association with the licenses that can be found in the file [LICENSE](LICENSE) in this folder.
 
 ## Copyright notice
@@ -66,8 +66,8 @@ See the copyright notices in the source files, and the list of authors in [AUTHO
 
 ## Related
 - The meta package [KiteSimulators](https://github.com/aenarete/KiteSimulators.jl) which contains all packages from Julia Kite Power Tools.
-- the packages [KiteModels](https://github.com/OpenSourceAWE/KiteModels.jl) and [KitePodModels](https://github.com/aenarete/KitePodModels.jl) and [WinchModels](https://github.com/aenarete/WinchModels.jl) and [AtmosphericModels](https://github.com/aenarete/AtmosphericModels.jl)
-- the packages [KiteControllers](https://github.com/aenarete/KiteControllers.jl) and [KiteViewers](https://github.com/aenarete/KiteViewers.jl)
+- the packages [KiteModels](https://github.com/OpenSourceAWE/KiteModels.jl) and [KitePodModels](https://github.com/OpenSourceAWE/KitePodModels.jl) and [WinchModels](https://github.com/aenarete/WinchModels.jl) and [AtmosphericModels](https://github.com/aenarete/AtmosphericModels.jl)
+- the packages [KiteControllers](https://github.com/aenarete/KiteControllers.jl) and [KiteViewers](https://github.com/OpenSourceAWE/KiteViewers.jl)
 
 **Documentation** [Stable Version](https://OpenSourceAWE.github.io/KiteUtils.jl/stable) [Development Version](https://OpenSourceAWE.github.io/KiteUtils.jl/dev)
 

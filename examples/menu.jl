@@ -1,14 +1,14 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-using REPL.TerminalMenus
+using REPL.TerminalMenus: RadioMenu, request
 
 options = ["bridle_info = include(\"bridle_info.jl\")",
            "import_csv = include(\"import_csv.jl\")",
            "calc_rotational_inertia = include(\"calculate_rotational_inertia.jl\")",
            "quit"]
 
-function example_menu()
+function example_menu(options)
     active = true
     while active
         menu = RadioMenu(options, pagesize=8)
@@ -23,4 +23,4 @@ function example_menu()
     end
 end
 
-example_menu()
+example_menu(options)
