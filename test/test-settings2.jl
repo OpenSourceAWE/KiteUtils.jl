@@ -14,4 +14,6 @@ using KiteUtils, Test
     @test set.degrees_per_percent_power == 1.0
     @test set.v_depower == 0.053
     @test set.v_steering == 0.212
+    # Reset to default project to avoid affecting other tests
+    se("system.yaml")
 end
