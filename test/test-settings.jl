@@ -61,6 +61,17 @@ using KiteUtils, Test, LinearAlgebra
     # wind_vec is auto-synced from v_wind/upwind_dir on load
     @test norm(se().wind_vec) ≈ se().v_wind  atol=1e-10
     @test se().v_min == 0.1
+
+    # assigning wind_vec with a plain Vector converts to SVec3
+    set_wv = deepcopy(se())
+    set_wv.wind_vec = [1.0, 2.0, 3.0]
+    @test set_wv.wind_vec isa SVec3
+    @test set_wv.wind_vec == SVec3(1.0, 2.0, 3.0)
+    # assigning with SVec3 works directly
+    set_wv.wind_vec = SVec3(4.0, 5.0, 6.0)
+    @test set_wv.wind_vec == SVec3(4.0, 5.0, 6.0)
+    # mutating wind_vec in-place is not allowed (SVec3 is immutable)
+    @test_throws Exception set_wv.wind_vec .= [7.0, 8.0, 9.0]
     @test se_dict()["environment"]["z0"] == se().z0
     set3 = update_settings()
     @test set3 == se()
