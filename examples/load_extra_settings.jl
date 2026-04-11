@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: MIT
 
 # example of loading extra settings
-using KiteUtils, YAML, StructTypes, Parameters
+using KiteUtils, Parameters, StructTypes
+using KiteUtils.YAML
 
 @with_kw mutable struct FPCSettings @deftype Float64
     dt::Float64              = 0.02   
