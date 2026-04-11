@@ -17,4 +17,7 @@ using KiteUtils, Test
     @test vsm_settings_file("system.yaml") == "vsm_settings.yaml"
     @test aero_geometry_file("system.yaml") == "aero_geometry.yaml"
     @test structural_geometry_file("system.yaml") == "struc_geometry.yaml"
+    @test vsm_settings("system.yaml") == "vsm_settings.yaml"
+    @test aero_geometry_settings("system.yaml") == "aero_geometry.yaml"
+    @test struc_geometry_settings("system.yaml") == "struc_geometry.yaml"
 end
