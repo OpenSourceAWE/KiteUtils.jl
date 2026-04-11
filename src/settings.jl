@@ -371,9 +371,10 @@ function Base.setproperty!(set::Settings, sym::Symbol, val)
 end
 
 StructTypes.StructType(::Type{Settings}) = StructTypes.Mutable()
-function StructTypes.constructfrom(
-    ::Type{SVec3}, vec::AbstractVector
-)
+function StructTypes.constructfrom(::Type{MVec3}, vec::AbstractVector)
+    MVec3(vec[1], vec[2], vec[3])
+end
+function StructTypes.constructfrom(::Type{SVec3}, vec::AbstractVector)
     SVec3(vec[1], vec[2], vec[3])
 end
 PROJECT::String = "system.yaml"
