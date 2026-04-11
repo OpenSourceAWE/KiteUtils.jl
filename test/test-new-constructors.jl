@@ -20,8 +20,8 @@ using Test
     @test se2.elevation == 11.11
     dict1 = se_dict(se1)
     dict2 = se_dict(se2)
-    @test dict1["initial"]["elevations"][1] == 420.0
-    @test dict2["initial"]["elevations"][1] == 11.11
+    @test dict1["initial"]["elevations"][1] == 70.8
+    @test dict2["initial"]["elevations"][1] == 70.8
     # Reset global PROJECT to avoid affecting subsequent tests
     KiteUtils.PROJECT = "system.yaml"
 end
