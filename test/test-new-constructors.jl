@@ -5,8 +5,7 @@ using KiteUtils
 using Test
 
 @testset "KiteUtils.jl: New Constructors" begin
-    cd(joinpath(@__DIR__, ".."))
-    set_data_path("data")
+    set_data_path(joinpath(@__DIR__, "..", "data"))
     se1 = Settings("system.yaml")
     @test se1.sim_settings == "settings.yaml"
     se2 = Settings("system_ram.yaml")

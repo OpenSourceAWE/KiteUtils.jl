@@ -4,8 +4,7 @@
 using KiteUtils, Test
 
 @testset "KiteUtils.jl: system.yaml    " begin
-    cd(joinpath(@__DIR__, ".."))
-    set_data_path("data")
+    set_data_path(joinpath(@__DIR__, "..", "data"))
     @test wc_settings() == "wc_settings.yaml"
     @test fpc_settings() == "fpc_settings.yaml"
     @test fpp_settings() == "fpp_settings.yaml"

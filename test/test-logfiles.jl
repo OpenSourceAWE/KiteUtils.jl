@@ -4,7 +4,6 @@
 using KiteUtils, Test, StructArrays
 
 @testset "KiteUtils.jl: Log files      " begin
-    cd(joinpath(@__DIR__, ".."))
     state = KiteUtils.demo_state(7)
     @test typeof(state) == SysState{7}
     @test state.X[end] == 10.0
@@ -16,7 +15,7 @@ using KiteUtils, Test, StructArrays
     @test state.Y[end] ≈ -2.885
     @test state.Y[end-1] ≈ 2.885
     @test demo_state_4p(7).t_sim == 0.014
-    set_data_path("data")
+    set_data_path(joinpath(@__DIR__, "..", "data"))
     filename="transition"
     log = import_log(filename)
     @test log isa SysLog{11}
