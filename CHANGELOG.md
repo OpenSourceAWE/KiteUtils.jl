@@ -1,5 +1,22 @@
 # Changelog
 
+## KiteUtils v0.11.6 11-04-2026
+### Added
+- add `v_min` winch setting (minimum speed below which brake is active)
+- add 3D wind representation with new settings fields:
+  `upwind_elevation`, `wind_vec`, and `use_wind_vec`
+- add `wind_vec_from_angles` and `angles_from_wind_vec` for converting
+  between scalar wind parameters and ENU wind vectors
+- add `sync_wind!` to keep scalar and vector wind representations in
+  sync (called automatically when wind-related settings are modified)
+- add `copy_examples` to the documentation
+- add `AbstractKiteModel` and `KiteUtils` module docs to the
+  documentation
+### Changed
+- rewrite reference frames documentation: clarify NED/ENU
+  relationship, document `upwind_elevation`, improve formatting
+- enable `checkdocs` in documentation build
+
 ## KiteUtils v0.11.5 04-03-2026
 ### Changed
 - the `build_docu.jl` does no longer use the global environment
