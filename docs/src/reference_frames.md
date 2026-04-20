@@ -38,11 +38,26 @@ The position of the kite can be described with two angles, the azimuth angle φ 
 Three azimuth angles are used, the azimuth angle in the wind reference frame and $\mathrm{azimuth\_east}$ and $\mathrm{azimuth\_north}$. The azimuth angles in wind reference frame and $\mathrm{azimuth\_north}$ are defined positive anti-clockwise when seen from above, $\mathrm{azimuth\_east}$ is defined positive clockwise when seen from above. In the log file and the system state $\mathrm{azimuth}$ in wind reference frame is used (for KiteUtils 0.8.2 and higher).
 
 ## Orientation of the kite
-For the orientation, either a quaternion or roll, pitch and yaw angles are used. The
-orientation is defined with respect to the NED reference frame (see above), because
-that is the convention used by the Xsens IMU. Quaternions and Euler angles stored in
-`SysState.orient` follow this NED convention. The function `quat2euler()` expects a
-NED-based quaternion as input.
+For the orientation, either a quaternion or roll, pitch and yaw angles are used.
+
+The orientation convention is controlled by the `orientation_frame` setting in
+`settings.yaml`, which accepts `"NED"`, `"ENU"`, or `"NWU"`. The default is
+`NED` (North, East, Down), the convention used by the Xsens IMU.
+
+The ground station frame is controlled by `ground_station_frame` (default
+`"NWU"`, North-West-Up, historically called **EG** in this codebase). This
+frame is used as the intermediate step when converting to the wind reference
+frame.
+
+The `InertialFrame` enum (`NED`, `ENU`, `NWU`) is used throughout the API.
+Most orientation functions accept an `orientation_frame` keyword argument that
+defaults to `se().orientation_frame`.
+
+The general conversion function `euler_convert(r, p, y, from, to)` converts
+Euler angles between any two `InertialFrame` conventions. Convenience aliases
+`euler_enu2ned()` and `euler_ned2enu()` are provided. The function
+`frame_transform(from, to)` returns the 3×3 transformation matrix between
+any two frames.
 
 The origin of the kite reference frame around which it rotates is the centre point
 defined as $0.5 * (C + D)$, where C and D are positions of the point masses of the

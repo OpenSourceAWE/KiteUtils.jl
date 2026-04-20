@@ -59,6 +59,9 @@ export acos2, quat2euler, quat2viewer, wrap2pi                           # geome
 export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE              # reference frame transformations
 export azn2azw,  calc_course , calc_heading, calc_heading_w              # geometric functions
 export calc_orient_rot, enu2ned, is_right_handed_orthonormal, ned2enu
+export InertialFrame, NED, ENU, NWU
+export euler_enu2ned, euler_ned2enu, euler_convert
+export frame_transform
 export wind_vec_from_angles, angles_from_wind_vec
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
 export fpc_settings, fpp_settings, se, se_dict, update_settings, wc_settings
@@ -90,9 +93,9 @@ with all kite models, or a specific method has to be defined for the specific ki
 """
 abstract type AbstractKiteModel end
 
+include("transformations.jl")
 include("settings.jl")
 include("yaml_utils.jl")
-include("transformations.jl")
 include("trafo.jl")
 
 include("_sysstate.jl")

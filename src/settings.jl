@@ -21,6 +21,10 @@ $(TYPEDFIELDS)
 @with_kw mutable struct Settings @deftype Float64
     "name of the yaml file with the settings"
     sim_settings::String      = ""
+    "orientation convention: NED, ENU, or NWU"
+    orientation_frame::InertialFrame = NED
+    "ground station frame: NED, ENU, or NWU"
+    ground_station_frame::InertialFrame = NWU
 
     "filename without extension  [replay only]"
     log_file::String      = ""
@@ -376,6 +380,15 @@ function StructTypes.constructfrom(::Type{MVec3}, vec::AbstractVector)
 end
 function StructTypes.constructfrom(::Type{SVec3}, vec::AbstractVector)
     SVec3(vec[1], vec[2], vec[3])
+end
+function StructTypes.constructfrom(
+        ::Type{InertialFrame}, val::AbstractString)
+    upper = uppercase(val)
+    upper == "NED" && return NED
+    upper == "ENU" && return ENU
+    upper == "NWU" && return NWU
+    error("Unknown InertialFrame: $val. " *
+          "Expected \"NED\", \"ENU\", or \"NWU\".")
 end
 PROJECT::String = "system.yaml"
 
