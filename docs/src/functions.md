@@ -51,6 +51,10 @@ The function ```set_data_path(data_path)``` can be used to set the directory for
 ## Rotation matrices and conversions
 ```@docs
 calc_orient_rot
+euler_convert
+euler_enu2ned
+euler_ned2enu
+frame_transform
 enu2ned
 ned2enu
 is_right_handed_orthonormal

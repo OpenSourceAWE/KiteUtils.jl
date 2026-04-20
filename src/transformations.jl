@@ -2,6 +2,16 @@
 # SPDX-License-Identifier: MIT
 
 """
+    InertialFrame
+
+Inertial (earth-fixed) reference frame convention.
+- `NED`: North, East, Down (Xsens IMU convention)
+- `ENU`: East, North, Up
+- `NWU`: North, West, Up (Earth Groundstation convention)
+"""
+@enum InertialFrame NED ENU NWU
+
+"""
     rot3d(ax, ay, az, bx, by, bz)
 
 Calculate the rotation matrix that needs to be applied on the reference frame (ax, ay, az) to match 
@@ -28,14 +38,24 @@ function is_right_handed_orthonormal(x, y, z)
 end
 
 """
-    quat2euler(q::QuatRotation)
-    quat2euler(q::AbstractVector)
+    quat2euler(q::QuatRotation;
+               orientation_frame=se().orientation_frame)
+    quat2euler(q::AbstractVector; kwargs...)
 
-Convert a quaternion to roll, pitch, and yaw angles in radian.
-The quaternion can be a 4-element vector (w, i, j, k) or a QuatRotation object.
+Convert a quaternion to roll, pitch, and yaw angles in
+radian. The quaternion can be a 4-element vector (w, i, j, k)
+or a QuatRotation object.
+
+The `orientation_frame` kwarg documents which convention the
+quaternion and returned angles are in. The ZYX extraction
+formula is the same for both ENU and NED.
 """
-quat2euler(q::AbstractVector) = quat2euler(QuatRotation(q))
-function quat2euler(q::QuatRotation)  
+function quat2euler(q::AbstractVector; kwargs...)
+    quat2euler(QuatRotation(q); kwargs...)
+end
+function quat2euler(q::QuatRotation;
+        orientation_frame::InertialFrame =
+            se().orientation_frame)
     D = RFR.DCM(q)
     pitch = asin(−D[3,1])
     roll  = atan(D[3,2], D[3,3])
@@ -84,25 +104,114 @@ function ned2enu(vec::AbstractVector)
 end
 
 """
-    calc_orient_rot(x, y, z; viewer=false, ENU=true)
+    frame_transform(from::InertialFrame, to::InertialFrame)
 
-Calculate the rotation matrix based on the kite reference frame, by default 
-passed as ENU (east, north, up), or as NED (north, east, down) if ENU is false.
-If viewer is true, the rotation matrix is calculated based with respect to
-the viewer reference frame.
+Return the 3x3 transformation matrix that converts a vector
+from frame `from` to frame `to`.
 """
-function calc_orient_rot(x, y, z; viewer=false, ENU=true)
-    if ENU
-        x = enu2ned(x)
-        y = enu2ned(y)
-        z = enu2ned(z)
+function frame_transform(from::InertialFrame,
+                         to::InertialFrame)
+    from == to && return @SMatrix[1 0 0; 0 1 0; 0 0 1]
+    # Define all frames relative to ENU as reference
+    # ENU = [E, N, U], NED = [N, E, D], NWU = [N, W, U]
+    T_enu2ned = @SMatrix[0 1 0; 1 0 0; 0 0 -1]
+    T_enu2nwu = @SMatrix[0 1 0; -1 0 0; 0 0 1]
+    if from == ENU && to == NED
+        return T_enu2ned
+    elseif from == NED && to == ENU
+        return T_enu2ned  # self-inverse
+    elseif from == ENU && to == NWU
+        return T_enu2nwu
+    elseif from == NWU && to == ENU
+        # transpose of T_enu2nwu
+        return @SMatrix[0 -1 0; 1 0 0; 0 0 1]
+    elseif from == NED && to == NWU
+        return @SMatrix[1 0 0; 0 -1 0; 0 0 -1]
+    elseif from == NWU && to == NED
+        return @SMatrix[1 0 0; 0 -1 0; 0 0 -1]
+    end
+end
+
+"""
+    euler_convert(roll, pitch, yaw, from, to)
+
+Convert Euler angles between any two `InertialFrame`
+conventions. The formula is `R_to = T * R_from`, where
+T = `frame_transform(from, to)`.
+"""
+function euler_convert(roll, pitch, yaw,
+        from::InertialFrame, to::InertialFrame)
+    from == to && return (roll, pitch, yaw)
+    T = frame_transform(from, to)
+    R = T * euler2rot(roll, pitch, yaw;
+                      orientation_frame=from)
+    pitch_out = asin(-R[3, 1])
+    roll_out  = atan(R[3, 2], R[3, 3])
+    yaw_out   = atan(R[2, 1], R[1, 1])
+    return roll_out, pitch_out, yaw_out
+end
+
+"""
+    euler_enu2ned(roll, pitch, yaw)
+
+Convert Euler angles from ENU to NED convention.
+See [`euler_convert`](@ref) for details.
+"""
+euler_enu2ned(roll, pitch, yaw) =
+    euler_convert(roll, pitch, yaw, ENU, NED)
+
+"""
+    euler_ned2enu(roll, pitch, yaw)
+
+Convert Euler angles from NED to ENU convention.
+See [`euler_convert`](@ref) for details.
+"""
+euler_ned2enu(roll, pitch, yaw) =
+    euler_convert(roll, pitch, yaw, NED, ENU)
+
+"""
+    calc_orient_rot(x, y, z; viewer=false,
+        orientation_frame=se().orientation_frame,
+        ENU=nothing)
+
+Calculate the rotation matrix based on the kite reference
+frame axes `x`, `y`, `z`, given in the frame specified by
+`orientation_frame`.
+
+When `orientation_frame == NED`, the axes are in NED and the
+result is a NED-convention rotation. When `ENU`, the axes are
+in ENU and the result is an ENU-convention rotation. No
+redundant frame conversions are performed.
+
+If `viewer` is true, the rotation matrix is calculated with
+respect to the viewer reference frame.
+
+The legacy `ENU::Bool` keyword is still supported: when
+`ENU=true`, the axes are converted from ENU to NED and the
+result is a NED-convention rotation (old behavior).
+"""
+function calc_orient_rot(x, y, z; viewer=false,
+        orientation_frame::Union{InertialFrame, Nothing} =
+            nothing,
+        ENU::Union{Bool, Nothing} = nothing)
+    if orientation_frame === nothing && ENU === nothing
+        # Legacy default: axes in ENU, output in NED
+        ENU = true
+    end
+    if ENU !== nothing
+        # Legacy path: convert ENU axes to NED
+        if ENU
+            x = enu2ned(x)
+            y = enu2ned(y)
+            z = enu2ned(z)
+        end
+        orientation_frame = KiteUtils.NED
     end
     if viewer
         pos_kite_ = @SVector ones(3)
         pos_before = pos_kite_ .+ z
         rotation = rot(pos_kite_, pos_before, -x)
     else
-        # reference frame for the orientation: NED (north, east, down)
         ax = @SVector [1, 0, 0]
         ay = @SVector [0, 1, 0]
         az = @SVector [0, 0, 1]
@@ -112,11 +221,17 @@ function calc_orient_rot(x, y, z; viewer=false, ENU=true)
 end
 
 """
-    euler2rot(roll, pitch, yaw)
+    euler2rot(roll, pitch, yaw;
+              orientation_frame=se().orientation_frame)
 
-Calculate the rotation matrix based on the roll, pitch, and yaw angles in radian.
+Calculate the rotation matrix from roll, pitch, and yaw
+angles in radian. The `orientation_frame` kwarg documents
+which convention the angles are in. The ZYX matrix formula
+is the same for both ENU and NED.
 """
-function euler2rot(roll, pitch, yaw)
+function euler2rot(roll, pitch, yaw;
+        orientation_frame::InertialFrame =
+            se().orientation_frame)
     φ      = roll
     R_x = [1    0       0;
               0  cos(φ) -sin(φ);
@@ -134,28 +249,40 @@ function euler2rot(roll, pitch, yaw)
 end
 
 """
-    quat2viewer(q::QuatRotation)
-    quat2viewer(rot::AbstractMatrix)
-    quat2viewer(orient::AbstractVector)
+    quat2viewer(q::QuatRotation;
+                orientation_frame=se().orientation_frame)
+    quat2viewer(rot::AbstractMatrix; kwargs...)
+    quat2viewer(orient::AbstractVector; kwargs...)
 
-Convert the quaternion q to the viewer reference frame. It can also be passed
-as a rotation matrix or as 4-element vector [w,i,j,k], where w is the real part
-and i, j, k are the imaginary parts of the quaternion.
+Convert the quaternion q to the viewer reference frame. It
+can also be passed as a rotation matrix or as 4-element
+vector [w,i,j,k], where w is the real part and i, j, k are
+the imaginary parts of the quaternion.
+
+The quaternion is interpreted in the given `orientation_frame`
+convention and converted to the viewer reference frame.
 """
-quat2viewer(rot::AbstractMatrix) = quat2viewer(QuatRotation(rot))
-quat2viewer(orient::AbstractVector) = quat2viewer(QuatRotation(orient))
-function quat2viewer(q::QuatRotation)
-    # 1. get reference frame
-    rot = inv(RotMatrix{3}(q)) # from kite to inertial reference frame
-    x = enu2ned(rot[1,:])
-    y = enu2ned(rot[2,:])
-    z = enu2ned(rot[3,:])
-    # 2. convert it using the old method
-    ax = @SVector [0, 1, 0]  # in ENU reference frame this is pointing to the south
-    ay = @SVector [1, 0, 0]  # in ENU reference frame this is pointing to the west
-    az = @SVector [0, 0, -1] # in ENU reference frame this is pointing down
-    rot = rot3d(ax, ay, az, x, y, z) 
-    x, y, z = rot*ax, rot*ay, rot*az # obtain x, y, z in inertial reference frame
+function quat2viewer(rot::AbstractMatrix; kwargs...)
+    quat2viewer(QuatRotation(rot); kwargs...)
+end
+function quat2viewer(orient::AbstractVector; kwargs...)
+    quat2viewer(QuatRotation(orient); kwargs...)
+end
+function quat2viewer(q::QuatRotation;
+        orientation_frame::InertialFrame =
+            se().orientation_frame)
+    # 1. get body frame axes, convert to ENU for viewer
+    r = inv(RotMatrix{3}(q))
+    T = frame_transform(orientation_frame, ENU)
+    x = T * SVector{3}(r[1,:])
+    y = T * SVector{3}(r[2,:])
+    z = T * SVector{3}(r[3,:])
+    # 2. convert to viewer frame
+    ax = @SVector [0, 1, 0]
+    ay = @SVector [1, 0, 0]
+    az = @SVector [0, 0, -1]
+    r2 = rot3d(ax, ay, az, x, y, z)
+    x, y, z = r2*ax, r2*ay, r2*az
     pos_kite_ = @SVector ones(3)
     pos_before = pos_kite_ .+ z
     rotation = KiteUtils.rot(pos_kite_, pos_before, -x)
