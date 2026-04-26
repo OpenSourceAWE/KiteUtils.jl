@@ -4,6 +4,7 @@
 *.rej
 .DS_Store
 .benchmarkci
+CLAUDE.md
 Manifest.toml
 benchmark/*.json
 coverage

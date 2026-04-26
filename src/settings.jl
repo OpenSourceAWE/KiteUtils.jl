@@ -412,7 +412,7 @@ function set_data_path(data_path="")
     end
     if data_path != DATA_PATH[1]
         DATA_PATH[1] = data_path
-        SETTINGS.segments == 0 # enforce reloading of settings.yaml
+        SETTINGS.segments = 0 # enforce reloading of settings.yaml
     end
 end
 
@@ -521,11 +521,31 @@ function copy_settings(extra_files=[])
     println("Copied $(length(files)) files to $(DATA_PATH[1]) !")
 end
 
+const DEPRECATED_KEYS = Dict{Symbol, Symbol}(
+    :c_spring => :axial_stiffness,
+    :damping  => :axial_damping,
+    :height   => :height_k,
+)
+
 function update_settings(dict, sections, settings=SETTINGS)
     result = Dict{Symbol, Any}()
     for section in sections
-        sec_dict = Dict(Symbol(k) => v for (k, v) in dict[section])
+        sec_dict = Dict(Symbol(k) => v
+                        for (k, v) in dict[section])
         merge!(result, sec_dict)
+    end
+    valid = fieldnames(Settings)
+    for k in collect(keys(result))
+        if k ∈ keys(DEPRECATED_KEYS)
+            new_key = DEPRECATED_KEYS[k]
+            @warn "Settings key '$k' is deprecated, " *
+                  "use '$new_key' instead." maxlog=1
+            result[new_key] = pop!(result, k)
+        elseif k ∉ valid
+            error("Unknown settings key: '$k'. " *
+                  "Check your settings.yaml for typos " *
+                  "or renamed fields.")
+        end
     end
     StructTypes.constructfrom!(settings, result)
 end
@@ -617,9 +637,6 @@ function se(settings::Settings, project=PROJECT; relax=false)
         if haskey(dict, "system")
             tmp = split(dict["system"]["log_file"], "/")
             settings.log_file    = joinpath(tmp[1], tmp[2])
-        end
-        if haskey(dict, "kite") && haskey(dict["kite"], "height")
-            settings.height_k = dict["kite"]["height"]
         end
         sync_wind!(settings)
     end
