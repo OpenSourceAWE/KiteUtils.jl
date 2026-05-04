@@ -230,13 +230,13 @@ function calc_kite_pos(turn_angle; x = 100.0, z = 0.0, r = 20.0)
 end
 
 """
-    calc_tether_yaw(turn_angle; x=100.0, z=0.0, r=20.0)
+    calc_clock_angle(turn_angle; x=100.0, z=0.0, r=20.0)
 
-Compute the rotation of the kite's x-axis (flight direction) around the tether axis
-(z_kite), measured from the world-up direction projected onto the plane perpendicular
-to the tether. Returns the angle in radian.
+Compute the clock angle of the kite: the rotation of the kite's x-axis (flight direction)
+around the tether axis (z_kite), measured from the world-up direction projected onto
+the plane perpendicular to the tether. Returns the angle in radian.
 """
-function calc_tether_yaw(turn_angle; x = 100.0, z = 0.0, r = 20.0)
+function calc_clock_angle(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     center = [x, 0.0, z]
     e1, e2 = calc_circle_basis(x, z)
     pos = center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
@@ -259,12 +259,14 @@ ys_all = Vector{Vector{Float64}}()
 zs_all = Vector{Vector{Float64}}()
 headings_all = Vector{Vector{Float64}}()
 psi_dot_all = Vector{Vector{Float64}}()
-yaw_all = Vector{Vector{Float64}}()
+clock_angle_all = Vector{Vector{Float64}}()
+clock_angle_rate_all = Vector{Vector{Float64}}()
 y_labels = String[]
 z_labels = String[]
 h_labels = String[]
 pd_labels = String[]
-yaw_labels = String[]
+clock_angle_labels = String[]
+car_labels = String[]
 
 for θ in THETA
     local dt
@@ -297,8 +299,27 @@ for θ in THETA
     dh[end] = (h_unwrap[end] - h_unwrap[end-1]) / dt
     push!(psi_dot_all, dh)
     push!(pd_labels, "\$\\dot{\\Psi}\$ (θ=$(θ)°)")
-    push!(yaw_all, [rad2deg(calc_tether_yaw(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
-    push!(yaw_labels, "tether yaw (θ=$(θ)°)")
+    push!(clock_angle_all, [rad2deg(calc_clock_angle(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
+    push!(clock_angle_labels, "clock angle (θ=$(θ)°)")
+    # Compute clock angle rate using finite differences with unwrapping
+    ca = clock_angle_all[end]
+    ca_unwrap = copy(ca)
+    for j = 2:lastindex(ca_unwrap)
+        while ca_unwrap[j] - ca_unwrap[j-1] > 180
+            ca_unwrap[j] -= 360
+        end
+        while ca_unwrap[j] - ca_unwrap[j-1] < -180
+            ca_unwrap[j] += 360
+        end
+    end
+    dca = similar(ca)
+    for j = 2:(lastindex(ca_unwrap)-1)
+        dca[j] = (ca_unwrap[j+1] - ca_unwrap[j-1]) / (2 * dt)
+    end
+    dca[1] = (ca_unwrap[2] - ca_unwrap[1]) / dt
+    dca[end] = (ca_unwrap[end] - ca_unwrap[end-1]) / dt
+    push!(clock_angle_rate_all, dca)
+    push!(car_labels, "clock angle rate (θ=$(θ)°)")
 end
 
 function plot_heading_and_position(
@@ -308,15 +329,17 @@ function plot_heading_and_position(
     zs_all,
     headings_all,
     psi_dot_all,
-    yaw_all,
+    clock_angle_all,
+    clock_angle_rate_all,
     h_labels,
     pd_labels,
-    yaw_labels,
+    clock_angle_labels,
+    car_labels,
 )
     # Combined plot: 4 subplots
-    plt.figure("heading and position", figsize = (10, 14))
+    plt.figure("heading and position", figsize = (10, 18))
 
-    plt.subplot(4, 1, 1)
+    plt.subplot(5, 1, 1)
     colors = ["C0", "C1", "C2", "C3"]
     for i in eachindex(theta)
         y_lbl = i == 1 ? "y" : nothing
@@ -337,7 +360,7 @@ function plot_heading_and_position(
     plt.legend(handles = theta_handles, loc = "lower right")
     plt.grid(true)
 
-    plt.subplot(4, 1, 2)
+    plt.subplot(5, 1, 2)
     for i in eachindex(theta)
         plt.plot(collect(turn_angles), headings_all[i], label = h_labels[i])
     end
@@ -345,7 +368,7 @@ function plot_heading_and_position(
     plt.legend()
     plt.grid(true)
 
-    plt.subplot(4, 1, 3)
+    plt.subplot(5, 1, 3)
     for i in eachindex(theta)
         plt.plot(collect(turn_angles), psi_dot_all[i], label = pd_labels[i])
     end
@@ -353,12 +376,20 @@ function plot_heading_and_position(
     plt.legend()
     plt.grid(true)
 
-    plt.subplot(4, 1, 4)
+    plt.subplot(5, 1, 4)
     for i in eachindex(theta)
-        plt.plot(collect(turn_angles), yaw_all[i], label = yaw_labels[i])
+        plt.plot(collect(turn_angles), clock_angle_all[i], label = clock_angle_labels[i])
+    end
+    plt.ylabel("clock angle [°]")
+    plt.legend()
+    plt.grid(true)
+
+    plt.subplot(5, 1, 5)
+    for i in eachindex(theta)
+        plt.plot(collect(turn_angles), clock_angle_rate_all[i], label = car_labels[i])
     end
     plt.xlabel("turn angle [°]")
-    plt.ylabel("tether yaw [°]")
+    plt.ylabel("clock angle rate [°/°]")
     plt.legend()
     plt.grid(true)
 
@@ -423,10 +454,12 @@ plot_heading_and_position(
     zs_all,
     headings_all,
     psi_dot_all,
-    yaw_all,
+    clock_angle_all,
+    clock_angle_rate_all,
     h_labels,
     pd_labels,
-    yaw_labels,
+    clock_angle_labels,
+    car_labels,
 )
 if PLOT_3D
     play_circle_flight_video(30)
