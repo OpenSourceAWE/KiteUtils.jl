@@ -237,10 +237,12 @@ ys_all = Vector{Vector{Float64}}()
 zs_all = Vector{Vector{Float64}}()
 headings_all = Vector{Vector{Float64}}()
 psi_dot_all = Vector{Vector{Float64}}()
+yaw_all = Vector{Vector{Float64}}()
 y_labels = String[]
 z_labels = String[]
 h_labels = String[]
 pd_labels = String[]
+yaw_labels = String[]
 
 for θ in THETA
     local dt
@@ -273,13 +275,15 @@ for θ in THETA
     dh[end] = (h_unwrap[end] - h_unwrap[end-1]) / dt
     push!(psi_dot_all, dh)
     push!(pd_labels, "\$\\dot{\\Psi}\$ (θ=$(θ)°)")
+    push!(yaw_all, [rad2deg(calc_orientation(deg2rad(ta); x=x, z=0.0, r=r)[3]) for ta in turn_angles])
+    push!(yaw_labels, "yaw (θ=$(θ)°)")
 end
 
-function plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_all, psi_dot_all, h_labels, pd_labels)
-    # Combined plot: "y and z" on top, "heading (Ψ)" in middle, "heading rate" on bottom
-    plt.figure("heading and position", figsize=(10, 11))
+function plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_all, psi_dot_all, yaw_all, h_labels, pd_labels, yaw_labels)
+    # Combined plot: 4 subplots
+    plt.figure("heading and position", figsize=(10, 14))
 
-    plt.subplot(3, 1, 1)
+    plt.subplot(4, 1, 1)
     colors = ["C0", "C1", "C2", "C3"]
     for i in eachindex(theta)
         y_lbl = i == 1 ? "y" : nothing
@@ -297,7 +301,7 @@ function plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_
     plt.legend(handles=theta_handles, loc="lower right")
     plt.grid(true)
 
-    plt.subplot(3, 1, 2)
+    plt.subplot(4, 1, 2)
     for i in eachindex(theta)
         plt.plot(collect(turn_angles), headings_all[i], label=h_labels[i])
     end
@@ -305,12 +309,20 @@ function plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_
     plt.legend()
     plt.grid(true)
 
-    plt.subplot(3, 1, 3)
+    plt.subplot(4, 1, 3)
     for i in eachindex(theta)
         plt.plot(collect(turn_angles), psi_dot_all[i], label=pd_labels[i])
     end
-    plt.xlabel("turn angle [°]")
     plt.ylabel("\$\\dot{\\Psi}\$ [°/°]")
+    plt.legend()
+    plt.grid(true)
+
+    plt.subplot(4, 1, 4)
+    for i in eachindex(theta)
+        plt.plot(collect(turn_angles), yaw_all[i], label=yaw_labels[i])
+    end
+    plt.xlabel("turn angle [°]")
+    plt.ylabel("yaw [°]")
     plt.legend()
     plt.grid(true)
 
@@ -368,7 +380,7 @@ if PLOT_3D
     end
 end  #= if PLOT_3D =#
 
-plot_heading_and_position(turn_angles, THETA, ys_all, zs_all, headings_all, psi_dot_all, h_labels, pd_labels)
+plot_heading_and_position(turn_angles, THETA, ys_all, zs_all, headings_all, psi_dot_all, yaw_all, h_labels, pd_labels, yaw_labels)
 if PLOT_3D
     play_circle_flight_video(30)
 end
