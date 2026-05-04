@@ -79,14 +79,14 @@ A tuple `(elevation, azimuth)` in radian.
 - `elevation`: the elevation angle of the kite as seen from the ground station.
 - `azimuth`: the azimuth angle (east-based) of the kite as seen from the ground station.
 """
-function calc_elevation_azimuth(turn_angle; x=100.0, z=0.0, r=20.0)
+function calc_elevation_azimuth(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     center = [x, 0.0, z]
     e1, e2 = calc_circle_basis(x, z)
     # Kite position on circle in the plane ⊥ tether
     # turn_angle = 0 → top (e1), π/2 → right (e2), π → bottom, 3π/2 → left
     pos = center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
     elevation = calc_elevation(pos)
-    azimuth   = azimuth_east(pos)
+    azimuth = azimuth_east(pos)
     return (elevation, azimuth)
 end
 
@@ -116,7 +116,7 @@ The orientation is expressed with respect to the NED reference frame using
 # Returns
 A tuple `(roll, pitch, yaw)` in radian.
 """
-function calc_orientation(turn_angle; x=100.0, z=0.0, r=20.0)
+function calc_orientation(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     center = [x, 0.0, z]
     e1, e2 = calc_circle_basis(x, z)
 
@@ -152,7 +152,7 @@ avoiding the Euler angle round-trip that causes discontinuities at ±180° yaw.
 
 Returns a `QuatRotation`.
 """
-function calc_orient_quat(turn_angle; x=100.0, z=0.0, r=20.0)
+function calc_orient_quat(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     center = [x, 0.0, z]
     e1, e2 = calc_circle_basis(x, z)
     pos = center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
@@ -189,15 +189,15 @@ The heading angle in radian.
 #     el, az = calc_elevation_azimuth(turn_angle; x=x, z=z, r=r)
 #     calc_heading(orientation, el, az; respos=false)
 # end
-function calc_kite_heading(turn_angle; x=100.0, z=0.0, r=20.0)
-    q = calc_orient_quat(turn_angle; x=x, z=z, r=r)
-    el, az = calc_elevation_azimuth(turn_angle; x=x, z=z, r=r)
+function calc_kite_heading(turn_angle; x = 100.0, z = 0.0, r = 20.0)
+    q = calc_orient_quat(turn_angle; x = x, z = z, r = r)
+    el, az = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
     # Use quaternion directly to avoid Euler-angle gimbal lock at ±90° pitch,
     # which occurs when the kite crosses the horizontal plane (elevation = 0).
-    headingEX  = q * SVector(1.0, 0.0, 0.0)   # nose direction in NED ≡ EX
-    headingEG  = fromEX2EG(headingEX)          # NED → NWU (Earth Groundstation)
-    headingW   = fromEG2W(headingEG, π/2)      # downwind = east (upwind_dir = -π/2)
-    headingSE  = fromW2SE(headingW, el, az)    # → Small Earth frame
+    headingEX = q * SVector(1.0, 0.0, 0.0)   # nose direction in NED ≡ EX
+    headingEG = fromEX2EG(headingEX)          # NED → NWU (Earth Groundstation)
+    headingW = fromEG2W(headingEG, π/2)      # downwind = east (upwind_dir = -π/2)
+    headingSE = fromW2SE(headingW, el, az)    # → Small Earth frame
     atan(headingSE[2], headingSE[1])
 end
 
@@ -223,16 +223,38 @@ end
 # end
 
 # Helper: kite position on circle
-function calc_kite_pos(turn_angle; x=100.0, z=0.0, r=20.0)
+function calc_kite_pos(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     center = [x, 0.0, z]
     e1, e2 = calc_circle_basis(x, z)
     return center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
 end
 
+"""
+    calc_tether_yaw(turn_angle; x=100.0, z=0.0, r=20.0)
+
+Compute the rotation of the kite's x-axis (flight direction) around the tether axis
+(z_kite), measured from the world-up direction projected onto the plane perpendicular
+to the tether. Returns the angle in radian.
+"""
+function calc_tether_yaw(turn_angle; x = 100.0, z = 0.0, r = 20.0)
+    center = [x, 0.0, z]
+    e1, e2 = calc_circle_basis(x, z)
+    pos = center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
+    z_kite = -normalize(pos)
+    tangent = normalize(-sin(turn_angle) * e1 + cos(turn_angle) * e2)
+    x_kite = normalize(tangent - dot(tangent, z_kite) * z_kite)
+    # Reference: world-up projected onto the plane ⊥ z_kite
+    up = [0.0, 0.0, 1.0]
+    ref = normalize(up - dot(up, z_kite) * z_kite)
+    # Second axis in the plane, completing a right-handed frame with z_kite and ref
+    perp = cross(z_kite, ref)
+    return atan(dot(x_kite, perp), dot(x_kite, ref))
+end
+
 # Compute data for multiple θ values
 const THETA = [30, 45, 60, 75]
 turn_angles = 0:1:360
-tether_length = 50.0  
+tether_length = 50.0
 ys_all = Vector{Vector{Float64}}()
 zs_all = Vector{Vector{Float64}}()
 headings_all = Vector{Vector{Float64}}()
@@ -248,9 +270,9 @@ for θ in THETA
     local dt
     r = tether_length * sin(deg2rad(θ))  # r is the radius of the circle
     x = r / tan(deg2rad(θ))
-    push!(ys_all, [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)[2] for ta in turn_angles])
-    push!(zs_all, [calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)[3] for ta in turn_angles])
-    push!(headings_all, [rad2deg(calc_kite_heading(deg2rad(ta); x=x, z=0.0, r=r)) for ta in turn_angles])
+    push!(ys_all, [calc_kite_pos(deg2rad(ta); x = x, z = 0.1, r = r)[2] for ta in turn_angles])
+    push!(zs_all, [calc_kite_pos(deg2rad(ta); x = x, z = 0.1, r = r)[3] for ta in turn_angles])
+    push!(headings_all, [rad2deg(calc_kite_heading(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
     push!(y_labels, "y (θ=$(θ)°)")
     push!(z_labels, "z (θ=$(θ)°)")
     push!(h_labels, "Ψ (θ=$(θ)°)")
@@ -258,7 +280,7 @@ for θ in THETA
     # First unwrap the heading to remove ±180° discontinuities
     h = headings_all[end]
     h_unwrap = copy(h)
-    for j in 2:lastindex(h_unwrap)
+    for j = 2:lastindex(h_unwrap)
         while h_unwrap[j] - h_unwrap[j-1] > 180
             h_unwrap[j] -= 360
         end
@@ -268,42 +290,56 @@ for θ in THETA
     end
     dt = 1.0  # turn_angle step in degrees
     dh = similar(h)
-    for j in 2:lastindex(h_unwrap)-1
+    for j = 2:(lastindex(h_unwrap)-1)
         dh[j] = (h_unwrap[j+1] - h_unwrap[j-1]) / (2 * dt)
     end
     dh[1] = (h_unwrap[2] - h_unwrap[1]) / dt
     dh[end] = (h_unwrap[end] - h_unwrap[end-1]) / dt
     push!(psi_dot_all, dh)
     push!(pd_labels, "\$\\dot{\\Psi}\$ (θ=$(θ)°)")
-    push!(yaw_all, [rad2deg(calc_orientation(deg2rad(ta); x=x, z=0.0, r=r)[3]) for ta in turn_angles])
-    push!(yaw_labels, "yaw (θ=$(θ)°)")
+    push!(yaw_all, [rad2deg(calc_tether_yaw(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
+    push!(yaw_labels, "tether yaw (θ=$(θ)°)")
 end
 
-function plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_all, psi_dot_all, yaw_all, h_labels, pd_labels, yaw_labels)
+function plot_heading_and_position(
+    turn_angles,
+    theta,
+    ys_all,
+    zs_all,
+    headings_all,
+    psi_dot_all,
+    yaw_all,
+    h_labels,
+    pd_labels,
+    yaw_labels,
+)
     # Combined plot: 4 subplots
-    plt.figure("heading and position", figsize=(10, 14))
+    plt.figure("heading and position", figsize = (10, 14))
 
     plt.subplot(4, 1, 1)
     colors = ["C0", "C1", "C2", "C3"]
     for i in eachindex(theta)
         y_lbl = i == 1 ? "y" : nothing
         z_lbl = i == 1 ? "z" : nothing
-        plt.plot(collect(turn_angles), ys_all[i], "-", color=colors[i], label=y_lbl)
-        plt.plot(collect(turn_angles), zs_all[i], ":", color=colors[i], label=z_lbl)
+        plt.plot(collect(turn_angles), ys_all[i], "-", color = colors[i], label = y_lbl)
+        plt.plot(collect(turn_angles), zs_all[i], ":", color = colors[i], label = z_lbl)
     end
     plt.ylabel("y, z [m]")
-    yz_handles = [plt.matplotlib.lines.Line2D([0], [0], color="black", linestyle="-", label="y"),
-                  plt.matplotlib.lines.Line2D([0], [0], color="black", linestyle=":", label="z")]
-    leg1 = plt.legend(handles=yz_handles, loc="lower left")
+    yz_handles = [
+        plt.matplotlib.lines.Line2D([0], [0], color = "black", linestyle = "-", label = "y"),
+        plt.matplotlib.lines.Line2D([0], [0], color = "black", linestyle = ":", label = "z"),
+    ]
+    leg1 = plt.legend(handles = yz_handles, loc = "lower left")
     plt.gca().add_artist(leg1)
     # Second legend for theta/color mapping
-    theta_handles = [plt.matplotlib.lines.Line2D([0], [0], color=colors[i], label="θ=$(theta[i])°") for i in eachindex(theta)]
-    plt.legend(handles=theta_handles, loc="lower right")
+    theta_handles =
+        [plt.matplotlib.lines.Line2D([0], [0], color = colors[i], label = "θ=$(theta[i])°") for i in eachindex(theta)]
+    plt.legend(handles = theta_handles, loc = "lower right")
     plt.grid(true)
 
     plt.subplot(4, 1, 2)
     for i in eachindex(theta)
-        plt.plot(collect(turn_angles), headings_all[i], label=h_labels[i])
+        plt.plot(collect(turn_angles), headings_all[i], label = h_labels[i])
     end
     plt.ylabel("Ψ [°]")
     plt.legend()
@@ -311,7 +347,7 @@ function plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_
 
     plt.subplot(4, 1, 3)
     for i in eachindex(theta)
-        plt.plot(collect(turn_angles), psi_dot_all[i], label=pd_labels[i])
+        plt.plot(collect(turn_angles), psi_dot_all[i], label = pd_labels[i])
     end
     plt.ylabel("\$\\dot{\\Psi}\$ [°/°]")
     plt.legend()
@@ -319,15 +355,15 @@ function plot_heading_and_position(turn_angles, theta, ys_all, zs_all, headings_
 
     plt.subplot(4, 1, 4)
     for i in eachindex(theta)
-        plt.plot(collect(turn_angles), yaw_all[i], label=yaw_labels[i])
+        plt.plot(collect(turn_angles), yaw_all[i], label = yaw_labels[i])
     end
     plt.xlabel("turn angle [°]")
-    plt.ylabel("yaw [°]")
+    plt.ylabel("tether yaw [°]")
     plt.legend()
     plt.grid(true)
 
     plt.tight_layout()
-    plt.show(block=false)
+    plt.show(block = false)
 end
 
 if PLOT_3D
@@ -340,47 +376,58 @@ if PLOT_3D
         t = 0.0
         dt = 0.05
         prev_heading = calc_kite_heading(deg2rad(turn_angles[1]))
-        for _ in 1:3  # repeat the circle flight a few times
+        for _ = 1:3  # repeat the circle flight a few times
             for ta in turn_angles
                 r = tether_length * sin(deg2rad(θ))
                 x = r / tan(deg2rad(θ))
-                roll, pitch, yaw = calc_orientation(deg2rad(ta); x=x, z=0.0, r=r)
-                pos = calc_kite_pos(deg2rad(ta); x=x, z=0.0, r=r)
+                roll, pitch, yaw = calc_orientation(deg2rad(ta); x = x, z = 0.0, r = r)
+                pos = calc_kite_pos(deg2rad(ta); x = x, z = 0.0, r = r)
                 el, az = calc_elevation_azimuth(deg2rad(ta))
-                heading = calc_kite_heading(deg2rad(ta); x=x, z=0.0, r=r)
+                heading = calc_kite_heading(deg2rad(ta); x = x, z = 0.0, r = r)
                 heading_rate = (heading - prev_heading) / dt
                 prev_heading = heading
                 # Build quaternion directly from rotation matrix to avoid Euler angle wrapping glitches
-                q = calc_orient_quat(deg2rad(ta); x=x, z=0.0, r=r)
+                q = calc_orient_quat(deg2rad(ta); x = x, z = 0.0, r = r)
                 # Interpolate tether particle positions from origin to kite position
-                xs = MVector{N, Float64}([pos[1] * i / segments for i in 0:segments])
-                ys = MVector{N, Float64}([pos[2] * i / segments for i in 0:segments])
-                zs = MVector{N, Float64}([pos[3] * i / segments for i in 0:segments])
+                xs = MVector{N,Float64}([pos[1] * i / segments for i = 0:segments])
+                ys = MVector{N,Float64}([pos[2] * i / segments for i = 0:segments])
+                zs = MVector{N,Float64}([pos[3] * i / segments for i = 0:segments])
                 state = SysState{N}(
-                    time      = t,
-                    l_tether  = MVector{4, Float64}(norm(pos), 0.0, 0.0, 0.0),
-                    orient    = MVector{4, Float32}(Rotations.params(q)),
+                    time = t,
+                    l_tether = MVector{4,Float64}(norm(pos), 0.0, 0.0, 0.0),
+                    orient = MVector{4,Float32}(Rotations.params(q)),
                     elevation = el,
-                    azimuth   = az,
-                    heading   = heading,
-                    course    = heading_rate,
+                    azimuth = az,
+                    heading = heading,
+                    course = heading_rate,
                     heading_rate = heading_rate,
-                    roll      = roll,
-                    pitch     = pitch,
-                    yaw       = yaw,
-                    X         = xs,
-                    Y         = ys,
-                    Z         = zs,
+                    roll = roll,
+                    pitch = pitch,
+                    yaw = yaw,
+                    X = xs,
+                    Y = ys,
+                    Z = zs,
                 )
                 t += 0.05
-                update_system(viewer, state; scale=0.25, kite_scale=0.25, ned=true)
+                update_system(viewer, state; scale = 0.25, kite_scale = 0.25, ned = true)
                 sleep(dt)
             end
         end
     end
-end  #= if PLOT_3D =#
+end#= if PLOT_3D =#
 
-plot_heading_and_position(turn_angles, THETA, ys_all, zs_all, headings_all, psi_dot_all, yaw_all, h_labels, pd_labels, yaw_labels)
+plot_heading_and_position(
+    turn_angles,
+    THETA,
+    ys_all,
+    zs_all,
+    headings_all,
+    psi_dot_all,
+    yaw_all,
+    h_labels,
+    pd_labels,
+    yaw_labels,
+)
 if PLOT_3D
     play_circle_flight_video(30)
 end
