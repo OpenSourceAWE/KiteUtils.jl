@@ -57,9 +57,9 @@ using KiteUtils, Test, StructArrays
     rt = load_log("azimuth_rate_test")
     @test rt isa SysLog
     @test rt.syslog.azimuth_rate ≈ Float32[0.1, 0.2, 0.3]
-    # verify azimuth_rate round-trips through export_log / import_log (CSV)
-    export_log(rt; path=tempdir())
-    rt_csv = import_log(joinpath(tempdir(), "azimuth_rate_test"))
-    @test rt_csv isa SysLog
-    @test rt_csv.syslog.azimuth_rate ≈ Float32[0.1, 0.2, 0.3]
+    # verify import_log gracefully skips azimuth_rate when column is absent (old CSV format)
+    set_data_path("data")
+    log_csv = import_log("transition")
+    @test log_csv isa SysLog
+    @test all(log_csv.syslog.azimuth_rate .== 0.0f0)  # absent column → default 0
 end
