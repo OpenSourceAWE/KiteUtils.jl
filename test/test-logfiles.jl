@@ -45,4 +45,21 @@ using KiteUtils, Test, StructArrays
     log3 = load_log(dotted_name * ".arrow") # with extension
     @test log3 isa SysLog
     @test length(log3.syslog) == 8180
+    # verify azimuth_rate round-trips through save_log / load_log
+    set_data_path(tempdir())
+    logger = Logger(7, 3)
+    for i in 1:3
+        ss = KiteUtils.demo_state(7)
+        ss.azimuth_rate = Float32(i) * 0.1f0
+        log!(logger, ss)
+    end
+    save_log(logger, "azimuth_rate_test")
+    rt = load_log("azimuth_rate_test")
+    @test rt isa SysLog
+    @test rt.syslog.azimuth_rate ≈ Float32[0.1, 0.2, 0.3]
+    # verify azimuth_rate round-trips through export_log / import_log (CSV)
+    export_log(rt; path=tempdir())
+    rt_csv = import_log(joinpath(tempdir(), "azimuth_rate_test"))
+    @test rt_csv isa SysLog
+    @test rt_csv.syslog.azimuth_rate ≈ Float32[0.1, 0.2, 0.3]
 end
