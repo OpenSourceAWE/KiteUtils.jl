@@ -124,12 +124,3 @@ it is returned in $(-\pi,\, \pi]$.
 A heading of $\psi = 0$ means the kite's nose points towards the zenith direction in the SE
 plane (the kite is flying "upward"). A heading of $\psi = \pi/2$ means the kite's nose
 points to the right (in the SE plane, clockwise when viewed from the ground station).
-
-## API
-
-```@docs
-calc_heading
-calc_heading_w
-calc_clock_angle
-calc_course
-```
