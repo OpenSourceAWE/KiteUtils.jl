@@ -123,7 +123,17 @@ Install Ollama from [ollama.com](https://ollama.com), then pull the default embe
 ollama pull qwen3-embedding:0.6b
 ```
 
-The Search tab will show a health indicator for both services. If either is not running, the indicator turns red with an error message.
+Start kaimon with:
+```bash
+kaimon
+```
+or with
+```
+kaimon --revise
+```
+You can quit it by typing `q`.
+
+The Search tab (press 4) will show a health indicator for both services. If either is not running, the indicator turns red with an error message.
 
 Before you can search, index the project. From the Search tab press m (manage), then a (add) and enter the path
 for each project you want to index. Then press i (index). To index one project might take 10 minutes, but you have
