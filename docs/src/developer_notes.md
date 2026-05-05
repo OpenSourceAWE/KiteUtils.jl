@@ -84,6 +84,7 @@ Sometimes you need to tell the agent manually: "Please, use kaimon!".
 ### Installation of Kaimon
 
 Install the app:
+
 ```julia
 ]app add Kaimon
 ```
@@ -119,7 +120,7 @@ docker run -d \
   qdrant/qdrant
 ```
 
-Install Ollama from https://ollama.com, then pull the default embedding model:
+Install Ollama from [ollama.com](https://ollama.com), then pull the default embedding model:
 
 ```bash
 ollama pull qwen3-embedding:0.6b
