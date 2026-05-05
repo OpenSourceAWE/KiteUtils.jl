@@ -70,7 +70,7 @@ They run `jetls check` for `src/` and `examples/` respectively.
 
 ## More effective development with AI tools using Kaimon
 
-It is suggested to install Kaimon if you are using AI tools like Claude or Github Copilot. It allows faster
+It is suggested to install Kaimon if you are using AI tools like Claude or GitHub Copilot. It allows faster
 development and reduces the token usage (energy and costs).
 
 See: https://github.com/kahliburke/Kaimon.jl
