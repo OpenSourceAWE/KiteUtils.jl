@@ -8,15 +8,6 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate("examples")
 end
 
-const PLOT_3D = false  # set to true to visualize the kite flight in 3D (requires KiteViewers.jl)
-
-if PLOT_3D
-    using KiteViewers
-else
-    Viewer3D = nothing  # dummy placeholder to avoid warnings when PLOT_3D is false
-    update_system = nothing
-    play_circle_flight_video = nothing
-end
 using ControlPlots
 using KiteUtils
 using LinearAlgebra: cross, dot, norm, normalize
@@ -39,19 +30,6 @@ function calc_circle_basis(x, z)
     e1 = normalize(e1_raw)
     e2 = cross(d, e1)                    # right when viewed from ground station
     return (e1, e2)
-end
-
-function calc_theta(x, r)
-    # Calculate the angle θ between the center line and the line from the ground station to the kite
-    # when the kite is at the top of the circle (turn_angle = 0).
-    # This is used to verify that the elevation angle at turn_angle=0 matches θ.
-    return atan(r, x)
-end
-
-function calc_r(x, theta)
-    # Calculate the circle radius r from the distance x and the angle θ.
-    # Inverse of calc_theta: given θ = atan(r, x), we get r = x * tan(θ).
-    return x * tan(theta)
 end
 
 """
@@ -183,12 +161,6 @@ the elevation and azimuth, then calls `calc_heading` from KiteUtils.jl.
 # Returns
 The heading angle in radian.
 """
-# Old version - works fine.
-# function calc_kite_heading(turn_angle; x=100.0, z=0.0, r=20.0)
-#     orientation = collect(calc_orientation(turn_angle; x=x, z=z, r=r))
-#     el, az = calc_elevation_azimuth(turn_angle; x=x, z=z, r=r)
-#     calc_heading(orientation, el, az; respos=false)
-# end
 function calc_kite_heading(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     q = calc_orient_quat(turn_angle; x = x, z = z, r = r)
     el, az = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
@@ -236,39 +208,33 @@ turn_angles = 0:1:360
 tether_length = 50.0
 headings_all = Vector{Vector{Float64}}()
 clock_angle_all = Vector{Vector{Float64}}()
-h_labels = String[]
-clock_angle_labels = String[]
 
 for θ in THETA
     r = tether_length * sin(deg2rad(θ))  # r is the radius of the circle
     x = r / tan(deg2rad(θ))
     push!(headings_all, [rad2deg(calc_kite_heading(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
-    push!(h_labels, "Ψ (θ=$(θ)°)")
     push!(clock_angle_all, [rad2deg(calc_clock_angle(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
-    push!(clock_angle_labels, "clock angle (θ=$(θ)°)")
 end
 
 function plot_heading_and_clock(
     turn_angles,
-    theta,
+    theta_values,
     headings_all,
     clock_angle_all,
-    h_labels,
-    clock_angle_labels,
 )
     plt.figure("heading and clock angle", figsize = (10, 8))
 
     plt.subplot(2, 1, 1)
-    for i in eachindex(theta)
-        plt.plot(collect(turn_angles), headings_all[i], label = h_labels[i])
+    for i in eachindex(theta_values)
+        plt.plot(collect(turn_angles), headings_all[i], label = "Ψ (θ=$(theta_values[i])°)")
     end
     plt.ylabel("heading [deg]")
     plt.legend()
     plt.grid(true)
 
     plt.subplot(2, 1, 2)
-    for i in eachindex(theta)
-        plt.plot(collect(turn_angles), clock_angle_all[i], label = clock_angle_labels[i])
+    for i in eachindex(theta_values)
+        plt.plot(collect(turn_angles), clock_angle_all[i], label = "clock angle (θ=$(theta_values[i])°)")
     end
     plt.xlabel("turn angle [deg]")
     plt.ylabel("clock angle [deg]")
@@ -279,64 +245,9 @@ function plot_heading_and_clock(
     plt.show(block = false)
 end
 
-if PLOT_3D
-    function play_circle_flight_video(θ)
-        # Print orientation and position for each turn angle, and create SysState structs
-        println("turn_angle => orientation (roll, pitch, yaw) and position (x, y, z)")
-        viewer = Viewer3D(true)
-        segments = viewer.set.segments  # default: 6
-        N = segments + 1                # number of tether particles (including ground and kite)
-        t = 0.0
-        dt = 0.05
-        prev_heading = calc_kite_heading(deg2rad(turn_angles[1]))
-        for _ = 1:3  # repeat the circle flight a few times
-            for ta in turn_angles
-                r = tether_length * sin(deg2rad(θ))
-                x = r / tan(deg2rad(θ))
-                roll, pitch, yaw = calc_orientation(deg2rad(ta); x = x, z = 0.0, r = r)
-                pos = calc_kite_pos(deg2rad(ta); x = x, z = 0.0, r = r)
-                el, az = calc_elevation_azimuth(deg2rad(ta))
-                heading = calc_kite_heading(deg2rad(ta); x = x, z = 0.0, r = r)
-                heading_rate = (heading - prev_heading) / dt
-                prev_heading = heading
-                # Build quaternion directly from rotation matrix to avoid Euler angle wrapping glitches
-                q = calc_orient_quat(deg2rad(ta); x = x, z = 0.0, r = r)
-                # Interpolate tether particle positions from origin to kite position
-                xs = MVector{N,Float64}([pos[1] * i / segments for i = 0:segments])
-                ys = MVector{N,Float64}([pos[2] * i / segments for i = 0:segments])
-                zs = MVector{N,Float64}([pos[3] * i / segments for i = 0:segments])
-                state = SysState{N}(
-                    time = t,
-                    l_tether = MVector{4,Float64}(norm(pos), 0.0, 0.0, 0.0),
-                    orient = MVector{4,Float32}(Rotations.params(q)),
-                    elevation = el,
-                    azimuth = az,
-                    heading = heading,
-                    course = heading_rate,
-                    heading_rate = heading_rate,
-                    roll = roll,
-                    pitch = pitch,
-                    yaw = yaw,
-                    X = xs,
-                    Y = ys,
-                    Z = zs,
-                )
-                t += 0.05
-                update_system(viewer, state; scale = 0.25, kite_scale = 0.25, ned = true)
-                sleep(dt)
-            end
-        end
-    end
-end#= if PLOT_3D =#
-
 plot_heading_and_clock(
     turn_angles,
     THETA,
     headings_all,
     clock_angle_all,
-    h_labels,
-    clock_angle_labels,
 )
-if PLOT_3D
-    play_circle_flight_video(30)
-end
