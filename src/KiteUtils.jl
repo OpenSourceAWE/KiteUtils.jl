@@ -50,6 +50,7 @@ export Logger, MyFloat, Settings, SysLog, SysState
 
 import Base.length
 import ReferenceFrameRotations as RFR
+
 export demo_log, demo_state, demo_syslog, export_log, import_log, load_log, save_log # functions for logging
 export euler2rot, length, log!, menu, syslog
 export demo_state_4p, initial_kite_ref_frame                                         # functions for four point kite model
@@ -58,9 +59,11 @@ export acos2, quat2euler, quat2viewer, wrap2pi                           # geome
 export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE              # reference frame transformations
 export azn2azw,  calc_clock_angle, calc_course , calc_heading, calc_heading_w # geometric functions
 export calc_orient_rot, enu2ned, is_right_handed_orthonormal, ned2enu
-export wind_vec_from_angles, angles_from_wind_vec
+export angles_from_wind_vec, wind_vec_from_angles
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
-export fpc_settings, fpp_settings, se, se_dict, update_settings, wc_settings
+export aero_geometry_file, fpc_settings, fpp_settings, se, se_dict,
+    structural_geometry_file, update_settings,
+    vsm_settings_file, wc_settings
 export calculate_rotational_inertia
 export AbstractKiteModel
 export init!, next_step!, update_sys_state!

@@ -5,8 +5,7 @@ using KiteUtils
 using Test
 
 @testset "KiteUtils.jl: New Constructors" begin
-    cd(joinpath(@__DIR__, ".."))
-    set_data_path("data")
+    set_data_path(joinpath(@__DIR__, "..", "data"))
     se1 = Settings("system.yaml")
     @test se1.sim_settings == "settings.yaml"
     se2 = Settings("system_ram.yaml")
@@ -21,8 +20,8 @@ using Test
     @test se2.elevation == 11.11
     dict1 = se_dict(se1)
     dict2 = se_dict(se2)
-    dict1["initial"]["elevations"][1] == 420.0
-    dict2["initial"]["elevations"][1] == 11.11
+    @test dict1["initial"]["elevations"][1] == 70.8
+    @test dict2["initial"]["elevations"][1] == 70.8
     # Reset global PROJECT to avoid affecting subsequent tests
     KiteUtils.PROJECT = "system.yaml"
 end

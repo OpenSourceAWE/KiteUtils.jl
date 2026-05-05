@@ -70,7 +70,7 @@ They run `jetls check` for `src/` and `examples/` respectively.
 
 ## More effective development with AI tools using Kaimon
 
-It is suggested to install Kaimon if you are using AI tools like Claude or Github Copilot. It allows faster
+It is suggested to install Kaimon if you are using AI tools like Claude or GitHub Copilot. It allows faster
 development and reduces the token usage (energy and costs).
 
 See: https://github.com/kahliburke/Kaimon.jl
@@ -128,6 +128,6 @@ ollama pull qwen3-embedding:0.6b
 
 The Search tab will show a health indicator for both services. If either is not running, the indicator turns red with an error message.
 
-Before you can search, index the project. From the Search tab press m (manage), than a (add) and enter the path
+Before you can search, index the project. From the Search tab press m (manage), then a (add) and enter the path
 for each project you want to index. Then press i (index). To index one project might take 10 minutes, but you have
 to do that only once.

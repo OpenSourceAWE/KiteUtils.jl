@@ -358,6 +358,9 @@ function Base.setproperty!(set::Settings, sym::Symbol, val)
             setfield!(set, sym, Float64(val))
         elseif sym == :wind_vec && !(val isa SVec3) &&
                val isa AbstractVector
+            if length(val) != 3
+                throw(ArgumentError("wind_vec must be an AbstractVector of length 3"))
+            end
             setfield!(set, sym,
                       SVec3(val[1], val[2], val[3]))
         else
@@ -530,22 +533,94 @@ function update_settings(dict, sections, settings=SETTINGS)
     StructTypes.constructfrom!(settings, result)
 end
 
+"""
+    wc_settings(project=PROJECT)
+
+Get the winch controller (WC) settings filename from the project file.
+
+Returns the filename specified in the `wc_settings` field of the system section.
+The project file defaults to the currently active PROJECT.
+"""
 function wc_settings(project=PROJECT)
     # determine which wc_settings to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
     dict["system"]["wc_settings"]
 end
 
+"""
+    fpc_settings(project=PROJECT)
+
+Get the flight path controller (FPC) settings filename from the project file.
+
+Returns the filename specified in the `fpc_settings` field of the system section.
+The project file defaults to the currently active PROJECT.
+"""
 function fpc_settings(project=PROJECT)
     # determine which fpc_settings to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
     dict["system"]["fpc_settings"]
 end
 
+"""
+    fpp_settings(project=PROJECT)
+
+Get the flight path planner (FPP) settings filename from the project file.
+
+Returns the filename specified in the `fpp_settings` field of the system section.
+The project file defaults to the currently active PROJECT.
+"""
 function fpp_settings(project=PROJECT)
-    # determine which fpc_settings to load
+    # determine which fpp_settings to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
     dict["system"]["fpp_settings"]
+end
+
+"""
+    vsm_settings_file(project=PROJECT)
+
+Get the vortex step model (VSM) settings filename from the project file.
+
+Returns the filename specified in the `vsm_settings` field of the system section.
+The project file defaults to the currently active PROJECT.
+"""
+function vsm_settings_file(project=PROJECT)
+    # determine which vsm_settings to load
+    dict = YAML.load_file(joinpath(DATA_PATH[1], project))
+    dict["system"]["vsm_settings"]
+end
+
+"""
+    aero_geometry_file(project=PROJECT)
+
+Get the aerodynamic geometry filename from the project file.
+
+Returns the filename specified in the `aero_geometry` field of the system section.
+The project file defaults to the currently active PROJECT.
+"""
+function aero_geometry_file(project=PROJECT)
+    # determine which aero_geometry to load
+    dict = YAML.load_file(joinpath(DATA_PATH[1], project))
+    dict["system"]["aero_geometry"]
+end
+
+"""
+    structural_geometry_file(project=PROJECT)
+
+Get the structural geometry filename from the project file.
+
+Returns the filename specified in the `structural_geometry` field of the system section.
+Falls back to `struc_geometry` for compatibility.
+The project file defaults to the currently active PROJECT.
+"""
+function structural_geometry_file(project=PROJECT)
+    # determine which structural_geometry to load (or legacy struc_geometry)
+    dict = YAML.load_file(joinpath(DATA_PATH[1], project))
+    sys = dict["system"]
+    if haskey(sys, "structural_geometry")
+        sys["structural_geometry"]
+    else
+        sys["struc_geometry"]
+    end
 end
 
 """

@@ -4,7 +4,7 @@
 using KiteUtils, Test, LinearAlgebra
 
 @testset "KiteUtils.jl: Settings       " begin
-    cd(joinpath(@__DIR__, ".."))
+    set_data_path(joinpath(@__DIR__, "..", "data"))
     @test se().sim_settings == "settings.yaml"
     @test se().log_file == joinpath("data", "log_8700W_8ms")
     @test se().time_lapse == 1.0
@@ -48,13 +48,13 @@ using KiteUtils, Test, LinearAlgebra
     @test set.steering == 0.0
     set.steering = 1.0
     @test set.steering == 1.0
-    set_data_path("data")
+    set_data_path(joinpath(@__DIR__, "..", "data"))
     @test se("system2.yaml").cs_4p == 1.1
     @test length(se().alpha_cl) == 12
     set_data_path(tempdir())
     @test KiteUtils.DATA_PATH[1] == tempdir()
-    set_data_path("data")
-    set2 = load_settings(joinpath("data", "system.yaml"))
+    set_data_path(joinpath(@__DIR__, "..", "data"))
+    set2 = load_settings(joinpath(@__DIR__, "..", "data", "system.yaml"))
     @test set2.sim_settings == "settings.yaml"
     @test se().upwind_elevation == 0.0
     @test se().use_wind_vec == false

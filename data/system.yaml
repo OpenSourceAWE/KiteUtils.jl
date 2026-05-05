@@ -3,4 +3,7 @@ system:
     wc_settings: "wc_settings.yaml"   # settings of the winch controller
     fpc_settings: "fpc_settings.yaml" # flight path controller settings
     fpp_settings: "fpp_settings.yaml" # flight path planner settings
+    vsm_settings: "vsm_settings.yaml"       # vortex step model settings
+    aero_geometry: "aero_geometry.yaml"     # aerodynamic geometry
+    structural_geometry: "structural_geometry.yaml"   # structural geometry
  
