@@ -6,6 +6,8 @@
 - add functions `vsm_settings_file()`, `aero_geometry_file()`, and `structural_geometry_file()`
 - add example `examples/load_extra_settings.jl` for loading extra settings files
 - add the examples `examples/test_heading.jl` and `examples/test_heading_II.jl` to reproduce the heading gate
+- add the page **Developer notes** to the documentation
+- add support for `Kaimon.jl` to `run_julia`
 
 ### Changed
 - update heading/azimuth transformation logic to reproduce heading gate reference results
