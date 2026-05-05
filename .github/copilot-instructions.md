@@ -90,16 +90,20 @@ All source files that start with an underscore (`_`) are auto-generated from `da
 ### Reference Frames
 
 - **NED (North-East-Down)**: Primary orientation reference frame
-- **ENU (East-North-Up)**: Alternative geographic frame
+- **ENU (East-North-Up)**: Alternative geographic frame (East, North, Up axes)
+- **EG (Earth-Ground)**: Ground-station-based frame with North-West-Up axes; related to ENU by 90° rotation
 - **Wind Reference Frame (W)**: Frame aligned with wind direction
 - **Kite Reference Frame (KS)**: Frame aligned with kite orientation
-- **System Earth (SE)**: System-centric Earth frame
+- **Small Earth (SE)**: Origin-centric Earth frame (local tangent plane)
 
 ### Coordinate System Details
 
-- Azimuth: measured from North (0°) rotating clockwise (East = 90°)
+- **Three azimuth angles** are used:
+  - **Azimuth (wind frame)**: measured positive counter-clockwise when viewed from above, zero straight downwind
+  - **azimuth_north**: measured from North (0°), positive counter-clockwise when viewed from above
+  - **azimuth_east**: measured from East (0°), positive clockwise when viewed from above
 - Elevation: angle from ground to kite (0° to 90°)
-- Heading: kite orientation relative to North
+- Heading: direction the kite's nose is pointing in the Small Earth frame, measured from zenith
 
 ## Development Workflows
 
