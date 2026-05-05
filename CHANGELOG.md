@@ -3,6 +3,15 @@
 ## KiteUtils v0.11.8 05-05-2026
 ### Added
 - add `azimuth_rate` to `SysState`, including logging, display, and Arrow load/save support
+- add functions `vsm_settings_file()`, `aero_geometry_file()`, and `structural_geometry_file()`
+- add example `examples/load_extra_settings.jl` for loading extra settings files
+
+### Changed
+- update heading/azimuth transformation logic to reproduce heading gate reference results
+- update related heading/reference-frame documentation and examples
+
+### Fixed
+- fix tests for the updated heading/transformation behavior
 
 ## KiteUtils v0.11.7 20-04-2026
 ### Added
