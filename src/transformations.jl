@@ -269,7 +269,7 @@ upwind direction and upwind elevation. All angles in radians.
 - `upwind_elevation`: angle of the upwind direction above the
   east-north plane [rad]
 
-Returns an `MVector{3, Float64}` (east, north, up).
+Returns an `SVec3` (east, north, up).
 """
 function wind_vec_from_angles(v_wind, upwind_dir, upwind_elevation)
     downwind_azimuth = upwind_dir + π
