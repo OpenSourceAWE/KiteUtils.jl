@@ -201,27 +201,6 @@ function calc_kite_heading(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     atan(headingSE[2], headingSE[1])
 end
 
-# # Test the function calc_elevation_azimuth
-# println("turn_angle => (elevation, azimuth)")
-# for turn_angle in 0:30:360
-#     el, az = calc_elevation_azimuth(deg2rad(turn_angle))
-#     println("  $(turn_angle)deg => elevation: $(round(rad2deg(el), digits=2))deg, azimuth: $(round(rad2deg(az), digits=2))deg")
-# end
-
-# # Test the function calc_orientation
-# println("\nturn_angle => (roll, pitch, yaw)")
-# for turn_angle in 0:30:360
-#     roll, pitch, yaw = calc_orientation(deg2rad(turn_angle))
-#     println("  $(turn_angle)deg => roll: $(round(rad2deg(roll), digits=2))deg, pitch: $(round(rad2deg(pitch), digits=2))deg, yaw: $(round(rad2deg(yaw), digits=2))deg")
-# end
-
-# # Test the function calc_kite_heading
-# println("\nturn_angle => heading")
-# for turn_angle in 0:30:360
-#     heading = calc_kite_heading(deg2rad(turn_angle))
-#     println("  $(turn_angle)deg => heading: $(round(rad2deg(heading), digits=2))deg")
-# end
-
 # Helper: kite position on circle
 function calc_kite_pos(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     center = [x, 0.0, z]
