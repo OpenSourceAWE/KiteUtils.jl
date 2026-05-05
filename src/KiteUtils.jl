@@ -7,9 +7,8 @@
 Utility functions for the kite simulators.
 
 This module provides data structures for the flight state and the flight log,
-functions for creating a demo flight state, demo flight log, loading and
-saving flight logs, functions for reading the settings, and helper functions
-for working with rotations.
+functions for creating a demo flight state, demo flight log, loading and saving flight logs,
+functions for reading the settings, and helper functions for working with rotations.
 
 See the [documentation](https://OpenSourceAWE.github.io/KiteUtils.jl/stable/)
 for more information.
@@ -57,7 +56,7 @@ export demo_state_4p, initial_kite_ref_frame                                    
 export asin2, azimuth_east, azimuth_north, calc_elevation, ground_dist, rot, rot3d
 export acos2, quat2euler, quat2viewer, wrap2pi                           # geometric functions
 export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE              # reference frame transformations
-export azn2azw,  calc_course , calc_heading, calc_heading_w              # geometric functions
+export azn2azw,  calc_clock_angle, calc_course , calc_heading, calc_heading_w # geometric functions
 export calc_orient_rot, enu2ned, is_right_handed_orthonormal, ned2enu
 export wind_vec_from_angles, angles_from_wind_vec
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
@@ -229,7 +228,7 @@ end
 Calculate the initial positions of the particles representing
 a 4-point kite, connected to a kite control unit (KCU).
 
-Parameters:
+**Parameters:**
 - height_k: height of the kite itself, not above ground [m]
 - height_b: height of the bridle [m]
 - width: width of the kite [m]

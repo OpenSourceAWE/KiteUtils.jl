@@ -37,6 +37,8 @@ Default: `0`, horizontal wind.
 The position of the kite can be described with two angles, the azimuth angle φ and the elevation angle β .The elevation angle is zero when the height of the kite is zero, and 90° when it is at Zenith.
 Three azimuth angles are used, the azimuth angle in the wind reference frame and $\mathrm{azimuth\_east}$ and $\mathrm{azimuth\_north}$. The azimuth angles in wind reference frame and $\mathrm{azimuth\_north}$ are defined positive anti-clockwise when seen from above, $\mathrm{azimuth\_east}$ is defined positive clockwise when seen from above. In the log file and the system state $\mathrm{azimuth}$ in wind reference frame is used (for KiteUtils 0.8.2 and higher).
 
+The functions `calc_heading()` and `calc_clock_angle()` both use this same wind-frame azimuth convention.
+
 ## Orientation of the kite
 For the orientation, either a quaternion or roll, pitch and yaw angles are used. The
 orientation is defined with respect to the NED reference frame (see above), because

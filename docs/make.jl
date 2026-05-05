@@ -3,10 +3,8 @@
 
 using KiteUtils
 using Pkg
-if ("TestEnv" ∈ keys(Pkg.project().dependencies))
-    if ! ("Documents" ∈ keys(Pkg.project().dependencies))
-        using TestEnv; TestEnv.activate()
-    end
+if ! ("Documenter" ∈ keys(Pkg.project().dependencies))
+    Pkg.activate(@__DIR__)
 end
 using Documenter
 
@@ -29,6 +27,7 @@ makedocs(;
         "Reference frames" => "reference_frames.md",
         "Exported Functions" => "functions.md",
         "Exported Types" => "types.md",
+        "Developer notes" => "developer_notes.md",
         "Examples" => "examples.md",
     ],
 )

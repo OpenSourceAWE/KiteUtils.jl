@@ -1,5 +1,0 @@
-# SPDX-FileCopyrightText: 2022 Uwe Fechner
-# SPDX-License-Identifier: MIT
-
-rules:
-  indentation: {spaces: 2}
