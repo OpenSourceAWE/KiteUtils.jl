@@ -155,7 +155,8 @@ function calc_clock_angle(orientation, elevation, azimuth; upwind_dir=-pi/2, res
     # Convert EG (North-West-Up) to ENU (East-North-Up): EG2ENU = transpose(ENU2EG)
     x_kite_ENU = SVector(-x_kite_EG[2], x_kite_EG[1], x_kite_EG[3])
     # Tether direction: unit vector from origin to kite in ENU, then negated
-    pos_unit = SVector(cos(elevation) * cos(azimuth), -cos(elevation) * sin(azimuth), sin(elevation))
+    # Use the same azimuth sign convention as calc_heading/fromW2SE.
+    pos_unit = SVector(cos(elevation) * cos(azimuth), cos(elevation) * sin(azimuth), sin(elevation))
     z_kite = -pos_unit  # points from kite toward ground station
     # Project world-up onto the plane perpendicular to the tether (12 o'clock reference)
     up = SVector(0.0, 0.0, 1.0)
