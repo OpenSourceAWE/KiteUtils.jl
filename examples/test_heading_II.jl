@@ -167,13 +167,6 @@ function calc_kite_heading(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     calc_heading(orientation, el, az; respos = false)
 end
 
-# Helper: kite position on circle
-function calc_kite_pos(turn_angle; x = 100.0, z = 0.0, r = 20.0)
-    center = [x, 0.0, z]
-    e1, e2 = calc_circle_basis(x, z)
-    return center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
-end
-
 """
     calc_clock_angle(turn_angle; x=100.0, z=0.0, r=20.0)
 
