@@ -162,15 +162,9 @@ the elevation and azimuth, then calls `calc_heading` from KiteUtils.jl.
 The heading angle in radian.
 """
 function calc_kite_heading(turn_angle; x = 100.0, z = 0.0, r = 20.0)
-    q = calc_orient_quat(turn_angle; x = x, z = z, r = r)
+    orientation = collect(calc_orientation(turn_angle; x = x, z = z, r = r))
     el, az = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
-    # Use quaternion directly to avoid Euler-angle gimbal lock at ±90° pitch,
-    # which occurs when the kite crosses the horizontal plane (elevation = 0).
-    headingEX = q * SVector(1.0, 0.0, 0.0)   # nose direction in NED ≡ EX
-    headingEG = fromEX2EG(headingEX)          # NED → NWU (Earth Groundstation)
-    headingW = fromEG2W(headingEG, π/2)      # downwind = east (upwind_dir = -π/2)
-    headingSE = fromW2SE(headingW, el, az)    # → Small Earth frame
-    atan(headingSE[2], headingSE[1])
+    calc_heading(orientation, el, az; respos = false)
 end
 
 # Helper: kite position on circle
