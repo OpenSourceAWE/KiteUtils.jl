@@ -194,38 +194,19 @@ for θ in THETA
     push!(clock_angle_all, [rad2deg(calc_clock_angle(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
 end
 
-function plot_heading_and_clock(
-    turn_angles,
-    theta_values,
+# Avoid accumulating curves and duplicate legend entries when re-running include().
+plt.figure("heading and clock angle", clear = true)
+
+plotx(
+    collect(turn_angles),
     headings_all,
-    clock_angle_all,
-)
-    plt.figure("heading and clock angle", figsize = (10, 8))
-
-    plt.subplot(2, 1, 1)
-    for i in eachindex(theta_values)
-        plt.plot(collect(turn_angles), headings_all[i], label = "Ψ (θ=$(theta_values[i])°)")
-    end
-    plt.ylabel("heading [deg]")
-    plt.legend()
-    plt.grid(true)
-
-    plt.subplot(2, 1, 2)
-    for i in eachindex(theta_values)
-        plt.plot(collect(turn_angles), clock_angle_all[i], label = "clock angle (θ=$(theta_values[i])°)")
-    end
-    plt.xlabel("turn angle [deg]")
-    plt.ylabel("clock angle [deg]")
-    plt.legend()
-    plt.grid(true)
-
-    plt.tight_layout()
-    plt.show(block = false)
-end
-
-plot_heading_and_clock(
-    turn_angles,
-    THETA,
-    headings_all,
-    clock_angle_all,
+    clock_angle_all;
+    xlabel = "turn angle [deg]",
+    ylabels = ["heading [deg]", "clock angle [deg]"],
+    labels = [
+        ["Ψ (θ=$(θ)°)" for θ in THETA],
+        ["clock angle (θ=$(θ)°)" for θ in THETA],
+    ],
+    fig = "heading and clock angle",
+    disp = true,
 )
