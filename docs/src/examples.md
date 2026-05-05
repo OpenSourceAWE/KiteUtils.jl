@@ -127,22 +127,71 @@ julia> syslog=log.syslog
 You can acces this array by index:
 ```julia
 syslog[end]
-time      [s]:       10.0
-orient    [w,x,y,z]: Float32[0.5, 0.5, -0.5, -0.5]
-elevation [rad]:     0.64350116
-azimuth   [rad]:     0.0
-l_tether  [m]:       0.0
-v_reelout [m/s]:     0.0
-force     [N]:       0.0
-depower   [-]:       0.0
-steering  [-]:       0.0
-heading   [rad]:     0.0
-course    [rad]:     0.0
-v_app     [m/s]:     0.0
-vel_kite  [m/s]:     Float32[0.0, 0.0, 0.0]
-X         [m]:       Float32[0.0, 1.6666666, 3.3333333, 5.0, 6.6666665, 8.333333, 10.0]
-Y         [m]:       Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-Z         [m]:       Float32[0.0, 0.15380114, 0.6194867, 1.4100224, 2.5474184, 4.063342, 6.0000005]
+time [s]:          10.0
+t_sim [s]:         0.012
+sys_state [-]:     0
+cycle [-]:         0
+fig_8 [-]:         0
+e_mech [Wh]:       0.0
+orient [-]:        Float32[0.5, 0.5, -0.5, -0.5]
+turn_rates [rad/s]:Float32[0.0, 0.0, 0.0]
+elevation [rad]:   0.5404195
+azimuth [rad]:     0.0
+azimuth_rate [rad/s]:0.0
+l_tether [m]:      Float32[0.0, 0.0, 0.0, 0.0]
+v_reelout [m/s]:   Float32[0.0, 0.0, 0.0, 0.0]
+winch_force [N]:   Float32[0.0, 0.0, 0.0, 0.0]
+depower [0..1]:    0.0
+steering [-1..1]:  0.0
+kcu_steering [-1..1]:0.0
+set_steering [-1..1]:0.0
+heading [rad]:     0.0
+heading_rate [rad/s]:0.0
+course [rad]:      0.0
+bearing [rad]:     0.0
+attractor [rad]:   Float32[0.0, 0.0]
+v_app [m/s]:       0.0
+v_wind_gnd [m/s]:  Float32[10.4855, 0.0, -3.08324]
+v_wind_200m [m/s]: Float32[10.4855, 0.0, -3.08324]
+v_wind_kite [m/s]: Float32[10.4855, 0.0, -3.08324]
+AoA [rad]:         0.0
+side_slip [rad]:   0.0
+alpha3 [rad]:      0.0
+alpha4 [rad]:      0.0
+CL2 [-]:           0.0
+CD2 [-]:           0.0
+aero_force_b [N]:  Float32[0.0, 0.0, 0.0]
+aero_moment_b [Nm]:Float32[0.0, 0.0, 0.0]
+tether_induced_force [N]:Float32[0.0, 0.0, 0.0]
+tether_induced_moment [Nm]:Float32[0.0, 0.0, 0.0]
+twist_angles [rad]:Float32[0.0, 0.0, 0.0, 0.0]
+vel_kite [m/s]:    Float32[0.0, 0.0, 0.0]
+acc [m/s²]:        0.0
+X [m]:             Float32[0.0, 1.6666666, 3.3333333, 5.0, 6.6666665, 8.333333, 10.0]
+Y [m]:             Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Z [m]:             Float32[0.0, 0.15380114, 0.6194867, 1.4100224, 2.5474184, 4.063342, 6.0000005]
+set_torque [Nm]:   Float32[0.0, 0.0, 0.0, 0.0]
+set_speed [m/s]:   Float32[0.0, 0.0, 0.0, 0.0]
+set_force [N]:     Float32[0.0, 0.0, 0.0, 0.0]
+roll [rad]:        0.0
+pitch [rad]:       0.0
+yaw [rad]:         0.0
+var_01 [-]:        0.0
+var_02 [-]:        0.0
+var_03 [-]:        0.0
+var_04 [-]:        0.0
+var_05 [-]:        0.0
+var_06 [-]:        0.0
+var_07 [-]:        0.0
+var_08 [-]:        0.0
+var_09 [-]:        0.0
+var_10 [-]:        0.0
+var_11 [-]:        0.0
+var_12 [-]:        0.0
+var_13 [-]:        0.0
+var_14 [-]:        0.0
+var_15 [-]:        0.0
+var_16 [-]:        0.0
 
 ```
 But you can also access the syslog component wise:
