@@ -11,7 +11,7 @@ end
 using ControlPlots
 using KiteUtils
 using LinearAlgebra: cross, dot, normalize
-using Rotations: QuatRotation, quat2euler
+using Rotations: QuatRotation
 
 """
     calc_circle_basis(x, z)
