@@ -62,8 +62,8 @@ export azn2azw,  calc_course , calc_heading, calc_heading_w              # geome
 export calc_orient_rot, enu2ned, is_right_handed_orthonormal, ned2enu
 export angles_from_wind_vec, wind_vec_from_angles
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
-export aero_geometry_settings, fpc_settings, fpp_settings, se, se_dict,
-    struc_geometry_settings, update_settings, vsm_settings, wc_settings
+export aero_geometry_file, fpc_settings, fpp_settings, se, se_dict,
+    structural_geometry_file, update_settings, vsm_settings_file, wc_settings
 export calculate_rotational_inertia
 export AbstractKiteModel
 export init!, next_step!, update_sys_state!

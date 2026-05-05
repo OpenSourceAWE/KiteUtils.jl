@@ -18,9 +18,9 @@ sync_wind!
 wc_settings
 fpc_settings
 fpp_settings
-vsm_settings
-aero_geometry_settings
-struc_geometry_settings
+vsm_settings_file
+aero_geometry_file
+structural_geometry_file
 ```
 Also look at the default example: [settings.yaml](https://github.com/ufechner7/KiteUtils.jl/blob/main/data/settings.yaml) .
 

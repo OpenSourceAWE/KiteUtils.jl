@@ -566,45 +566,45 @@ function fpp_settings(project=PROJECT)
 end
 
 """
-    vsm_settings(project=PROJECT)
+    vsm_settings_file(project=PROJECT)
 
 Get the vortex step model (VSM) settings filename from the project file.
 
 Returns the filename specified in the `vsm_settings` field of the system section.
 The project file defaults to the currently active PROJECT.
 """
-function vsm_settings(project=PROJECT)
+function vsm_settings_file(project=PROJECT)
     # determine which vsm_settings to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
     dict["system"]["vsm_settings"]
 end
 
 """
-    aero_geometry_settings(project=PROJECT)
+    aero_geometry_file(project=PROJECT)
 
 Get the aerodynamic geometry filename from the project file.
 
 Returns the filename specified in the `aero_geometry` field of the system section.
 The project file defaults to the currently active PROJECT.
 """
-function aero_geometry_settings(project=PROJECT)
+function aero_geometry_file(project=PROJECT)
     # determine which aero_geometry to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
     dict["system"]["aero_geometry"]
 end
 
 """
-    struc_geometry_settings(project=PROJECT)
+    structural_geometry_file(project=PROJECT)
 
 Get the structural geometry filename from the project file.
 
-Returns the filename specified in the `struc_geometry` field of the system section.
+Returns the filename specified in the `structural_geometry` field of the system section.
 The project file defaults to the currently active PROJECT.
 """
-function struc_geometry_settings(project=PROJECT)
-    # determine which struc_geometry to load
+function structural_geometry_file(project=PROJECT)
+    # determine which structural_geometry to load
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
-    dict["system"]["struc_geometry"]
+    dict["system"]["structural_geometry"]
 end
 
 """

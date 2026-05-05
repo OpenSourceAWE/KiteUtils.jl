@@ -5,5 +5,5 @@ system:
     fpp_settings: "fpp_settings.yaml" # flight path planner settings
     vsm_settings: "vsm_settings.yaml"       # vortex step model settings
     aero_geometry: "aero_geometry.yaml"     # aerodynamic geometry
-    struc_geometry: "struc_geometry.yaml"   # structural geometry
+    structural_geometry: "structural_geometry.yaml"   # structural geometry
  
