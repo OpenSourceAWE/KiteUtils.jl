@@ -73,7 +73,7 @@ They run `jetls check` for `src/` and `examples/` respectively.
 It is suggested to install Kaimon if you are using AI tools like Claude or GitHub Copilot. It allows faster
 development and reduces the token usage (energy and costs).
 
-See: https://github.com/kahliburke/Kaimon.jl
+See: [Kaimon.jl](https://github.com/kahliburke/Kaimon.jl)
 
 It is suggested to start **kaimon** before starting VSCode and keep it open in a terminal window.
 
@@ -93,10 +93,12 @@ Run `kaimon --help` to see if it works.
 
 Add `Qdrant` for semantic search:
 
-```bash
-#!/bin/bash
+First, install [docker](https://docs.docker.com/engine/install/).
 
-# This script starts the Qdrant vector database in a Docker container. It creates a Docker 
+Then, run the following code in the terminal:
+
+```bash
+# This code starts the Qdrant vector database in a Docker container. It creates a Docker 
 # volume named "qdrant_data" to persist the data and runs the container with the appropriate 
 # port mapping and restart policy.
 
@@ -104,11 +106,6 @@ Add `Qdrant` for semantic search:
 # restart on system reboot or if it crashes.
 
 # The data is stored in /var/lib/docker/volumes/qdrant_data/_data/collections
-
-if docker volume inspect qdrant_data &>/dev/null; then
-  echo "Volume 'qdrant_data' already exists, skipping setup."
-  exit 0
-fi
 
 docker volume create qdrant_data
 
