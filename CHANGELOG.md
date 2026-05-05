@@ -217,16 +217,16 @@
 - the function fromW2SE expects now the azimuth to be defined in wind reference frame
 
 ## KiteUtils v0.8.1 - 2024-10-16
-#### Added
+### Added
 - function euler2rot
 - function azn2azw (azimuth north to azimuth wind)
 - function azimuth_north
-#### Removed
+### Removed
 - removed function quat2frame because it was not well defined
 - removed function calc_azimuth, replaced with more specific functions (see above)
-#### Changed
+### Changed
 - renamed the parameter `yaw` to `azimuth_north` for `demo_state` and `demo_state_4p`
-#### Fixed
+### Fixed
 - fixed the function quat2viewer
 
 ## KiteUtils v0.8.0 - 2024-10-15
@@ -383,4 +383,3 @@
 ## KiteUtils v0.6.3 - 2024-03-26
 ### Added
 - Add free fields var_01 .. var_02 and column meta data ([#41](https://github.com/ufechner7/KiteUtils.jl/pull/41))
-
