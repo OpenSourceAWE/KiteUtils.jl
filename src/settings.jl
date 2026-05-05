@@ -358,6 +358,9 @@ function Base.setproperty!(set::Settings, sym::Symbol, val)
             setfield!(set, sym, Float64(val))
         elseif sym == :wind_vec && !(val isa SVec3) &&
                val isa AbstractVector
+            if length(val) != 3
+                throw(ArgumentError("wind_vec must be an AbstractVector of length 3"))
+            end
             setfield!(set, sym,
                       SVec3(val[1], val[2], val[3]))
         else
