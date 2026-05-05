@@ -9,6 +9,7 @@ sysstate:
     turn_rates: "MVector{3, MyFloat}"   # turn rates around the body fixed x, y and z axis [rad/s]
     elevation: "MyFloat"                # elevation angle [rad]
     azimuth: "MyFloat"                  # azimuth angle in wind reference frame [rad]
+    azimuth_rate: "MyFloat"             # azimuth rate [rad/s]
     l_tether: "MVector{4, MyFloat}"     # tether length, tether 1 to 4 [m]
     v_reelout: "MVector{4, MyFloat}"    # reelout speed, tether 1 to 4 [m/s]
     winch_force: "MVector{4, MyFloat}"  # tether force at the winch, tether 1 to 4 [N]
