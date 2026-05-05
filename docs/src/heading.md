@@ -11,7 +11,7 @@ This projection plane is the **Small Earth (SE) reference frame**.
 ## Coordinate frames involved
 
 | Frame | Abbrev. | Convention |
-|-------|---------|------------|
+| ------- | --------- | ------------ |
 | Kite Sensor | **KS** | $x$: trailing → leading edge; $y$: right wing; $z$: down |
 | Earth Xsens (NED) | **EX** | $x$: North; $y$: East; $z$: Down |
 | Earth Groundstation | **EG** | $x$: North; $y$: West; $z$: Up |
