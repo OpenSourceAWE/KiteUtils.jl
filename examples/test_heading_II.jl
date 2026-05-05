@@ -123,26 +123,6 @@ function calc_orientation(turn_angle; x = 100.0, z = 0.0, r = 20.0)
 end
 
 """
-    calc_orient_quat(turn_angle; x=100.0, z=0.0, r=20.0)
-
-Calculate the orientation quaternion of the kite directly from the rotation matrix,
-avoiding the Euler angle round-trip that causes discontinuities at ±180° yaw.
-
-Returns a `QuatRotation`.
-"""
-function calc_orient_quat(turn_angle; x = 100.0, z = 0.0, r = 20.0)
-    center = [x, 0.0, z]
-    e1, e2 = calc_circle_basis(x, z)
-    pos = center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
-    z_kite = -normalize(pos)
-    tangent = normalize(-sin(turn_angle) * e1 + cos(turn_angle) * e2)
-    x_kite = normalize(tangent - dot(tangent, z_kite) * z_kite)
-    y_kite = cross(z_kite, x_kite)
-    rotation = calc_orient_rot(x_kite, y_kite, z_kite)
-    return QuatRotation(rotation)
-end
-
-"""
     calc_kite_heading(turn_angle; x=100.0, z=0.0, r=20.0)
 
 Calculate the heading of the kite in radian for a given turn angle in radian.
