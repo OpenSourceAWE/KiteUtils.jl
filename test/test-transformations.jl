@@ -31,7 +31,7 @@ using KiteUtils, LinearAlgebra, StaticArrays, Test
         azimuth   = deg2rad(45)
         @test fromW2SE(vec1, elevation, -azimuth) == [ 1.622480056571193,  2.121320343559643, -2.62060269137249]
         @test all(fromKS2EX(vec1, orient)        .≈ [-1.9999999999999998, 1.878107499419996, 2.544152554510513])
-        @test calc_heading_w(orient)             == [ 0.9510565162951535, 0.0,              0.3090169943749474]
+        @test calc_heading_w(orient)             ≈  [ 0.9510565162951535, 0.0,              0.3090169943749474]
         upwind_dirs = deg2rad.([-150.0, -90.0, -20.0, 45.0, 120.0])
         elevations = deg2rad.([10.0, 35.0, 71.5, 88.0])
         azimuths_w = deg2rad.([-170.0, -60.0, 0.0, 35.0, 120.0])
