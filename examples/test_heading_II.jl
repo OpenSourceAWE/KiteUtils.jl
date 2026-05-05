@@ -10,9 +10,8 @@ end
 
 using ControlPlots
 using KiteUtils
-using LinearAlgebra: cross, dot, norm, normalize
-using Rotations
-using StaticArrays
+using LinearAlgebra: cross, dot, normalize
+using Rotations: QuatRotation, quat2euler
 
 """
     calc_circle_basis(x, z)
