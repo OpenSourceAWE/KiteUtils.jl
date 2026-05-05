@@ -13,6 +13,8 @@ using KiteUtils
 using LinearAlgebra: cross, dot, normalize
 using Rotations: QuatRotation
 
+const UPWIND_DIR = -π/2 + deg2rad(45) # wind from west + 45 degrees (NW)
+
 """
     calc_circle_basis(x, z)
 
@@ -140,12 +142,12 @@ the elevation and azimuth, then calls `calc_heading` from KiteUtils.jl.
 # Returns
 The heading angle in radian.
 """
-function calc_kite_heading(turn_angle; x = 100.0, z = 0.0, r = 20.0)
+function calc_kite_heading(turn_angle; x = 100.0, z = 0.0, r = 20.0, upwind_dir = Main.UPWIND_DIR)
     orientation = collect(calc_orientation(turn_angle; x = x, z = z, r = r))
     el, az_east = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
     # calc_heading expects azimuth in the wind frame, while calc_elevation_azimuth returns azimuth_east.
     az_north = wrap2pi(-π / 2 - az_east)
-    az_wind = azn2azw(az_north)
+    az_wind = azn2azw(az_north; upwind_dir = upwind_dir)
     calc_heading(orientation, el, az_wind; respos = false)
 end
 
@@ -156,11 +158,11 @@ Compute the clock angle of the kite: the rotation of the kite's x-axis (flight d
 around the tether axis (z_kite), measured from the world-up direction projected onto
 the plane perpendicular to the tether. Returns the angle in radian.
 """
-function calc_clock_angle(turn_angle; x = 100.0, z = 0.0, r = 20.0)
+function calc_clock_angle(turn_angle; x = 100.0, z = 0.0, r = 20.0, upwind_dir = Main.UPWIND_DIR)
     orientation = collect(calc_orientation(turn_angle; x = x, z = z, r = r))
     el, az_east = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
     az_north = wrap2pi(-π / 2 - az_east)
-    az_wind = azn2azw(az_north)
+    az_wind = azn2azw(az_north; upwind_dir = upwind_dir)
     KiteUtils.calc_clock_angle(orientation, el, az_wind; respos = false)
 end
 
@@ -174,8 +176,8 @@ clock_angle_all = Vector{Vector{Float64}}()
 for θ in THETA
     r = tether_length * sin(deg2rad(θ))  # r is the radius of the circle
     x = r / tan(deg2rad(θ))
-    push!(headings_all, [rad2deg(calc_kite_heading(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
-    push!(clock_angle_all, [rad2deg(calc_clock_angle(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
+    push!(headings_all, [rad2deg(calc_kite_heading(deg2rad(ta); x = x, z = 0.1, r = r, upwind_dir = Main.UPWIND_DIR)) for ta in turn_angles])
+    push!(clock_angle_all, [rad2deg(calc_clock_angle(deg2rad(ta); x = x, z = 0.1, r = r, upwind_dir = Main.UPWIND_DIR)) for ta in turn_angles])
 end
 
 # Avoid accumulating curves and duplicate legend entries when re-running include().
