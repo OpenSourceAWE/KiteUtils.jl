@@ -2,7 +2,7 @@
 
 ## JETLS integration in VS Code
 
-For this project, using JETLS is recommended to catch type and inference issues early while editing Julia code.
+For this project, using [JETLS](https://github.com/aviatesk/JETLS.jl) is recommended to catch type and inference issues early while editing Julia code.
 
 Remark: according to this repository's changelog, `JETLS.jl` currently requires Julia 1.12.
 
