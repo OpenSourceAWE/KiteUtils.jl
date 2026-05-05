@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Uwe Fechner
+# SPDX-License-Identifier: MIT
+
 # KiteUtils.jl Copilot Instructions
 
 ## Project Overview
