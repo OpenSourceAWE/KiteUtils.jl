@@ -630,7 +630,12 @@ The project file defaults to the currently active PROJECT.
 function structural_geometry_file(project=PROJECT)
     # determine which structural_geometry to load (or legacy struc_geometry)
     dict = YAML.load_file(joinpath(DATA_PATH[1], project))
-    get(dict["system"], "structural_geometry", get(dict["system"], "struc_geometry"))
+    sys = dict["system"]
+    if haskey(sys, "structural_geometry")
+        sys["structural_geometry"]
+    else
+        sys["struc_geometry"]
+    end
 end
 
 """
