@@ -128,6 +128,54 @@ function calc_heading(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=
 end
 
 """
+    calc_clock_angle(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=true)
+
+Calculate the clock angle of the kite in radians. The clock angle is the rotation of the
+kite's nose (x-axis) around the tether axis, measured from the world-up direction projected
+onto the plane perpendicular to the tether. Zero means the kite's nose points toward
+12 o'clock (up in the tether cross-section plane); positive is clockwise when viewed from
+the ground station.
+
+# Arguments
+- `orientation`: Euler angles (roll, pitch, yaw) in radians, calculated with respect to
+                 the North, East, Down (NED) reference frame
+- `elevation`:   Elevation angle of the kite in radians
+- `azimuth`:     Azimuth angle of the kite in radians
+- `upwind_dir`:  Direction the wind is coming from in radians; zero at north; clockwise
+                 positive from above (default: -π/2, wind from west)
+- `respos`:      If true, return angle in range [0, 2π]; if false, return in range [-π, π]
+                 (default: true)
+
+# Returns
+The clock angle in radians.
+"""
+function calc_clock_angle(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=true)
+    # Get the kite's x-axis (flight direction) in EG (Earth Groundstation, North-West-Up) frame
+    heading_sensor = SVector(1, 0, 0)
+    x_kite_EG = fromEX2EG(fromKS2EX(heading_sensor, orientation))
+    # Convert EG (North-West-Up) to ENU (East-North-Up): EG2ENU = transpose(ENU2EG)
+    x_kite_ENU = SVector(-x_kite_EG[2], x_kite_EG[1], x_kite_EG[3])
+    # Convert wind-frame azimuth to ENU north-based azimuth so this matches calc_heading.
+    azimuth_n = wrap2pi(azimuth - upwind_dir - π)
+    pos_unit = SVector(-cos(elevation) * sin(azimuth_n), cos(elevation) * cos(azimuth_n), sin(elevation))
+    z_kite = -pos_unit  # points from kite toward ground station
+    # Project world-up onto the plane perpendicular to the tether (12 o'clock reference)
+    up = SVector(0.0, 0.0, 1.0)
+    ref_unnormalized = up - dot(up, z_kite) * z_kite
+    ref_norm = norm(ref_unnormalized)
+    if ref_norm <= 1e-9
+        throw(ArgumentError("calc_clock_angle is undefined when tether axis is parallel to world-up (near zenith/nadir). Use an elevation away from ±pi/2."))
+    end
+    ref = ref_unnormalized / ref_norm  # 12 o'clock direction
+    perp = cross(z_kite, ref)                         # 3 o'clock direction (viewed from ground station)
+    angle = atan(dot(x_kite_ENU, perp), dot(x_kite_ENU, ref))
+    if angle < 0 && respos
+        angle += 2π
+    end
+    angle
+end
+
+"""
     calc_course(velocityENU, elevation, azimuth, down_wind_direction = π/2, respos=true)
 
 Calculate the course angle in radian.
