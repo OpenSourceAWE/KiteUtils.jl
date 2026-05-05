@@ -34,6 +34,8 @@ $(TYPEDFIELDS)
     elevation::MyFloat = 0
     "azimuth angle in wind reference frame [rad]"
     azimuth::MyFloat = 0
+    "azimuth rate [rad/s]"
+    azimuth_rate::MyFloat = 0
     "tether length, tether 1 to 4 [m]"
     l_tether::MVector{4, MyFloat} = [0.0, 0.0, 0.0, 0.0]
     "reelout speed, tether 1 to 4 [m/s]"

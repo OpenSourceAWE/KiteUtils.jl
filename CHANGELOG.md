@@ -1,5 +1,9 @@
 # Changelog
 
+## KiteUtils v0.11.8 05-05-2026
+### Added
+- add `azimuth_rate` to `SysState`, including logging, display, and Arrow load/save support
+
 ## KiteUtils v0.11.7 20-04-2026
 ### Added
 - add version 4 of RecursiveArrayTools in compat

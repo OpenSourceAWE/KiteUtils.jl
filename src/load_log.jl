@@ -47,6 +47,7 @@ function load_log(filename::String; path="", debug=false)
     cycle = Vector{Int16}(undef, n)
     fig_8 = Vector{Int16}(undef, n)
     turn_rates = Vector{Float32}(undef, n)
+    azimuth_rate = Vector{Float32}(undef, n)
     kcu_steering = Vector{Float32}(undef, n)
     set_steering = Vector{Float32}(undef, n)
     heading_rate = Vector{Float32}(undef, n)
@@ -75,7 +76,9 @@ function load_log(filename::String; path="", debug=false)
     yaw = Vector{Float32}(undef, n)
     winch_force = Vector{MVector{4, Float32}}(undef, n)
 
-    for name in [:cycle, :fig_8, :turn_rates, :kcu_steering,
+    fill!(azimuth_rate, 0)
+
+    for name in [:cycle, :fig_8, :turn_rates, :azimuth_rate, :kcu_steering,
                  :set_steering, :heading_rate, :bearing, :attractor, :v_wind_gnd,
                  :v_wind_200m, :v_wind_kite, :AoA, :side_slip, :alpha3, :alpha4, :CL2, :CD2,
                  :aero_force_b, :aero_moment_b, :tether_induced_force, :tether_induced_moment,
@@ -88,6 +91,8 @@ function load_log(filename::String; path="", debug=false)
                 fig_8 = table.fig_8
             elseif name == :turn_rates
                 turn_rates = table.turn_rates
+            elseif name == :azimuth_rate
+                azimuth_rate = table.azimuth_rate
             elseif name == :kcu_steering
                 kcu_steering = table.kcu_steering
             elseif name == :set_steering
@@ -153,7 +158,7 @@ function load_log(filename::String; path="", debug=false)
     end
     syslog = StructArray{SysState{P}}((table.time, table.t_sim, table.sys_state, cycle, fig_8, 
                                        table.e_mech, table.orient, turn_rates, table.elevation, table.azimuth, 
-                                       table.l_tether, table.v_reelout, winch_force, table.depower, table.steering, 
+                                       azimuth_rate, table.l_tether, table.v_reelout, winch_force, table.depower, table.steering, 
                                        kcu_steering, set_steering, table.heading, heading_rate, table.course, 
                                        bearing, attractor, table.v_app, v_wind_gnd, v_wind_200m, 
                                        v_wind_kite, AoA, side_slip, alpha3, alpha4, 

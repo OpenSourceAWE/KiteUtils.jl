@@ -26,6 +26,7 @@ function log!(logger::Logger, state::SysState)
     logger.turn_rates_vec[i] .= state.turn_rates
     logger.elevation_vec[i] = state.elevation
     logger.azimuth_vec[i] = state.azimuth
+    logger.azimuth_rate_vec[i] = state.azimuth_rate
     logger.l_tether_vec[i] .= state.l_tether
     logger.v_reelout_vec[i] .= state.v_reelout
     logger.winch_force_vec[i] .= state.winch_force

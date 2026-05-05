@@ -59,6 +59,7 @@ function save_log(logger::Logger, name="sim_log", compress=true;
     resize!(logger.turn_rates_vec, nl)
     resize!(logger.elevation_vec, nl)
     resize!(logger.azimuth_vec, nl)
+    resize!(logger.azimuth_rate_vec, nl)
     resize!(logger.l_tether_vec, nl)
     resize!(logger.v_reelout_vec, nl)
     resize!(logger.winch_force_vec, nl)

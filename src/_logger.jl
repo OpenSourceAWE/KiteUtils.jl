@@ -31,6 +31,7 @@ $(TYPEDFIELDS)
     turn_rates_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
     elevation_vec::Vector{MyFloat} = zeros(MyFloat, Q)
     azimuth_vec::Vector{MyFloat} = zeros(MyFloat, Q)
+    azimuth_rate_vec::Vector{MyFloat} = zeros(MyFloat, Q)
     l_tether_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
     v_reelout_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
     winch_force_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]

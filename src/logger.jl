@@ -105,6 +105,9 @@ function import_log(filename)
         ss.orient = orient
         ss.elevation = row.elevation
         ss.azimuth = row.azimuth
+        if haskey(row, :azimuth_rate)
+            ss.azimuth_rate = row.azimuth_rate
+        end
         ss.l_tether[1] = row.l_tether
         ss.v_reelout[1] = row.v_reelout
         if haskey(row, :winch_force)
