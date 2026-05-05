@@ -1,7 +1,7 @@
 name = "KiteUtils"
 uuid = "90980105-b163-44e5-ba9f-8b1c83bb0533"
 authors = ["Uwe Fechner <uwe.fechner.msc@gmail.com> and contributors"]
-version = "0.11.3"
+version = "0.11.7"
 
 [workspace]
 projects = ["examples", "test", "docs"]
@@ -34,7 +34,7 @@ Parameters = "0.12.3"
 Parsers = "2.8.1"
 Pkg = "1"
 PrecompileTools = "1.2.1"
-RecursiveArrayTools = "3.27"
+RecursiveArrayTools = "3, 4"
 ReferenceFrameRotations = "3.0.2"
 Rotations = "1.7.1"
 StaticArrays = "1.9.7"

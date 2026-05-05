@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner, Bart van de Lint
 # SPDX-License-Identifier: MIT
 
-using KiteUtils, Test
+using KiteUtils, Test, LinearAlgebra
 
 @testset "KiteUtils.jl: Settings       " begin
     cd(joinpath(@__DIR__, ".."))
@@ -56,7 +56,66 @@ using KiteUtils, Test
     set_data_path("data")
     set2 = load_settings(joinpath("data", "system.yaml"))
     @test set2.sim_settings == "settings.yaml"
+    @test se().upwind_elevation == 0.0
+    @test se().use_wind_vec == false
+    # wind_vec is auto-synced from v_wind/upwind_dir on load
+    @test norm(se().wind_vec) ≈ se().v_wind  atol=1e-10
+    @test se().v_min == 0.1
+
+    # assigning wind_vec with a plain Vector converts to KiteUtils.SVec3
+    set_wv = deepcopy(se())
+    set_wv.use_wind_vec = true
+    set_wv.wind_vec = [1.0, 2.0, 3.0]
+    @test set_wv.wind_vec isa KiteUtils.SVec3
+    @test set_wv.wind_vec == KiteUtils.SVec3(1.0, 2.0, 3.0)
+    # assigning with KiteUtils.SVec3 works directly
+    set_wv.wind_vec = KiteUtils.SVec3(4.0, 5.0, 6.0)
+    @test set_wv.wind_vec == KiteUtils.SVec3(4.0, 5.0, 6.0)
+    # mutating wind_vec in-place is not allowed (KiteUtils.SVec3 is immutable)
+    @test_throws Exception set_wv.wind_vec .= [7.0, 8.0, 9.0]
     @test se_dict()["environment"]["z0"] == se().z0
     set3 = update_settings()
     @test set3 == se()
+
+    # Settings(project) returns a fresh instance, not the global one
+    fresh = Settings("system.yaml")
+    @test fresh.sim_settings == "settings.yaml"
+    @test fresh !== se()
+
+    # Settings(project) supports the relax kwarg
+    fresh_relax = Settings("system_cabauw.yaml"; relax=true)
+    @test fresh_relax.v_wind == 9.51
+    @test fresh_relax !== se()
+
+    # "initial" section is optional (no error when missing)
+    settings_yaml = joinpath(get_data_path(), "settings.yaml")
+    lines = readlines(settings_yaml)
+    # Create a settings file without the "initial" section
+    no_initial = joinpath(tempdir(), "settings_no_initial.yaml")
+    sys_no_initial = joinpath(tempdir(), "system_no_initial.yaml")
+    in_initial = false
+    open(no_initial, "w") do io
+        for line in lines
+            if match(r"^initial:", line) !== nothing
+                in_initial = true
+                continue
+            end
+            if in_initial && (startswith(line, "  ") || isempty(line))
+                continue
+            end
+            in_initial = false
+            println(io, line)
+        end
+    end
+    open(sys_no_initial, "w") do io
+        println(io, "system:")
+        println(io, "    sim_settings: \"settings_no_initial.yaml\"")
+    end
+    old_path = get_data_path()
+    set_data_path(tempdir())
+    set_no_init = Settings("system_no_initial.yaml")
+    @test set_no_init.sim_settings == "settings_no_initial.yaml"
+    # initial fields keep their defaults (elevations defaults to [70])
+    @test set_no_init.elevation == 70.0
+    set_data_path(old_path)
 end

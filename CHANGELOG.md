@@ -1,5 +1,40 @@
 # Changelog
 
+## KiteUtils v0.11.7 20-04-2026
+### Added
+- add version 4 of RecursiveArrayTools in compat
+
+## KiteUtils v0.11.6 11-04-2026
+### Added
+- add `v_min` winch setting (minimum speed below which brake is active)
+- add 3D wind representation with new settings fields:
+  `upwind_elevation`, `wind_vec`, and `use_wind_vec`
+- add `wind_vec_from_angles` and `angles_from_wind_vec` for converting
+  between scalar wind parameters and ENU wind vectors
+- add `sync_wind!` to keep scalar and vector wind representations in
+  sync (called automatically when wind-related settings are modified)
+- add `copy_examples` to the documentation
+- add `AbstractKiteModel` and `KiteUtils` module docs to the
+  documentation
+### Changed
+- rewrite reference frames documentation: clarify NED/ENU
+  relationship, document `upwind_elevation`, improve formatting
+- enable `checkdocs` in documentation build
+
+## KiteUtils v0.11.5 04-03-2026
+### Changed
+- the `build_docu.jl` does no longer use the global environment
+### Added
+- add `LiveServer` to `docs/Project.toml`
+- add `jetls` and `jetls_examples` to the bin folder for linting
+- add `relax` argument to `Settings(project)` constructor
+### Removed
+- remove `initial` from required keys when `relax = false`
+
+## KiteUtils v0.11.4 04-03-2026
+### Added
+- added fields `delta` and `stiffness_factor` to the `initial` section of `settings.yaml` and the `Settings` struct
+
 ## KiteUtils v0.11.3 04-03-2026
 ### Changed
 - add field `dtmax` to the solver settings and the yaml files
@@ -18,7 +53,7 @@
 ### Changed
 - fixed all `JETLS.jl` warnings; remark: `JETLS.jl` requires Julia 1.12
 - removed the second parameter from the function demo_syslog because it was not used
-- all test sets can now be executed independently when using `JETLS.jl` and `https://github.com/aviatesk/TestRunner.jl` 
+- all test sets can now be executed independently when using `JETLS.jl` and `https://github.com/aviatesk/TestRunner.jl`
   from within the editor
 - applied `BestieTemplate.jl`; this added the files `Docs.yml`, `Test.yml`, `TestOnPRs.yml` and `ReusableTest.yml`.
   Removed the tests and the `docs` section from `CI.yml`. `CI.yml` is now only running `reuse-lint`.
@@ -91,7 +126,7 @@
 
 ## KiteUtils v0.10.4 04-05-2025
 ### Changed
-- in the SysState struct, the fields `l_tether`, `v_reelout` and `force` are now vectors to allow logging the state of multiple tethers 
+- in the SysState struct, the fields `l_tether`, `v_reelout` and `force` are now vectors to allow logging the state of multiple tethers
 ### Added
 - added the fields `side_slip`, `aero_force_b`, `aero_moment_b`, `twist_angles` and `turn_rates` to the SysState struct
 
@@ -311,11 +346,11 @@
 ### Changed
 - the functions `export_log()` support now the named parameter `path` to specify the directory
 ### Fixed
-- the function `load_log()` works now when a fully qualified filename is passed 
+- the function `load_log()` works now when a fully qualified filename is passed
 
 ## KiteUtils v0.6.10 - 2024-04-20
 ### Added
-- new parameters `rel_compr_stiffness` and `rel_damping` in settings.yaml 
+- new parameters `rel_compr_stiffness` and `rel_damping` in settings.yaml
 
 ### Changed
 - the functions `load_log()` and `save_log()` have the new, optional, named parameter `path` to specify the file path;  if not specified, the default data path is used.

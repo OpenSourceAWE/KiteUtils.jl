@@ -11,8 +11,10 @@ get_data_path
 load_settings
 update_settings
 copy_settings
+copy_examples
 se
 se_dict
+sync_wind!
 ```
 Also look at the default example: [settings.yaml](https://github.com/ufechner7/KiteUtils.jl/blob/main/data/settings.yaml) .
 
@@ -66,6 +68,12 @@ fromEG2W
 fromW2SE
 fromKS2EX
 fromEX2EG
+```
+
+## Wind vector conversions
+```@docs
+wind_vec_from_angles
+angles_from_wind_vec
 ```
 
 ## Geometric calculations

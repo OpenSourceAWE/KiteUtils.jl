@@ -13,10 +13,12 @@
 
 Flat struct, defining the settings of the Simulator and the Viewer.
 
+Use [`load_settings`](@ref) to reload the global module singleton, or
+[`Settings(project)`](@ref) to create a fresh, independent instance.
+
 $(TYPEDFIELDS)
 """
 @with_kw mutable struct Settings @deftype Float64
-    dict::Vector{Dict} = [Dict()]
     "name of the yaml file with the settings"
     sim_settings::String      = ""
 
@@ -38,7 +40,7 @@ $(TYPEDFIELDS)
     kite_scale            = 1.0
     "name or filepath+filename of alternative fixed pitch font"
     fixed_font::String    = ""
-    
+
     "initial elevation angle             [deg]"
     elevations::Vector{Float64}      = [70]
     "initial elevation rate            [deg/s]"
@@ -46,7 +48,7 @@ $(TYPEDFIELDS)
     "initial azimuth angle               [deg]"
     azimuths::Vector{Float64}        = [0]
     "initial azimuth rate              [deg/s]"
-    azimuth_rates::Vector{Float64}   = [0] 
+    azimuth_rates::Vector{Float64}   = [0]
     "initial heading angle               [deg]"
     headings::Vector{Float64}        = [0]
     "initial heading rate              [deg/s]"
@@ -61,6 +63,10 @@ $(TYPEDFIELDS)
     depowers::Vector{Float64}        = [0]
     "initial steering settings             [%]"
     steerings::Vector{Float64}       = [0]
+    "initial quotient of actual and unstretched tether length"
+    delta                            = 0.001
+    "relative stiffness of the first round of solving the initial equilibrium"
+    stiffness_factor                 = 0.1
 
     # # three values are only needed for RamAirKite, for KPS3 and KPS4 use only the first value
     # l_tethers: [50.0, 50.0, 50.0] # initial tether lengths     [m]
@@ -153,7 +159,7 @@ $(TYPEDFIELDS)
     rel_mass_p3 = 0
     "relative mass of p4 and p5"
     rel_mass_p4 = 0
-    
+
     # Ram air kite specific parameters
     "filename of the foil shape [in dat format]"
     foil_file::String     = "data/ram_air_kite_foil.dat"
@@ -184,9 +190,9 @@ $(TYPEDFIELDS)
     "sum of the lengths of the bridle lines [m]"
     l_bridle              = 0
     "relative compression stiffness of the kite springs"
-    rel_compr_stiffness   = 0 
+    rel_compr_stiffness   = 0
     "relative damping of the kite spring (relative to main tether)"
-    rel_damping           = 0         
+    rel_damping           = 0
 
     "model of the kite control unit, KCU1 or KCU2"
     kcu_model::String     = "KCU1"
@@ -233,6 +239,8 @@ $(TYPEDFIELDS)
     v_ro_max              = 8
     "minimal reel-out speed (=max reel-in speed) [m/s]"
     v_ro_min              = -8
+    "minimum speed below which the brake is active [m/s]"
+    v_min                 = 0.1
     "maximal acceleration                    [m/s²]"
     max_acc               = 0
     "radius of the drum [m]"
@@ -254,6 +262,12 @@ $(TYPEDFIELDS)
     v_wind                = 0
     "initial upwind direction          [deg]"
     upwind_dir            = 0
+    "angle between upwind direction and the east-north plane [deg]"
+    upwind_elevation      = 0
+    "wind vector at reference height     [m/s]"
+    wind_vec::SVec3 = zeros(SVec3)
+    "if true, use wind_vec; if false, use v_wind, upwind_dir and upwind_elevation"
+    use_wind_vec::Bool    = false
     "temperature at reference height     [°C]"
     temp_ref              = 0
     "height of groundstation above see level  [m]"
@@ -268,7 +282,7 @@ $(TYPEDFIELDS)
     z0                    = 0
     "1=EXP, 2=LOG, 3=EXPLOG, 4=FAST_EXP, 5=FAST_LOG, 6=FAST_EXPLOG"
     profile_law::Int64    = 0
-    "turbulence intensity relative to Cabau, NL"
+    "turbulence intensity relative to Cabauw, NL"
     use_turbulence        = 0
     "wind speeds at ref height for calculating the turbulent wind field [m/s]"
     v_wind_gnds::Vector{Float64} = []
@@ -283,7 +297,7 @@ $(TYPEDFIELDS)
     "grid size nx, ny, nz and minimal height z_min                                   [m]"
     grid::Vector{Int64} = []
     "grid resolution in z direction                                                [m]"
-    height_step           = 0 
+    height_step           = 0
     "grid resolution in x and y direction                                          [m]"
     grid_step             = 0
     "gravitational acceleration"
@@ -342,25 +356,47 @@ function Base.setproperty!(set::Settings, sym::Symbol, val)
     else
         if val isa Int && (getproperty(set, sym)) isa Float64
             setfield!(set, sym, Float64(val))
+        elseif sym == :wind_vec && !(val isa SVec3) &&
+               val isa AbstractVector
+            setfield!(set, sym,
+                      SVec3(val[1], val[2], val[3]))
         else
             setfield!(set, sym, val)
+        end
+        if sym in (:use_wind_vec, :wind_vec, :v_wind,
+                   :upwind_dir, :upwind_elevation)
+            sync_wind!(set)
         end
     end
 end
 
 StructTypes.StructType(::Type{Settings}) = StructTypes.Mutable()
+function StructTypes.constructfrom(::Type{MVec3}, vec::AbstractVector)
+    MVec3(vec[1], vec[2], vec[3])
+end
+function StructTypes.constructfrom(::Type{SVec3}, vec::AbstractVector)
+    SVec3(vec[1], vec[2], vec[3])
+end
 PROJECT::String = "system.yaml"
 
 """
-    Settings(project)
+    Settings(project; relax=false)
 
-Constructor for the [`Settings`](@ref) struct, loading settings from the given project file.
+Create a fresh [`Settings`](@ref) instance, loading from the given
+project file. Unlike [`load_settings`](@ref), this does **not** modify
+the global module settings; it returns an independent struct.
+
+## Parameters
+- `project`: The name of the project file to load.
+- `relax`: If true, missing sections in the settings file are
+  skipped instead of raising an error.
 """
-function Settings(project)
+function Settings(project; relax=false)
     set = Settings()
-    return se(set, project)
+    return se(set, project; relax)
 end
 const SETTINGS = Settings()
+const _SE_DICTS = IdDict{Settings, Dict{String, Any}}()
 
 """
     set_data_path(data_path="")
@@ -368,11 +404,11 @@ const SETTINGS = Settings()
 Set the directory for log and config files.
 
 If called without argument, use the data path of the package to obtain the default settings
-when calling se(). 
+when calling se().
 """
 function set_data_path(data_path="")
     if data_path==""
-        data_path = joinpath(dirname(dirname(pathof(KiteUtils))), "data")
+        data_path = joinpath(dirname(@__DIR__), "data")
     end
     if data_path != DATA_PATH[1]
         DATA_PATH[1] = data_path
@@ -392,13 +428,18 @@ end
 """
     load_settings(project=PROJECT; relax=false)
 
-Load the project with the given file name.
+Reload the global module [`Settings`](@ref) from the given project
+file. Returns the updated global settings singleton. To obtain an
+independent settings instance instead, use the
+[`Settings(project)`](@ref) constructor.
 
 The project must include the path and the suffix .yaml .
 
 ## Parameters
-- `project`: The name of the project file to load, defaults to the project that was loaded before.
-- `relax`: If true, no section needs to be present in the settings.yaml file.
+- `project`: The name of the project file to load, defaults to
+  the project that was loaded before.
+- `relax`: If true, missing sections in the settings file are
+  skipped instead of raising an error.
 """
 function load_settings(project=PROJECT; relax=false)
     SETTINGS.segments=0
@@ -414,11 +455,37 @@ function update_settings()
     load_settings(PROJECT)
 end
 
+"""
+    sync_wind!(set::Settings)
+
+Synchronise the wind representation in `set`. If `use_wind_vec` is
+`true`, compute `v_wind`, `upwind_dir` and `upwind_elevation` from
+`wind_vec`. Otherwise compute `wind_vec` from the three scalars.
+
+Angles in `Settings` are stored in **degrees**; the conversion
+functions operate in radians, so this function handles the
+conversion.
+"""
+function sync_wind!(set::Settings)
+    if set.use_wind_vec
+        v, dir, elev = angles_from_wind_vec(set.wind_vec)
+        Core.setfield!(set, :v_wind, v)
+        Core.setfield!(set, :upwind_dir, rad2deg(dir))
+        Core.setfield!(set, :upwind_elevation, rad2deg(elev))
+    else
+        Core.setfield!(set, :wind_vec, wind_vec_from_angles(
+            set.v_wind,
+            deg2rad(set.upwind_dir),
+            deg2rad(set.upwind_elevation)))
+    end
+    nothing
+end
+
 function copy_files(relpath, files)
-    if ! isdir(relpath) 
+    if ! isdir(relpath)
         mkdir(relpath)
     end
-    src_path = joinpath(dirname(pathof(@__MODULE__)), "..", relpath)
+    src_path = joinpath(@__DIR__, "..", relpath)
     for file in files
         cp(joinpath(src_path, file), joinpath(relpath, file), force=true)
         chmod(joinpath(relpath, file), 0o774)
@@ -433,11 +500,11 @@ Copy the default settings.yaml and system.yaml files to the folder DATAPATH
 (it will be created if it doesn't exist).
 """
 function copy_settings(extra_files=[])
-    src_path = abspath(joinpath(dirname(pathof(KiteUtils)), "..", "data"))
+    src_path = abspath(joinpath(@__DIR__, "..", "data"))
     if src_path == abspath(DATA_PATH[1])
         DATA_PATH[1] = joinpath(pwd(), "data")
     end
-    if ! isdir(DATA_PATH[1]) 
+    if ! isdir(DATA_PATH[1])
         mkdir(DATA_PATH[1])
     end
     files = ["settings.yaml", "system.yaml", "settings_ram.yaml", "system_ram.yaml", "kite.obj"]
@@ -503,7 +570,6 @@ The settings.yaml file to load is determined by the content active PROJECT, whic
 The project file must be located in the directory specified by the data path [`get_data_path`](@ref).
 """
 function se(settings::Settings, project=PROJECT; relax=false)
-    se_dict = settings.dict
     global PROJECT
 
     # Process project path: remove leading "data/" if present
@@ -531,9 +597,9 @@ function se(settings::Settings, project=PROJECT; relax=false)
 
         # load sim_settings from YAML
         dict = YAML.load_file(joinpath(DATA_PATH[1], sim_settings_path))
-        se_dict[1] = dict
+        _SE_DICTS[settings] = dict
         # update the settings struct from the dictionary
-        required_sections = ["system", "initial", "solver", "kite", "tether", "environment"]
+        required_sections = ["system", "solver", "kite", "tether", "environment"]
         if relax
             for section in required_sections
                 if section in keys(dict)
@@ -543,7 +609,7 @@ function se(settings::Settings, project=PROJECT; relax=false)
         else
             update_settings(dict, required_sections, settings)
         end
-        for section in ["steering", "depower", "kps4", "kps5", "bridle", "winch", "kcu"]
+        for section in ["initial", "steering", "depower", "kps4", "kps5", "bridle", "winch", "kcu"]
             if section in keys(dict)
                 update_settings(dict, [section], settings)
             end
@@ -555,6 +621,7 @@ function se(settings::Settings, project=PROJECT; relax=false)
         if haskey(dict, "kite") && haskey(dict["kite"], "height")
             settings.height_k = dict["kite"]["height"]
         end
+        sync_wind!(settings)
     end
     return settings
 end
@@ -571,7 +638,7 @@ Usage example:
 """
 function se_dict(set::Settings=SETTINGS)
     if set.segments == 0
-        se(set, set.dict)
+        Base.invokelatest(se, set)
     end
-    set.dict[1]
+    get(_SE_DICTS, set, Dict{String, Any}())
 end

@@ -10,7 +10,8 @@ This module provides data structures for the flight state and the flight log,
 functions for creating a demo flight state, demo flight log, loading and saving flight logs,
 functions for reading the settings, and helper functions for working with rotations.
 
-See https://ufechner7.github.io/KiteUtils.jl/stable/ for more information.
+See the [documentation](https://OpenSourceAWE.github.io/KiteUtils.jl/stable/)
+for more information.
 """
 module KiteUtils
 
@@ -51,13 +52,14 @@ import Base.length
 import ReferenceFrameRotations as RFR
 export demo_log, demo_state, demo_syslog, export_log, import_log, load_log, save_log # functions for logging
 export euler2rot, length, log!, menu, syslog
-export demo_state_4p, initial_kite_ref_frame                              # functions for four point kite model
+export demo_state_4p, initial_kite_ref_frame                                         # functions for four point kite model
 export asin2, azimuth_east, azimuth_north, calc_elevation, ground_dist, rot, rot3d
-export acos2, quat2euler, quat2viewer, wrap2pi                            # geometric functions
-export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE               # reference frame transformations
-export azn2azw, calc_heading_w, calc_heading, calc_course                 # geometric functions
+export acos2, quat2euler, quat2viewer, wrap2pi                           # geometric functions
+export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE              # reference frame transformations
+export azn2azw,  calc_course , calc_heading, calc_heading_w              # geometric functions
 export calc_orient_rot, enu2ned, is_right_handed_orthonormal, ned2enu
-export copy_settings, get_data_path, load_settings, set_data_path         # functions for reading and copying parameters
+export wind_vec_from_angles, angles_from_wind_vec
+export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
 export fpc_settings, fpp_settings, se, se_dict, update_settings, wc_settings
 export calculate_rotational_inertia
 export AbstractKiteModel
@@ -71,6 +73,7 @@ Type used for position components and scalar SysState members.
 const MyFloat   = Float32           # type to use for position components and scalar SysState members
 const DATA_PATH = ["data"]          # path for log files and other data
 const MVec3     = MVector{3, Float64}
+const SVec3     = SVector{3, Float64}
 
 P = nothing # suppress warning about undefined global variable
 
@@ -219,7 +222,8 @@ function initial_kite_ref_frame(vec_c, v_app)
 end
 
 """
-    get_particles(height_k, height_b, width, m_k, pos_pod= [ 75., 0., 129.90381057], vec_c=[-15., 0., -25.98076211], v_app=[10.4855, 0, -3.08324])
+    get_particles(height_k, height_b, width, m_k, pos_pod= [ 75., 0., 129.90381057], vec_c=[-15., 0., -25.98076211],
+                  v_app=[10.4855, 0, -3.08324])
 
 Calculate the initial positions of the particles representing
 a 4-point kite, connected to a kite control unit (KCU).
@@ -456,13 +460,13 @@ function copy_examples()
     if ! isdir(PATH)
         mkdir(PATH)
     end
-    src_path = joinpath(dirname(pathof(@__MODULE__)), "..", PATH)
+    src_path = joinpath(@__DIR__, "..", PATH)
     copy_files("examples", readdir(src_path))
 end
 
 function install_examples(add_packages=true)
     copy_examples()
-    copy_settings(["transition.csv"])
+    Base.invokelatest(() -> copy_settings(["transition.csv"]))
     if add_packages
         Pkg.add("ControlPlots")
         Pkg.add("LaTeXStrings")
@@ -478,7 +482,7 @@ end
     @compile_workload begin
         # all calls in this block will be precompiled, regardless of whether
         # they belong to your package or not (on Julia 1.8 and higher)
-        se()
+        Base.invokelatest(se)
         try
             load_log(7, "Test_flight.arrow")
         catch

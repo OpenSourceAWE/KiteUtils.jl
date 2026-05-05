@@ -21,6 +21,9 @@ initial:
     v_reel_outs: [0.0, 0.0, 0.0]  # initial reel out speeds   [m/s]
     depowers: [0.0]              # initial depower value                 [%]
     steerings: [0.0]             # initial steering value                [%]
+    # adapt the following parameters if you get a warning about the initial equilibrium not being found
+    delta: 0.001                     # initial quotient of actual and unstretched tether length    
+    stiffness_factor: 0.1            # relative stiffness of the first round of solving the initial equilibrium 
 
 solver:
     abs_tol: 0.006         # absolute tolerance of the DAE solver [m, m/s]
@@ -63,6 +66,7 @@ winch:
     max_force: 4000        # maximal (nominal) tether force; short overload allowed [N]
     v_ro_max:  8.0         # maximal reel-out speed                          [m/s]
     v_ro_min: -8.0         # minimal reel-out speed (=max reel-in speed)     [m/s]
+    v_min: 0.1             # min speed below which the brake is active       [m/s]
     drum_radius: 0.110    # radius of the drum                              [m]
     max_acc: 4.0           # maximal acceleration of the winch               [m/s²]
     gear_ratio: 1.0        # gear ratio of the winch                         [-]   
@@ -75,6 +79,9 @@ winch:
 environment:
     v_wind: 15.51            # wind speed at reference height          [m/s]
     upwind_dir: -90.0        # upwind direction                        [deg]
+    upwind_elevation: 0.0    # angle between upwind and east-north plane [deg]
+    wind_vec: [0.0, 0.0, 0.0] # wind vector at reference height       [m/s]
+    use_wind_vec: false      # use wind_vec instead of v_wind/upwind_dir/upwind_elevation
     temp_ref: 15.0           # temperature at reference height         [°C]
     height_gnd: 0.0          # height of groundstation above see level [m]
     h_ref:  6.0              # reference height for the wind speed     [m]

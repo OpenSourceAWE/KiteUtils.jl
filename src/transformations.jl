@@ -256,3 +256,50 @@ function wrap2pi(angle)
     abs(y) > π && (y -= 2π * sign(y))
     return y
 end
+
+"""
+    wind_vec_from_angles(v_wind, upwind_dir, upwind_elevation)
+
+Compute the wind vector in the ENU reference frame from wind speed,
+upwind direction and upwind elevation. All angles in radians.
+
+- `v_wind`: wind speed [m/s]
+- `upwind_dir`: direction the wind is coming from, zero at north,
+  clockwise positive [rad]
+- `upwind_elevation`: angle of the upwind direction above the
+  east-north plane [rad]
+
+Returns an `MVector{3, Float64}` (east, north, up).
+"""
+function wind_vec_from_angles(v_wind, upwind_dir, upwind_elevation)
+    downwind_azimuth = upwind_dir + π
+    horizontal = v_wind * cos(upwind_elevation)
+    east  = horizontal * sin(downwind_azimuth)
+    north = horizontal * cos(downwind_azimuth)
+    up    = -v_wind * sin(upwind_elevation)
+    SVec3(east, north, up)
+end
+
+"""
+    angles_from_wind_vec(wind_vec)
+
+Compute wind speed, upwind direction and upwind elevation from a
+wind vector in the ENU reference frame.
+
+Returns `(v_wind, upwind_dir, upwind_elevation)`, all angles in
+radians. `upwind_dir` is zero at north, clockwise positive, in
+the range -π .. π. `upwind_elevation` is the angle of the upwind
+direction above the east-north plane.
+"""
+function angles_from_wind_vec(wind_vec)
+    east, north, up = wind_vec[1], wind_vec[2], wind_vec[3]
+    v_wind = sqrt(east^2 + north^2 + up^2)
+    if v_wind ≈ 0
+        return (0.0, 0.0, 0.0)
+    end
+    downwind_azimuth = atan(east, north)
+    upwind_dir = wrap2pi(downwind_azimuth - π)
+    horizontal = sqrt(east^2 + north^2)
+    upwind_elevation = atan(-up, horizontal)
+    (v_wind, upwind_dir, upwind_elevation)
+end
