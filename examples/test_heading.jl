@@ -183,22 +183,13 @@ the elevation and azimuth, then calls `calc_heading` from KiteUtils.jl.
 # Returns
 The heading angle in radian.
 """
-# Old version - works fine.
-# function calc_kite_heading(turn_angle; x=100.0, z=0.0, r=20.0)
-#     orientation = collect(calc_orientation(turn_angle; x=x, z=z, r=r))
-#     el, az = calc_elevation_azimuth(turn_angle; x=x, z=z, r=r)
-#     calc_heading(orientation, el, az; respos=false)
-# end
 function calc_kite_heading(turn_angle; x = 100.0, z = 0.0, r = 20.0)
-    q = calc_orient_quat(turn_angle; x = x, z = z, r = r)
-    el, az = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
-    # Use quaternion directly to avoid Euler-angle gimbal lock at ±90° pitch,
-    # which occurs when the kite crosses the horizontal plane (elevation = 0).
-    headingEX = q * SVector(1.0, 0.0, 0.0)   # nose direction in NED ≡ EX
-    headingEG = fromEX2EG(headingEX)          # NED → NWU (Earth Groundstation)
-    headingW = fromEG2W(headingEG, π/2)      # downwind = east (upwind_dir = -π/2)
-    headingSE = fromW2SE(headingW, el, az)    # → Small Earth frame
-    atan(headingSE[2], headingSE[1])
+    orientation = collect(calc_orientation(turn_angle; x = x, z = z, r = r))
+    el, az_east = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
+    # calc_heading expects azimuth in the wind frame, while calc_elevation_azimuth returns azimuth_east.
+    az_north = wrap2pi(-π / 2 - az_east)
+    az_wind = azn2azw(az_north)
+    calc_heading(orientation, el, az_wind; respos = false)
 end
 
 # # Test the function calc_elevation_azimuth
@@ -237,18 +228,11 @@ around the tether axis (z_kite), measured from the world-up direction projected 
 the plane perpendicular to the tether. Returns the angle in radian.
 """
 function calc_clock_angle(turn_angle; x = 100.0, z = 0.0, r = 20.0)
-    center = [x, 0.0, z]
-    e1, e2 = calc_circle_basis(x, z)
-    pos = center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
-    z_kite = -normalize(pos)
-    tangent = normalize(-sin(turn_angle) * e1 + cos(turn_angle) * e2)
-    x_kite = normalize(tangent - dot(tangent, z_kite) * z_kite)
-    # Reference: world-up projected onto the plane ⊥ z_kite
-    up = [0.0, 0.0, 1.0]
-    ref = normalize(up - dot(up, z_kite) * z_kite)
-    # Second axis in the plane, completing a right-handed frame with z_kite and ref
-    perp = cross(z_kite, ref)
-    return atan(dot(x_kite, perp), dot(x_kite, ref))
+    orientation = collect(calc_orientation(turn_angle; x = x, z = z, r = r))
+    el, az_east = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
+    az_north = wrap2pi(-π / 2 - az_east)
+    az_wind = azn2azw(az_north)
+    KiteUtils.calc_clock_angle(orientation, el, az_wind; respos = false)
 end
 
 # Compute data for multiple θ values
