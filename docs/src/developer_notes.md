@@ -49,7 +49,13 @@ This repository also contains:
 - `.JETLSConfig.toml`
 - `.JETLSConfig.toml.default`
 
-These files configure diagnostics and formatting behavior for this code base.
+These files configure diagnostics and formatting behavior for this code base. After checkout from git, run
+
+```bash
+cp .JETLSConfig.toml.default .JETLSConfig.toml
+```
+
+to get an initial configuration file, that you can then modify according to your needs.
 
 ## Run checks from the repository
 
