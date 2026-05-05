@@ -33,6 +33,11 @@ using KiteUtils, LinearAlgebra, StaticArrays, Test
         @test all(fromKS2EX(vec1, orient)        .≈ [-1.9999999999999998, 1.878107499419996, 2.544152554510513])
         @test calc_heading_w(orient)             == [ 0.9510565162951535, 0.0,              0.3090169943749474]
         @test KiteUtils.calc_heading(orient, elevation, azimuth; respos=false) ≈ KiteUtils.calc_clock_angle(orient, elevation, azimuth; respos=false)
+        upwind_dir = deg2rad(20.0)
+        azimuth_w = deg2rad(35.0)
+        @test KiteUtils.calc_heading(orient, elevation, azimuth_w; upwind_dir=upwind_dir, respos=false) ≈ KiteUtils.calc_clock_angle(orient, elevation, azimuth_w; upwind_dir=upwind_dir, respos=false)
+        @test_throws ArgumentError KiteUtils.calc_clock_angle(orient, π / 2, azimuth; respos=false)
+        @test isfinite(KiteUtils.calc_clock_angle(orient, π / 2 - 1e-6, azimuth; respos=false))
         @test_broken calc_heading(orient, elevation, -azimuth)  ≈ 5.388664810099589
         calc_course(vec1, elevation, azimuth)
         @test wrap2pi(0.0)   == 0.0

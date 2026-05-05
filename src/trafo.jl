@@ -141,7 +141,8 @@ the ground station.
                  the North, East, Down (NED) reference frame
 - `elevation`:   Elevation angle of the kite in radians
 - `azimuth`:     Azimuth angle of the kite in radians
-- `upwind_dir`:  Not used; kept for API consistency with `calc_heading`. Default: -π/2
+- `upwind_dir`:  Direction the wind is coming from in radians; zero at north; clockwise
+                 positive from above (default: -π/2, wind from west)
 - `respos`:      If true, return angle in range [0, 2π]; if false, return in range [-π, π]
                  (default: true)
 
@@ -154,13 +155,18 @@ function calc_clock_angle(orientation, elevation, azimuth; upwind_dir=-pi/2, res
     x_kite_EG = fromEX2EG(fromKS2EX(heading_sensor, orientation))
     # Convert EG (North-West-Up) to ENU (East-North-Up): EG2ENU = transpose(ENU2EG)
     x_kite_ENU = SVector(-x_kite_EG[2], x_kite_EG[1], x_kite_EG[3])
-    # Tether direction: unit vector from origin to kite in ENU, then negated
-    # Use the same azimuth sign convention as calc_heading/fromW2SE.
-    pos_unit = SVector(cos(elevation) * cos(azimuth), cos(elevation) * sin(azimuth), sin(elevation))
+    # Convert wind-frame azimuth to ENU north-based azimuth so this matches calc_heading.
+    azimuth_n = wrap2pi(azimuth - upwind_dir - π)
+    pos_unit = SVector(-cos(elevation) * sin(azimuth_n), cos(elevation) * cos(azimuth_n), sin(elevation))
     z_kite = -pos_unit  # points from kite toward ground station
     # Project world-up onto the plane perpendicular to the tether (12 o'clock reference)
     up = SVector(0.0, 0.0, 1.0)
-    ref  = normalize(up - dot(up, z_kite) * z_kite)  # 12 o'clock direction
+    ref_unnormalized = up - dot(up, z_kite) * z_kite
+    ref_norm = norm(ref_unnormalized)
+    if ref_norm <= 1e-9
+        throw(ArgumentError("calc_clock_angle is undefined when tether axis is parallel to world-up (near zenith/nadir). Use an elevation away from ±pi/2."))
+    end
+    ref = ref_unnormalized / ref_norm  # 12 o'clock direction
     perp = cross(z_kite, ref)                         # 3 o'clock direction (viewed from ground station)
     angle = atan(dot(x_kite_ENU, perp), dot(x_kite_ENU, ref))
     if angle < 0 && respos
