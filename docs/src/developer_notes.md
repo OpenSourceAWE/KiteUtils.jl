@@ -128,6 +128,6 @@ ollama pull qwen3-embedding:0.6b
 
 The Search tab will show a health indicator for both services. If either is not running, the indicator turns red with an error message.
 
-Before you can search, index the project. From the Search tab press m (manage), than a (add) and enter the path
+Before you can search, index the project. From the Search tab press m (manage), then a (add) and enter the path
 for each project you want to index. Then press i (index). To index one project might take 10 minutes, but you have
 to do that only once.
