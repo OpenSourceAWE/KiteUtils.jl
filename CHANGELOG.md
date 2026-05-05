@@ -5,6 +5,7 @@
 - add `azimuth_rate` to `SysState`, including logging, display, and Arrow load/save support
 - add functions `vsm_settings_file()`, `aero_geometry_file()`, and `structural_geometry_file()`
 - add example `examples/load_extra_settings.jl` for loading extra settings files
+- add the examples `examples/test_heading.jl` and `examples/test_heading_II.jl` to reproduce the heading gate
 
 ### Changed
 - update heading/azimuth transformation logic to reproduce heading gate reference results
