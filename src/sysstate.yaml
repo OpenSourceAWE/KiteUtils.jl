@@ -18,7 +18,7 @@ sysstate:
     kcu_steering: "MyFloat"             # steering after the kcu, before applying offset and depower scaling [-1..1]
     set_steering: "MyFloat"             # set value of the steering [-1..1]
     heading: "MyFloat"                  # heading angle [rad]
-    heading_rate: "MyFloat"             # heading rate [rad/s] 
+    heading_rate: "MyFloat"             # heading rate [rad/s]
                                         # add heading_turn_rate, course_rate and course_turn_rate
     course: "MyFloat"                   # course angle [rad]
     bearing: "MyFloat"                  # bearing angle (set value of heading/ course) [rad]
