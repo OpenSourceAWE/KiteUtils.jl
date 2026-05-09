@@ -32,4 +32,4 @@ if [[ "$USE_KAIMON" == "true" ]]; then
 fi
 julia_init+='using KiteUtils; function menu(); include("examples/menu.jl"); end'
 
-LANG=en_US julia --project -i -e "$julia_init"
+LANG=en_US julia --project -i -e "$julia_init" "$@"
