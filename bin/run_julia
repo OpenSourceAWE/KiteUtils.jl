@@ -3,6 +3,8 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
+export JULIA_PKG_SERVER_REGISTRY_PREFERENCE=eager
+
 USE_KAIMON=false
 
 julia_version=$(julia --version | awk '{print($3)}')
