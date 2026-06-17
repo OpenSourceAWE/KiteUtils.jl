@@ -62,6 +62,8 @@ Base.setindex!(p::PointPositions, v, i::Int) = (PointPos(p.ss, i) .= v)
 
 # ---- StructArray{SysState} (a SysLog's row store): expose .orient/.orients/.pos
 # as lazy per-timestep columns so e.g. `syslog.orient[k]` keeps working. ----
+
+# Time series of frame `k`'s quaternion: `column[t]` = quaternion at timestep t.
 struct OrientColumn{SA} <: AbstractVector{SVector{4, Float32}}
     sa::SA
     k::Int
@@ -75,9 +77,44 @@ Base.size(c::OrientColumn) = (length(StructArrays.component(c.sa, :Qw)),)
         StructArrays.component(c.sa, :Qz)[t][c.k])
 end
 
+# `syslog.orients[k]` -> the OrientColumn time series of frame k.
+struct OrientColumns{SA} <: AbstractVector{OrientColumn{SA}}
+    sa::SA
+end
+Base.size(c::OrientColumns) =
+    (isempty(StructArrays.component(c.sa, :Qw)) ? 0 :
+     length(StructArrays.component(c.sa, :Qw)[1]),)
+Base.getindex(c::OrientColumns, k::Int) = OrientColumn(c.sa, k)
+
+# Time series of point `i`'s position: `column[t]` = position at timestep t.
+struct PosColumn{SA} <: AbstractVector{SVector{3, MyFloat}}
+    sa::SA
+    i::Int
+end
+Base.size(c::PosColumn) = (length(StructArrays.component(c.sa, :X)),)
+@inline function Base.getindex(c::PosColumn, t::Int)
+    @inbounds SVector{3, MyFloat}(
+        StructArrays.component(c.sa, :X)[t][c.i],
+        StructArrays.component(c.sa, :Y)[t][c.i],
+        StructArrays.component(c.sa, :Z)[t][c.i])
+end
+
+# `syslog.pos[i]` -> the PosColumn time series of point i.
+struct PosColumns{SA} <: AbstractVector{PosColumn{SA}}
+    sa::SA
+end
+Base.size(c::PosColumns) =
+    (isempty(StructArrays.component(c.sa, :X)) ? 0 :
+     length(StructArrays.component(c.sa, :X)[1]),)
+Base.getindex(c::PosColumns, i::Int) = PosColumn(c.sa, i)
+
 @inline function Base.getproperty(sa::StructArray{<:SysState}, key::Symbol)
     if key === :orient
         return OrientColumn(sa, 1)
+    elseif key === :orients
+        return OrientColumns(sa)
+    elseif key === :pos
+        return PosColumns(sa)
     else
         return StructArrays.component(sa, key)
     end

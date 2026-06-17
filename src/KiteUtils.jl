@@ -175,6 +175,10 @@ function Base.getproperty(log::SysLog, sym::Symbol)
         last.(getproperty(log.syslog, :Z))
     elseif sym == :orient
         getproperty(getfield(log, :syslog), :orient)
+    elseif sym == :orients
+        getproperty(getfield(log, :syslog), :orients)
+    elseif sym == :pos
+        getproperty(getfield(log, :syslog), :pos)
     else
         getfield(log, sym)
     end
