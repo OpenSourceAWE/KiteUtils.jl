@@ -98,21 +98,31 @@ include("transformations.jl")
 include("trafo.jl")
 
 include("_sysstate.jl")
+include("sysstate_views.jl")
 
-function Base.getproperty(st::SysState, sym::Symbol)
-    if sym == :pos
-        X = getfield(st, :X)
-        Y = getfield(st, :Y)
-        Z = getfield(st, :Z)
-        pos = zeros(SVector{length(X), MVector{3, MyFloat}})
-        for i in eachindex(X)
-            pos[i] .= MVector(X[i], Y[i], Z[i])
-        end
-        pos
+@inline function Base.getproperty(st::SysState, sym::Symbol)
+    if sym === :pos
+        return PointPositions(st)
+    elseif sym === :orient
+        return FrameQuat(st, 1)        # frame 1 = kite (legacy single quaternion)
+    elseif sym === :orients
+        return OrientFrames(st)
     else
-        getfield(st, sym)
+        return getfield(st, sym)
     end
 end
+@inline function Base.setproperty!(st::SysState, sym::Symbol, v)
+    if sym === :orient
+        FrameQuat(st, 1) .= v
+        return v
+    elseif sym === :pos || sym === :orients
+        error("Set individual elements instead, e.g. `st.$sym[i] = ...`")
+    else
+        # Mirror Julia's default setproperty! conversion (e.g. Float64 → Float32).
+        return setfield!(st, sym, convert(fieldtype(typeof(st), sym), v))
+    end
+end
+Base.propertynames(::SysState) = (fieldnames(SysState)..., :orient, :orients, :pos)
 
 include("_show.jl")
 
@@ -126,7 +136,7 @@ Finally it contains meta data like the name of the log file.
 
 $(TYPEDFIELDS)
 """
-mutable struct SysLog{P, S <: StructArray{SysState{P}}}
+mutable struct SysLog{P, O, S <: StructArray{<:SysState{P, O}}}
     "name of the flight log"
     name::String
     colmeta::Dict{Symbol, Union{String, Vector{Pair{String, String}}}}
@@ -134,8 +144,11 @@ mutable struct SysLog{P, S <: StructArray{SysState{P}}}
     syslog::S
 end
 
-# Outer constructor to infer the second type parameter
-SysLog{P}(name::String, colmeta::Dict, syslog::S) where {P, S <: StructArray{SysState{P}}} = SysLog{P, S}(name, colmeta, syslog)
+# Outer constructors to infer the trailing type parameters
+SysLog{P, O}(name::String, colmeta::Dict, syslog::S) where {P, O, S <: StructArray{<:SysState{P, O}}} =
+    SysLog{P, O, S}(name, colmeta, syslog)
+SysLog{P}(name::String, colmeta::Dict, syslog::StructArray{<:SysState{P, O}}) where {P, O} =
+    SysLog{P, O}(name, colmeta, syslog)
 
 function prepre_last(vec)
     vec[end-2]
@@ -160,6 +173,8 @@ function Base.getproperty(log::SysLog, sym::Symbol)
         prepre_last.(getproperty(log.syslog, :Z))
     elseif sym == :z1
         last.(getproperty(log.syslog, :Z))
+    elseif sym == :orient
+        getproperty(getfield(log, :syslog), :orient)
     else
         getfield(log, sym)
     end

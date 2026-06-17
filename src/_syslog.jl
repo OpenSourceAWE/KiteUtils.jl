@@ -7,18 +7,18 @@
 
 function syslog(logger::Logger)
     l = logger
-    StructArray{SysState{l.points}}((l.time_vec, l.t_sim_vec, l.sys_state_vec, l.cycle_vec, l.fig_8_vec, 
-                                     l.e_mech_vec, l.orient_vec, l.turn_rates_vec, l.elevation_vec, l.azimuth_vec, 
-                                     l.azimuth_rate_vec, l.l_tether_vec, l.v_reelout_vec, l.winch_force_vec, l.depower_vec, 
-                                     l.steering_vec, l.kcu_steering_vec, l.set_steering_vec, l.heading_vec, l.heading_rate_vec, 
-                                     l.course_vec, l.bearing_vec, l.attractor_vec, l.v_app_vec, l.v_wind_gnd_vec, 
-                                     l.v_wind_200m_vec, l.v_wind_kite_vec, l.AoA_vec, l.side_slip_vec, l.alpha3_vec, 
-                                     l.alpha4_vec, l.CL2_vec, l.CD2_vec, l.aero_force_b_vec, l.aero_moment_b_vec, 
-                                     l.tether_induced_force_vec, l.tether_induced_moment_vec, l.twist_angles_vec, l.vel_kite_vec, l.acc_vec, 
-                                     l.X_vec, l.Y_vec, l.Z_vec, l.set_torque_vec, l.set_speed_vec, 
-                                     l.set_force_vec, l.roll_vec, l.pitch_vec, l.yaw_vec, l.var_01_vec, 
-                                     l.var_02_vec, l.var_03_vec, l.var_04_vec, l.var_05_vec, l.var_06_vec, 
-                                     l.var_07_vec, l.var_08_vec, l.var_09_vec, l.var_10_vec, l.var_11_vec, 
-                                     l.var_12_vec, l.var_13_vec, l.var_14_vec, l.var_15_vec, l.var_16_vec
-                                     ))
+    StructArray{SysState{l.points, l.orients}}((l.time_vec, l.t_sim_vec, l.sys_state_vec, l.cycle_vec, l.fig_8_vec, 
+                                     l.e_mech_vec, l.Qw_vec, l.Qx_vec, l.Qy_vec, l.Qz_vec, 
+                                     l.turn_rates_vec, l.elevation_vec, l.azimuth_vec, l.azimuth_rate_vec, l.l_tether_vec, 
+                                     l.v_reelout_vec, l.winch_force_vec, l.depower_vec, l.steering_vec, l.kcu_steering_vec, 
+                                     l.set_steering_vec, l.heading_vec, l.heading_rate_vec, l.course_vec, l.bearing_vec, 
+                                     l.attractor_vec, l.v_app_vec, l.v_wind_gnd_vec, l.v_wind_200m_vec, l.v_wind_kite_vec, 
+                                     l.AoA_vec, l.side_slip_vec, l.alpha3_vec, l.alpha4_vec, l.CL2_vec, 
+                                     l.CD2_vec, l.aero_force_b_vec, l.aero_moment_b_vec, l.tether_induced_force_vec, l.tether_induced_moment_vec, 
+                                     l.twist_angles_vec, l.vel_kite_vec, l.acc_vec, l.X_vec, l.Y_vec, 
+                                     l.Z_vec, l.set_torque_vec, l.set_speed_vec, l.set_force_vec, l.roll_vec, 
+                                     l.pitch_vec, l.yaw_vec, l.var_01_vec, l.var_02_vec, l.var_03_vec, 
+                                     l.var_04_vec, l.var_05_vec, l.var_06_vec, l.var_07_vec, l.var_08_vec, 
+                                     l.var_09_vec, l.var_10_vec, l.var_11_vec, l.var_12_vec, l.var_13_vec, 
+                                     l.var_14_vec, l.var_15_vec, l.var_16_vec))
 end

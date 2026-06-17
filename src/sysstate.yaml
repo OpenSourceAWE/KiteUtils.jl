@@ -5,7 +5,10 @@ sysstate:
     cycle:     "Int16"                  # cycle number
     fig_8:     "Int16"                  # number of the figure of eight of the current cycle
     e_mech: "Float64"                   # mechanical energy [Wh]
-    orient: "MVector{4, Float32}"       # orientation of the kite (quaternion, order w,x,y,z)
+    Qw: "MVector{O, Float32}"           # quaternion w-component, one per oriented frame (frame 1 = kite)
+    Qx: "MVector{O, Float32}"           # quaternion x-component, one per oriented frame
+    Qy: "MVector{O, Float32}"           # quaternion y-component, one per oriented frame
+    Qz: "MVector{O, Float32}"           # quaternion z-component, one per oriented frame
     turn_rates: "MVector{3, MyFloat}"   # turn rates around the body fixed x, y and z axis [rad/s]
     elevation: "MyFloat"                # elevation angle [rad]
     azimuth: "MyFloat"                  # azimuth angle in wind reference frame [rad]

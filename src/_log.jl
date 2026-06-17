@@ -22,7 +22,10 @@ function log!(logger::Logger, state::SysState)
     logger.cycle_vec[i] = state.cycle
     logger.fig_8_vec[i] = state.fig_8
     logger.e_mech_vec[i] = state.e_mech
-    logger.orient_vec[i] .= state.orient
+    logger.Qw_vec[i] .= state.Qw
+    logger.Qx_vec[i] .= state.Qx
+    logger.Qy_vec[i] .= state.Qy
+    logger.Qz_vec[i] .= state.Qz
     logger.turn_rates_vec[i] .= state.turn_rates
     logger.elevation_vec[i] = state.elevation
     logger.azimuth_vec[i] = state.azimuth

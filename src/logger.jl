@@ -3,7 +3,10 @@
 
 include("_logger.jl")
 function Logger(P, steps)
-    Logger{P, steps}()
+    Logger{P, 1, steps}()
+end
+function Logger(P, O, steps)
+    Logger{P, O, steps}()
 end
 
 include("_log.jl")

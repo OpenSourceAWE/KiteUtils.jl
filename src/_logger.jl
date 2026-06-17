@@ -6,20 +6,23 @@
 # Edit src/sysstate.yaml instead
 
 """
-    mutable struct Logger{P, Q}
+    mutable struct Logger{P, O, Q}
 
-Struct to store a simulation log. P is number of points of the tether, segments+1 and 
-Q is the number of time steps that will be pre-allocated.
+Struct to store a simulation log. P is number of points of the tether, segments+1,
+O is the number of oriented frames, and Q is the number of time steps that will be
+pre-allocated.
 
 Constructor:
 - Logger(P, steps)
+- Logger(P, O, steps)
 
 Fields:
 
 $(TYPEDFIELDS)
 """
-@with_kw mutable struct Logger{P, Q}
+@with_kw mutable struct Logger{P, O, Q}
     points::Int64 = P
+    orients::Int64 = O
     index::Int64 = 1
     time_vec::Vector{Float64} = zeros(Float64, Q)
     t_sim_vec::Vector{Float64} = zeros(Float64, Q)
@@ -27,7 +30,10 @@ $(TYPEDFIELDS)
     cycle_vec::Vector{Int16} = zeros(Int16, Q)
     fig_8_vec::Vector{Int16} = zeros(Int16, Q)
     e_mech_vec::Vector{Float64} = zeros(Float64, Q)
-    orient_vec::Vector{MVector{4, Float32}} = [zero(MVector{4, Float32}) for _ in 1:Q]
+    Qw_vec::Vector{MVector{O, Float32}} = [zero(MVector{O, Float32}) for _ in 1:Q]
+    Qx_vec::Vector{MVector{O, Float32}} = [zero(MVector{O, Float32}) for _ in 1:Q]
+    Qy_vec::Vector{MVector{O, Float32}} = [zero(MVector{O, Float32}) for _ in 1:Q]
+    Qz_vec::Vector{MVector{O, Float32}} = [zero(MVector{O, Float32}) for _ in 1:Q]
     turn_rates_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
     elevation_vec::Vector{MyFloat} = zeros(MyFloat, Q)
     azimuth_vec::Vector{MyFloat} = zeros(MyFloat, Q)

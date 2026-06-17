@@ -6,14 +6,16 @@
 # Edit src/sysstate.yaml instead
 
 """
-    SysState{P}
+    SysState{P, O}
 
 Basic system state. One of these is saved per time step. P is the number
-of tether particles.
+of tether particles, O is the number of oriented frames (kite + extra
+wings/rigid bodies). The quaternion components `Qw/Qx/Qy/Qz` each hold O
+values; frame 1 is the kite, aliased by the `orient` property.
 
 $(TYPEDFIELDS)
 """
-@with_kw_noshow mutable struct SysState{P}
+@with_kw_noshow mutable struct SysState{P, O}
     "time since start of simulation [s]"
     time::Float64 = 0
     "time needed for one simulation timestep [s]"
@@ -26,8 +28,14 @@ $(TYPEDFIELDS)
     fig_8::Int16 = 0
     "mechanical energy [Wh]"
     e_mech::Float64 = 0
-    "orientation of the kite (quaternion, order w,x,y,z)"
-    orient::MVector{4, Float32} = [1.0, 0.0, 0.0, 0.0]
+    "quaternion w-component, one per oriented frame (frame 1 = kite)"
+    Qw::MVector{O, Float32} = ones(Float32, O)
+    "quaternion x-component, one per oriented frame"
+    Qx::MVector{O, Float32} = zeros(Float32, O)
+    "quaternion y-component, one per oriented frame"
+    Qy::MVector{O, Float32} = zeros(Float32, O)
+    "quaternion z-component, one per oriented frame"
+    Qz::MVector{O, Float32} = zeros(Float32, O)
     "turn rates around the body fixed x, y and z axis [rad/s]"
     turn_rates::MVector{3, MyFloat} = [0.0, 0.0, 0.0]
     "elevation angle [rad]"
