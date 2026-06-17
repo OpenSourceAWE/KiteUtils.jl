@@ -1,6 +1,6 @@
 # Changelog
 
-## KiteUtils v0.12.0 17-06-2026
+## KiteUtils unreleased
 ### Breaking
 - replace the single `orient` quaternion field of `SysState` with component-major
   arrays `Qw`/`Qx`/`Qy`/`Qz` (one entry per oriented frame), mirroring the
