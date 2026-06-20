@@ -24,8 +24,15 @@ Base.size(::FrameQuat) = (4,)
 @inline Base.getindex(q::FrameQuat, i::Int) = @inbounds (getfield(q.ss, :Qw)[q.k],
     getfield(q.ss, :Qx)[q.k], getfield(q.ss, :Qy)[q.k], getfield(q.ss, :Qz)[q.k])[i]
 @inline function Base.setindex!(q::FrameQuat, v, i::Int)
-    field = (:Qw, :Qx, :Qy, :Qz)[i]
-    @inbounds getfield(q.ss, field)[q.k] = v
+    @inbounds if i == 1
+        getfield(q.ss, :Qw)[q.k] = v
+    elseif i == 2
+        getfield(q.ss, :Qx)[q.k] = v
+    elseif i == 3
+        getfield(q.ss, :Qy)[q.k] = v
+    else
+        getfield(q.ss, :Qz)[q.k] = v
+    end
 end
 
 # ---- indexable collection of all orientation frames ----
@@ -45,8 +52,13 @@ Base.size(::PointPos) = (3,)
 @inline Base.getindex(p::PointPos, j::Int) = @inbounds (getfield(p.ss, :X)[p.i],
     getfield(p.ss, :Y)[p.i], getfield(p.ss, :Z)[p.i])[j]
 @inline function Base.setindex!(p::PointPos, v, j::Int)
-    field = (:X, :Y, :Z)[j]
-    @inbounds getfield(p.ss, field)[p.i] = v
+    @inbounds if j == 1
+        getfield(p.ss, :X)[p.i] = v
+    elseif j == 2
+        getfield(p.ss, :Y)[p.i] = v
+    else
+        getfield(p.ss, :Z)[p.i] = v
+    end
 end
 
 # ---- indexable collection of all point positions ----
