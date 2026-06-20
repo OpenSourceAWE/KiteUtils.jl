@@ -120,9 +120,7 @@ end
     else
         # Mirror Julia's default setproperty! conversion (e.g. Float64 → Float32).
         return setfield!(st, sym, convert(fieldtype(typeof(st), sym), v))
-    end
-end
-Base.propertynames(::SysState) = (fieldnames(SysState)..., :orient, :orients, :pos)
+Base.propertynames(st::SysState) = (fieldnames(typeof(st))..., :orient, :orients, :pos)
 
 include("_show.jl")
 
