@@ -21,9 +21,13 @@ struct FrameQuat{S} <: AbstractVector{Float32}
     k::Int
 end
 Base.size(::FrameQuat) = (4,)
-@inline Base.getindex(q::FrameQuat, i::Int) = @inbounds (getfield(q.ss, :Qw)[q.k],
-    getfield(q.ss, :Qx)[q.k], getfield(q.ss, :Qy)[q.k], getfield(q.ss, :Qz)[q.k])[i]
-@inline function Base.setindex!(q::FrameQuat, v, i::Int)
+Base.@propagate_inbounds function Base.getindex(q::FrameQuat, i::Int)
+    @boundscheck checkbounds(q, i)
+    @inbounds (getfield(q.ss, :Qw)[q.k], getfield(q.ss, :Qx)[q.k],
+        getfield(q.ss, :Qy)[q.k], getfield(q.ss, :Qz)[q.k])[i]
+end
+Base.@propagate_inbounds function Base.setindex!(q::FrameQuat, v, i::Int)
+    @boundscheck checkbounds(q, i)
     @inbounds if i == 1
         getfield(q.ss, :Qw)[q.k] = v
     elseif i == 2
@@ -40,8 +44,14 @@ struct OrientFrames{S} <: AbstractVector{FrameQuat{S}}
     ss::S
 end
 Base.size(o::OrientFrames) = (length(getfield(o.ss, :Qw)),)
-Base.getindex(o::OrientFrames, k::Int) = FrameQuat(o.ss, k)
-Base.setindex!(o::OrientFrames, v, k::Int) = (FrameQuat(o.ss, k) .= v)
+Base.@propagate_inbounds function Base.getindex(o::OrientFrames, k::Int)
+    @boundscheck checkbounds(o, k)
+    FrameQuat(o.ss, k)
+end
+Base.@propagate_inbounds function Base.setindex!(o::OrientFrames, v, k::Int)
+    @boundscheck checkbounds(o, k)
+    FrameQuat(o.ss, k) .= v
+end
 
 # ---- single-point position view, mutable, backed by X/Y/Z ----
 struct PointPos{S} <: AbstractVector{MyFloat}
@@ -49,9 +59,13 @@ struct PointPos{S} <: AbstractVector{MyFloat}
     i::Int
 end
 Base.size(::PointPos) = (3,)
-@inline Base.getindex(p::PointPos, j::Int) = @inbounds (getfield(p.ss, :X)[p.i],
-    getfield(p.ss, :Y)[p.i], getfield(p.ss, :Z)[p.i])[j]
-@inline function Base.setindex!(p::PointPos, v, j::Int)
+Base.@propagate_inbounds function Base.getindex(p::PointPos, j::Int)
+    @boundscheck checkbounds(p, j)
+    @inbounds (getfield(p.ss, :X)[p.i], getfield(p.ss, :Y)[p.i],
+        getfield(p.ss, :Z)[p.i])[j]
+end
+Base.@propagate_inbounds function Base.setindex!(p::PointPos, v, j::Int)
+    @boundscheck checkbounds(p, j)
     @inbounds if j == 1
         getfield(p.ss, :X)[p.i] = v
     elseif j == 2
@@ -66,8 +80,14 @@ struct PointPositions{S} <: AbstractVector{PointPos{S}}
     ss::S
 end
 Base.size(p::PointPositions) = (length(getfield(p.ss, :X)),)
-Base.getindex(p::PointPositions, i::Int) = PointPos(p.ss, i)
-Base.setindex!(p::PointPositions, v, i::Int) = (PointPos(p.ss, i) .= v)
+Base.@propagate_inbounds function Base.getindex(p::PointPositions, i::Int)
+    @boundscheck checkbounds(p, i)
+    PointPos(p.ss, i)
+end
+Base.@propagate_inbounds function Base.setindex!(p::PointPositions, v, i::Int)
+    @boundscheck checkbounds(p, i)
+    PointPos(p.ss, i) .= v
+end
 
 # (SysState getproperty/setproperty! live in KiteUtils.jl, where the original
 #  `.pos` accessor was defined, to avoid a duplicate-method precompile error.)
@@ -81,7 +101,8 @@ struct OrientColumn{SA} <: AbstractVector{SVector{4, Float32}}
     k::Int
 end
 Base.size(c::OrientColumn) = (length(StructArrays.component(c.sa, :Qw)),)
-@inline function Base.getindex(c::OrientColumn, t::Int)
+Base.@propagate_inbounds function Base.getindex(c::OrientColumn, t::Int)
+    @boundscheck checkbounds(c, t)
     @inbounds SVector{4, Float32}(
         StructArrays.component(c.sa, :Qw)[t][c.k],
         StructArrays.component(c.sa, :Qx)[t][c.k],
@@ -96,7 +117,10 @@ end
 Base.size(c::OrientColumns) =
     (isempty(StructArrays.component(c.sa, :Qw)) ? 0 :
      length(StructArrays.component(c.sa, :Qw)[1]),)
-Base.getindex(c::OrientColumns, k::Int) = OrientColumn(c.sa, k)
+Base.@propagate_inbounds function Base.getindex(c::OrientColumns, k::Int)
+    @boundscheck checkbounds(c, k)
+    OrientColumn(c.sa, k)
+end
 
 # Time series of point `i`'s position: `column[t]` = position at timestep t.
 struct PosColumn{SA} <: AbstractVector{SVector{3, MyFloat}}
@@ -104,7 +128,8 @@ struct PosColumn{SA} <: AbstractVector{SVector{3, MyFloat}}
     i::Int
 end
 Base.size(c::PosColumn) = (length(StructArrays.component(c.sa, :X)),)
-@inline function Base.getindex(c::PosColumn, t::Int)
+Base.@propagate_inbounds function Base.getindex(c::PosColumn, t::Int)
+    @boundscheck checkbounds(c, t)
     @inbounds SVector{3, MyFloat}(
         StructArrays.component(c.sa, :X)[t][c.i],
         StructArrays.component(c.sa, :Y)[t][c.i],
@@ -118,7 +143,10 @@ end
 Base.size(c::PosColumns) =
     (isempty(StructArrays.component(c.sa, :X)) ? 0 :
      length(StructArrays.component(c.sa, :X)[1]),)
-Base.getindex(c::PosColumns, i::Int) = PosColumn(c.sa, i)
+Base.@propagate_inbounds function Base.getindex(c::PosColumns, i::Int)
+    @boundscheck checkbounds(c, i)
+    PosColumn(c.sa, i)
+end
 
 @inline function Base.getproperty(sa::StructArray{<:SysState}, key::Symbol)
     if key === :orient
