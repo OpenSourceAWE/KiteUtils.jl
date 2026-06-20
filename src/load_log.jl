@@ -156,8 +156,26 @@ function load_log(filename::String; path="", debug=false)
         end
         
     end
-    syslog = StructArray{SysState{P}}((table.time, table.t_sim, table.sys_state, cycle, fig_8, 
-                                       table.e_mech, table.orient, turn_rates, table.elevation, table.azimuth, 
+    # Orientation back-compat: new logs store Qw/Qx/Qy/Qz (one entry per oriented
+    # frame); old logs store a single `orient` quaternion column.
+    if haskey(table, :Qw)
+        O = length(table.Qw[1])
+        Qw, Qx, Qy, Qz = table.Qw, table.Qx, table.Qy, table.Qz
+    elseif haskey(table, :orient)
+        O = 1
+        Qw = [MVector{1, Float32}(table.orient[t][1]) for t in 1:n]
+        Qx = [MVector{1, Float32}(table.orient[t][2]) for t in 1:n]
+        Qy = [MVector{1, Float32}(table.orient[t][3]) for t in 1:n]
+        Qz = [MVector{1, Float32}(table.orient[t][4]) for t in 1:n]
+    else
+        O = 1
+        Qw = [ones(MVector{1, Float32}) for _ in 1:n]
+        Qx = [zeros(MVector{1, Float32}) for _ in 1:n]
+        Qy = [zeros(MVector{1, Float32}) for _ in 1:n]
+        Qz = [zeros(MVector{1, Float32}) for _ in 1:n]
+    end
+    syslog = StructArray{SysState{P, O}}((table.time, table.t_sim, table.sys_state, cycle, fig_8,
+                                       table.e_mech, Qw, Qx, Qy, Qz, turn_rates, table.elevation, table.azimuth,
                                        azimuth_rate, table.l_tether, table.v_reelout, winch_force, table.depower, table.steering, 
                                        kcu_steering, set_steering, table.heading, heading_rate, table.course, 
                                        bearing, attractor, table.v_app, v_wind_gnd, v_wind_200m, 

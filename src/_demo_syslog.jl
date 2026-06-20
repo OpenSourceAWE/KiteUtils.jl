@@ -6,12 +6,12 @@
 # Edit src/sysstate.yaml instead
 
 """
-    demo_syslog(P; duration=10)
+    demo_syslog(P, O=1; duration=10)
 
 Create a demo flight log  with given duration [s] as StructArray. P is the number of tether
-particles.
+particles, O the number of oriented frames (demo data fills only frame 1).
 """
-function demo_syslog(P; duration=10)
+function demo_syslog(P, O=1; duration=10)
     max_height = 6.03
     steps   = Int(duration * se().sample_freq) + 1
     time_vec = Vector{Float64}(undef, steps)
@@ -20,7 +20,10 @@ function demo_syslog(P; duration=10)
     cycle_vec = Vector{Int16}(undef, steps)
     fig_8_vec = Vector{Int16}(undef, steps)
     e_mech_vec = Vector{Float64}(undef, steps)
-    orient_vec = Vector{MVector{4, Float32}}(undef, steps)
+    Qw_vec = Vector{MVector{O, Float32}}(undef, steps)
+    Qx_vec = Vector{MVector{O, Float32}}(undef, steps)
+    Qy_vec = Vector{MVector{O, Float32}}(undef, steps)
+    Qz_vec = Vector{MVector{O, Float32}}(undef, steps)
     turn_rates_vec = Vector{MVector{3, MyFloat}}(undef, steps)
     elevation_vec = Vector{MyFloat}(undef, steps)
     azimuth_vec = Vector{MyFloat}(undef, steps)
@@ -88,7 +91,10 @@ function demo_syslog(P; duration=10)
         cycle_vec[i+1] = state.cycle
         fig_8_vec[i+1] = state.fig_8
         e_mech_vec[i+1] = state.e_mech
-        orient_vec[i+1] = state.orient
+        Qw_vec[i+1] = state.Qw
+        Qx_vec[i+1] = state.Qx
+        Qy_vec[i+1] = state.Qy
+        Qz_vec[i+1] = state.Qz
         turn_rates_vec[i+1] = state.turn_rates
         elevation_vec[i+1] = state.elevation
         azimuth_vec[i+1] = state.azimuth
@@ -148,15 +154,16 @@ function demo_syslog(P; duration=10)
         var_15_vec[i+1] = state.var_15
         var_16_vec[i+1] = state.var_16
     end
-    StructArray{SysState{P}}((time_vec, t_sim_vec, sys_state_vec, cycle_vec, fig_8_vec, e_mech_vec, 
-                              orient_vec, turn_rates_vec, elevation_vec, azimuth_vec, azimuth_rate_vec, l_tether_vec, 
-                              v_reelout_vec, winch_force_vec, depower_vec, steering_vec, kcu_steering_vec, set_steering_vec, 
-                              heading_vec, heading_rate_vec, course_vec, bearing_vec, attractor_vec, v_app_vec, 
-                              v_wind_gnd_vec, v_wind_200m_vec, v_wind_kite_vec, AoA_vec, side_slip_vec, alpha3_vec, 
-                              alpha4_vec, CL2_vec, CD2_vec, aero_force_b_vec, aero_moment_b_vec, tether_induced_force_vec, 
-                              tether_induced_moment_vec, twist_angles_vec, vel_kite_vec, acc_vec, X_vec, Y_vec, 
-                              Z_vec, set_torque_vec, set_speed_vec, set_force_vec, roll_vec, pitch_vec, 
-                              yaw_vec, var_01_vec, var_02_vec, var_03_vec, var_04_vec, var_05_vec, 
-                              var_06_vec, var_07_vec, var_08_vec, var_09_vec, var_10_vec, var_11_vec, 
-                              var_12_vec, var_13_vec, var_14_vec, var_15_vec, var_16_vec))
+    StructArray{SysState{P, O}}((time_vec, t_sim_vec, sys_state_vec, cycle_vec, fig_8_vec, e_mech_vec, 
+                              Qw_vec, Qx_vec, Qy_vec, Qz_vec, turn_rates_vec, elevation_vec, 
+                              azimuth_vec, azimuth_rate_vec, l_tether_vec, v_reelout_vec, winch_force_vec, depower_vec, 
+                              steering_vec, kcu_steering_vec, set_steering_vec, heading_vec, heading_rate_vec, course_vec, 
+                              bearing_vec, attractor_vec, v_app_vec, v_wind_gnd_vec, v_wind_200m_vec, v_wind_kite_vec, 
+                              AoA_vec, side_slip_vec, alpha3_vec, alpha4_vec, CL2_vec, CD2_vec, 
+                              aero_force_b_vec, aero_moment_b_vec, tether_induced_force_vec, tether_induced_moment_vec, twist_angles_vec, vel_kite_vec, 
+                              acc_vec, X_vec, Y_vec, Z_vec, set_torque_vec, set_speed_vec, 
+                              set_force_vec, roll_vec, pitch_vec, yaw_vec, var_01_vec, var_02_vec, 
+                              var_03_vec, var_04_vec, var_05_vec, var_06_vec, var_07_vec, var_08_vec, 
+                              var_09_vec, var_10_vec, var_11_vec, var_12_vec, var_13_vec, var_14_vec, 
+                              var_15_vec, var_16_vec))
 end

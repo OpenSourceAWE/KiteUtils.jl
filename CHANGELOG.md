@@ -1,5 +1,26 @@
 # Changelog
 
+## KiteUtils unreleased
+### Breaking
+- replace the single `orient` quaternion field of `SysState` with component-major
+  arrays `Qw`/`Qx`/`Qy`/`Qz` (one entry per oriented frame), mirroring the
+  `X`/`Y`/`Z` position layout; `SysState` gains a second type parameter `O`
+  (number of oriented frames). Code that relies on the exact type — concrete
+  `SysState{P}`, `typeof(x) == SysState{P}` comparisons, or keyword construction
+  with `orient=` — must be updated. Dispatch on `SysState{P}`, `isa SysState{P}`,
+  construction via `SysState{P}()` (defaults `O=1`), and `.orient` access keep
+  working unchanged.
+### Added
+- multi-frame orientations: `ss.orients[i]` (mutable per-frame quaternion view)
+  and `ss.pos[i]` (mutable per-point position view) on `SysState`
+- `.orient`/`.orients`/`.pos` accessors on `SysLog` and the underlying
+  `StructArray`, returning per-timestep columns (e.g. `syslog.orients[frame][t]`)
+### Changed
+- `Logger` gains a type parameter `O`; `Logger(P, steps)` keeps one frame,
+  `Logger(P, O, steps)` allocates `O` frames
+- `load_log` reads both new (`Qw/Qx/Qy/Qz`) and legacy (`orient`) Arrow logs
+- `show` still displays a single `orient` line (frame 1)
+
 ## KiteUtils v0.11.8 05-05-2026
 ### Added
 - add `azimuth_rate` to `SysState`, including logging, display, and Arrow load/save support
