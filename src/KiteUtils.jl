@@ -103,6 +103,8 @@ include("sysstate_views.jl")
 @inline function Base.getproperty(st::SysState, sym::Symbol)
     if sym === :pos
         return PointPositions(st)
+    elseif sym === :forces
+        return PointForces(st)
     elseif sym === :orient
         return FrameQuat(st, 1)        # frame 1 = kite (legacy single quaternion)
     elseif sym === :orients
@@ -115,14 +117,14 @@ end
     if sym === :orient
         FrameQuat(st, 1) .= v
         return v
-    elseif sym === :pos || sym === :orients
+    elseif sym === :pos || sym === :forces || sym === :orients
         error("Set individual elements instead, e.g. `st.$sym[i] = ...`")
     else
         # Mirror Julia's default setproperty! conversion (e.g. Float64 → Float32).
         return setfield!(st, sym, convert(fieldtype(typeof(st), sym), v))
     end
 end
-Base.propertynames(st::SysState) = (fieldnames(typeof(st))..., :orient, :orients, :pos)
+Base.propertynames(st::SysState) = (fieldnames(typeof(st))..., :orient, :orients, :pos, :forces)
 
 include("_show.jl")
 
@@ -179,6 +181,8 @@ function Base.getproperty(log::SysLog, sym::Symbol)
         getproperty(getfield(log, :syslog), :orients)
     elseif sym == :pos
         getproperty(getfield(log, :syslog), :pos)
+    elseif sym == :forces
+        getproperty(getfield(log, :syslog), :forces)
     else
         getfield(log, sym)
     end

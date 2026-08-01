@@ -89,6 +89,42 @@ Base.@propagate_inbounds function Base.setindex!(p::PointPositions, v, i::Int)
     PointPos(p.ss, i) .= v
 end
 
+# ---- single-point force view, mutable, backed by FX/FY/FZ ----
+struct PointForce{S} <: AbstractVector{MyFloat}
+    ss::S
+    i::Int
+end
+Base.size(::PointForce) = (3,)
+Base.@propagate_inbounds function Base.getindex(f::PointForce, j::Int)
+    @boundscheck checkbounds(f, j)
+    @inbounds (getfield(f.ss, :FX)[f.i], getfield(f.ss, :FY)[f.i],
+        getfield(f.ss, :FZ)[f.i])[j]
+end
+Base.@propagate_inbounds function Base.setindex!(f::PointForce, v, j::Int)
+    @boundscheck checkbounds(f, j)
+    @inbounds if j == 1
+        getfield(f.ss, :FX)[f.i] = v
+    elseif j == 2
+        getfield(f.ss, :FY)[f.i] = v
+    else
+        getfield(f.ss, :FZ)[f.i] = v
+    end
+end
+
+# ---- indexable collection of all point forces ----
+struct PointForces{S} <: AbstractVector{PointForce{S}}
+    ss::S
+end
+Base.size(f::PointForces) = (length(getfield(f.ss, :FX)),)
+Base.@propagate_inbounds function Base.getindex(f::PointForces, i::Int)
+    @boundscheck checkbounds(f, i)
+    PointForce(f.ss, i)
+end
+Base.@propagate_inbounds function Base.setindex!(f::PointForces, v, i::Int)
+    @boundscheck checkbounds(f, i)
+    PointForce(f.ss, i) .= v
+end
+
 # (SysState getproperty/setproperty! live in KiteUtils.jl, where the original
 #  `.pos` accessor was defined, to avoid a duplicate-method precompile error.)
 
@@ -148,6 +184,32 @@ Base.@propagate_inbounds function Base.getindex(c::PosColumns, i::Int)
     PosColumn(c.sa, i)
 end
 
+# Time series of point `i`'s force: `column[t]` = force at timestep t.
+struct ForceColumn{SA} <: AbstractVector{SVector{3, MyFloat}}
+    sa::SA
+    i::Int
+end
+Base.size(c::ForceColumn) = (length(StructArrays.component(c.sa, :FX)),)
+Base.@propagate_inbounds function Base.getindex(c::ForceColumn, t::Int)
+    @boundscheck checkbounds(c, t)
+    @inbounds SVector{3, MyFloat}(
+        StructArrays.component(c.sa, :FX)[t][c.i],
+        StructArrays.component(c.sa, :FY)[t][c.i],
+        StructArrays.component(c.sa, :FZ)[t][c.i])
+end
+
+# `syslog.forces[i]` -> the ForceColumn time series of point i.
+struct ForceColumns{SA} <: AbstractVector{ForceColumn{SA}}
+    sa::SA
+end
+Base.size(c::ForceColumns) =
+    (isempty(StructArrays.component(c.sa, :FX)) ? 0 :
+     length(StructArrays.component(c.sa, :FX)[1]),)
+Base.@propagate_inbounds function Base.getindex(c::ForceColumns, i::Int)
+    @boundscheck checkbounds(c, i)
+    ForceColumn(c.sa, i)
+end
+
 @inline function Base.getproperty(sa::StructArray{<:SysState}, key::Symbol)
     if key === :orient
         return OrientColumn(sa, 1)
@@ -155,6 +217,8 @@ end
         return OrientColumns(sa)
     elseif key === :pos
         return PosColumns(sa)
+    elseif key === :forces
+        return ForceColumns(sa)
     else
         return StructArrays.component(sa, key)
     end

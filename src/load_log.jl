@@ -156,6 +156,15 @@ function load_log(filename::String; path="", debug=false)
         end
         
     end
+    # Force back-compat: new logs store per-particle forces FX/FY/FZ; old logs
+    # have none, so default them to zero.
+    if haskey(table, :FX)
+        FX, FY, FZ = table.FX, table.FY, table.FZ
+    else
+        FX = [zeros(MVector{P, Float32}) for _ in 1:n]
+        FY = [zeros(MVector{P, Float32}) for _ in 1:n]
+        FZ = [zeros(MVector{P, Float32}) for _ in 1:n]
+    end
     # Orientation back-compat: new logs store Qw/Qx/Qy/Qz (one entry per oriented
     # frame); old logs store a single `orient` quaternion column.
     if haskey(table, :Qw)
@@ -182,8 +191,9 @@ function load_log(filename::String; path="", debug=false)
                                        v_wind_kite, AoA, side_slip, alpha3, alpha4, 
                                        CL2, CD2, aero_force_b, aero_moment_b, tether_induced_force,
                                        tether_induced_moment, twist_angles, 
-                                       table.vel_kite, acc, table.X, table.Y, table.Z, 
-                                       set_torque, set_speed, set_force, roll, pitch, 
+                                       table.vel_kite, acc, table.X, table.Y, table.Z,
+                                       FX, FY, FZ,
+                                       set_torque, set_speed, set_force, roll, pitch,
                                        yaw, table.var_01, table.var_02, table.var_03, table.var_04, 
                                        table.var_05, table.var_06, table.var_07, table.var_08, table.var_09, 
                                        table.var_10, table.var_11, table.var_12, table.var_13, table.var_14, 
