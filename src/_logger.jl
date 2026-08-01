@@ -70,6 +70,7 @@ $(TYPEDFIELDS)
     X_vec::Vector{MVector{P, MyFloat}} = [zero(MVector{P, MyFloat}) for _ in 1:Q]
     Y_vec::Vector{MVector{P, MyFloat}} = [zero(MVector{P, MyFloat}) for _ in 1:Q]
     Z_vec::Vector{MVector{P, MyFloat}} = [zero(MVector{P, MyFloat}) for _ in 1:Q]
+    flap_angle_vec::Vector{MVector{P, MyFloat}} = [zero(MVector{P, MyFloat}) for _ in 1:Q]
     set_torque_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
     set_speed_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
     set_force_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]

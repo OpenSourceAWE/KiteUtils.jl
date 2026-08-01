@@ -108,6 +108,8 @@ $(TYPEDFIELDS)
     Y::MVector{P, MyFloat} = zeros(P)
     "vector of particle positions in z [m]"
     Z::MVector{P, MyFloat} = zeros(P)
+    "per-point flap deflection, aero-corner points carry their panel value [rad]"
+    flap_angle::MVector{P, MyFloat} = zeros(P)
     "torque setting, winch 1..4       [Nm]"
     set_torque::MVector{4, MyFloat} = [0.0, 0.0, 0.0, 0.0]
     "speed setting, winch 1..4       [m/s]"

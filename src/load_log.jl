@@ -156,6 +156,10 @@ function load_log(filename::String; path="", debug=false)
         end
         
     end
+    # Flap back-compat: new logs store per-point flap_angle; old logs have none,
+    # so default it to zero.
+    flap_angle = haskey(table, :flap_angle) ? table.flap_angle :
+        [zeros(MVector{P, MyFloat}) for _ in 1:n]
     # Orientation back-compat: new logs store Qw/Qx/Qy/Qz (one entry per oriented
     # frame); old logs store a single `orient` quaternion column.
     if haskey(table, :Qw)
@@ -182,8 +186,9 @@ function load_log(filename::String; path="", debug=false)
                                        v_wind_kite, AoA, side_slip, alpha3, alpha4, 
                                        CL2, CD2, aero_force_b, aero_moment_b, tether_induced_force,
                                        tether_induced_moment, twist_angles, 
-                                       table.vel_kite, acc, table.X, table.Y, table.Z, 
-                                       set_torque, set_speed, set_force, roll, pitch, 
+                                       table.vel_kite, acc, table.X, table.Y, table.Z,
+                                       flap_angle,
+                                       set_torque, set_speed, set_force, roll, pitch,
                                        yaw, table.var_01, table.var_02, table.var_03, table.var_04, 
                                        table.var_05, table.var_06, table.var_07, table.var_08, table.var_09, 
                                        table.var_10, table.var_11, table.var_12, table.var_13, table.var_14, 
