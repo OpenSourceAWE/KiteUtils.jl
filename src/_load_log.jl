@@ -26,6 +26,7 @@ function load_log(filename::String; path="")
     table   = Arrow.Table(fullname)
     P =  length(table.Z[1])
     O =  length(table.Qw[1])
+    D =  haskey(table, :flap_angle) ? length(table.flap_angle[1]) : 0
     colmeta = Dict(:var_01=>Arrow.getmetadata(table.var_01)["name"],
                    :var_02=>Arrow.getmetadata(table.var_02)["name"],
                    :var_03=>Arrow.getmetadata(table.var_03)["name"],
@@ -44,7 +45,7 @@ function load_log(filename::String; path="")
                    :var_16=>Arrow.getmetadata(table.var_16)["name"],
     )
     # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
-    syslog = StructArray{SysState{P, O}}((table.time, table.t_sim, table.sys_state, table.cycle, table.fig_8, 
+    syslog = StructArray{SysState{P, O, D}}((table.time, table.t_sim, table.sys_state, table.cycle, table.fig_8, 
                                        table.e_mech, table.Qw, table.Qx, table.Qy, table.Qz, 
                                        table.turn_rates, table.elevation, table.azimuth, table.azimuth_rate, table.l_tether, 
                                        table.v_reelout, table.winch_force, table.depower, table.steering, table.kcu_steering, 

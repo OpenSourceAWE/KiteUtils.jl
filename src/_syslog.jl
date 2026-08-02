@@ -7,7 +7,7 @@
 
 function syslog(logger::Logger)
     l = logger
-    StructArray{SysState{l.points, l.orients}}((l.time_vec, l.t_sim_vec, l.sys_state_vec, l.cycle_vec, l.fig_8_vec, 
+    StructArray{SysState{l.points, l.orients, l.deflections}}((l.time_vec, l.t_sim_vec, l.sys_state_vec, l.cycle_vec, l.fig_8_vec, 
                                      l.e_mech_vec, l.Qw_vec, l.Qx_vec, l.Qy_vec, l.Qz_vec, 
                                      l.turn_rates_vec, l.elevation_vec, l.azimuth_vec, l.azimuth_rate_vec, l.l_tether_vec, 
                                      l.v_reelout_vec, l.winch_force_vec, l.depower_vec, l.steering_vec, l.kcu_steering_vec, 

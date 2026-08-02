@@ -18,16 +18,18 @@ COMMENT="""
 """
 HEADER = """
 \"\"\"
-    SysState{P, O}
+    SysState{P, O, D}
 
 Basic system state. One of these is saved per time step. P is the number
 of tether particles, O is the number of oriented frames (kite + extra
-wings/rigid bodies). The quaternion components `Qw/Qx/Qy/Qz` each hold O
-values; frame 1 is the kite, aliased by the `orient` property.
+wings/rigid bodies), and D is the number of aero segments (one flap
+deflection `flap_angle` per twist_surface). The quaternion components
+`Qw/Qx/Qy/Qz` each hold O values; frame 1 is the kite, aliased by the
+`orient` property.
 
 \$(TYPEDFIELDS)
 \"\"\"
-@with_kw_noshow mutable struct SysState{P, O}"""
+@with_kw_noshow mutable struct SysState{P, O, D}"""
 FOOTER = "end"
 inputfile = joinpath("src", "sysstate.yaml")
 outputfile = joinpath("src", "_sysstate.jl")
@@ -59,6 +61,8 @@ open(outputfile,"w") do io
             default = "= [0.0, 0.0]"
         elseif sysstate[key] == "MVector{P, MyFloat}"
             default = "= zeros(P)"
+        elseif sysstate[key] == "MVector{D, MyFloat}"
+            default = "= zeros(D)"
         elseif sysstate[key] == "MVector{O, Float32}"
             # Qw defaults to ones so the default frame is the identity
             # quaternion [1,0,0,0]; the other components default to zero.
@@ -90,12 +94,13 @@ open(outputfile2,"w") do io
 end
 HEADER = """
 \"\"\"
-    demo_syslog(P, O=1; duration=10)
+    demo_syslog(P, O=1, D=0; duration=10)
 
 Create a demo flight log  with given duration [s] as StructArray. P is the number of tether
-particles, O the number of oriented frames (demo data fills only frame 1).
+particles, O the number of oriented frames (demo data fills only frame 1), D the
+number of aero segments (demo data has no flaps, so D=0).
 \"\"\"
-function demo_syslog(P, O=1; duration=10)
+function demo_syslog(P, O=1, D=0; duration=10)
     max_height = 6.03
     steps   = Int(duration * se().sample_freq) + 1
 """
@@ -112,7 +117,7 @@ open(outputfile3,"w") do io
         println(io, "        " * key * "_vec[i+1] = state." * key)
     end
     println(io, "    end")
-    print(io, "    StructArray{SysState{P, O}}((")
+    print(io, "    StructArray{SysState{P, O, D}}((")
     for (i, key) in pairs(collect(keys(sysstate)))
         if i == length(keys(sysstate))
             print(io, key * "_vec")
@@ -128,23 +133,25 @@ open(outputfile3,"w") do io
 end
 HEADER = """
 \"\"\"
-    mutable struct Logger{P, O, Q}
+    mutable struct Logger{P, O, D, Q}
 
 Struct to store a simulation log. P is number of points of the tether, segments+1,
-O is the number of oriented frames, and Q is the number of time steps that will be
-pre-allocated.
+O is the number of oriented frames, D is the number of aero segments (flap
+deflections), and Q is the number of time steps that will be pre-allocated.
 
 Constructor:
 - Logger(P, steps)
 - Logger(P, O, steps)
+- Logger(P, O, D, steps)
 
 Fields:
 
 \$(TYPEDFIELDS)
 \"\"\"
-@with_kw mutable struct Logger{P, O, Q}
+@with_kw mutable struct Logger{P, O, D, Q}
     points::Int64 = P
     orients::Int64 = O
+    deflections::Int64 = D
     index::Int64 = 1
 """
 open(outputfile4,"w") do io
@@ -161,6 +168,8 @@ open(outputfile4,"w") do io
             println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = [zero(MVector{4, Float32}) for _ in 1:Q]")
         elseif sysstate[key] == "MVector{P, MyFloat}"
             println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = [zero(MVector{P, MyFloat}) for _ in 1:Q]")
+        elseif sysstate[key] == "MVector{D, MyFloat}"
+            println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = [zero(MVector{D, MyFloat}) for _ in 1:Q]")
         elseif sysstate[key] == "MVector{O, Float32}"
             println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = [zero(MVector{O, Float32}) for _ in 1:Q]")
         else
@@ -199,7 +208,7 @@ end
 HEADER = """
 function syslog(logger::Logger)
     l = logger
-    StructArray{SysState{l.points, l.orients}}(("""
+    StructArray{SysState{l.points, l.orients, l.deflections}}(("""
 open(outputfile6,"w") do io
     print(io, COMMENT)
     print(io, HEADER)
@@ -296,6 +305,7 @@ function load_log(filename::String; path="")
     table   = Arrow.Table(fullname)
     P =  length(table.Z[1])
     O =  length(table.Qw[1])
+    D =  haskey(table, :flap_angle) ? length(table.flap_angle[1]) : 0
     colmeta = Dict(:var_01=>Arrow.getmetadata(table.var_01)["name"],
                    :var_02=>Arrow.getmetadata(table.var_02)["name"],
                    :var_03=>Arrow.getmetadata(table.var_03)["name"],
@@ -314,7 +324,7 @@ function load_log(filename::String; path="")
                    :var_16=>Arrow.getmetadata(table.var_16)["name"],
     )
     # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
-    syslog = StructArray{SysState{P, O}}(("""
+    syslog = StructArray{SysState{P, O, D}}(("""
 open(outputfile8,"w") do io
     print(io, COMMENT)
     print(io, HEADER)

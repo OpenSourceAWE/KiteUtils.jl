@@ -6,23 +6,25 @@
 # Edit src/sysstate.yaml instead
 
 """
-    mutable struct Logger{P, O, Q}
+    mutable struct Logger{P, O, D, Q}
 
 Struct to store a simulation log. P is number of points of the tether, segments+1,
-O is the number of oriented frames, and Q is the number of time steps that will be
-pre-allocated.
+O is the number of oriented frames, D is the number of aero segments (flap
+deflections), and Q is the number of time steps that will be pre-allocated.
 
 Constructor:
 - Logger(P, steps)
 - Logger(P, O, steps)
+- Logger(P, O, D, steps)
 
 Fields:
 
 $(TYPEDFIELDS)
 """
-@with_kw mutable struct Logger{P, O, Q}
+@with_kw mutable struct Logger{P, O, D, Q}
     points::Int64 = P
     orients::Int64 = O
+    deflections::Int64 = D
     index::Int64 = 1
     time_vec::Vector{Float64} = zeros(Float64, Q)
     t_sim_vec::Vector{Float64} = zeros(Float64, Q)
@@ -70,7 +72,7 @@ $(TYPEDFIELDS)
     X_vec::Vector{MVector{P, MyFloat}} = [zero(MVector{P, MyFloat}) for _ in 1:Q]
     Y_vec::Vector{MVector{P, MyFloat}} = [zero(MVector{P, MyFloat}) for _ in 1:Q]
     Z_vec::Vector{MVector{P, MyFloat}} = [zero(MVector{P, MyFloat}) for _ in 1:Q]
-    flap_angle_vec::Vector{MVector{P, MyFloat}} = [zero(MVector{P, MyFloat}) for _ in 1:Q]
+    flap_angle_vec::Vector{MVector{D, MyFloat}} = [zero(MVector{D, MyFloat}) for _ in 1:Q]
     set_torque_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
     set_speed_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
     set_force_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
