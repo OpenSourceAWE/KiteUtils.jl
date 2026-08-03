@@ -1,5 +1,11 @@
 # Changelog
 
+## KiteUtils v0.11.10 03-08-2026
+### Added
+- add a `flap_angle` field to `SysState` (and `Logger`), one flap deflection δ
+  per aero segment via the new type parameter `D`; `load_log` defaults it to
+  zero for older logs
+
 ## KiteUtils v0.11.9 20-06-2026
 ### Added
 - multi-frame orientations: `ss.orients[i]` (mutable per-frame quaternion view)
