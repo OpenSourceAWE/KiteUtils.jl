@@ -8,12 +8,16 @@
 
 """
     SysState{P}()
+    SysState{P, O}()
 
-Construct a `SysState` with `P` points and a single oriented frame (`O = 1`),
-matching the pre-`orients` layout.
+Construct a `SysState` with `P` points, `O` oriented frames (default 1), and no aero
+segments (`D = 0`). Fewer type parameters default the rest, so pre-`orients` and
+pre-`flap_angle` call sites keep working.
 """
-SysState{P}() where {P} = SysState{P, 1}()
-SysState{P}(args...; kwargs...) where {P} = SysState{P, 1}(args...; kwargs...)
+SysState{P}() where {P} = SysState{P, 1, 0}()
+SysState{P}(args...; kwargs...) where {P} = SysState{P, 1, 0}(args...; kwargs...)
+SysState{P, O}() where {P, O} = SysState{P, O, 0}()
+SysState{P, O}(args...; kwargs...) where {P, O} = SysState{P, O, 0}(args...; kwargs...)
 
 # ---- single-quaternion view (frame k), mutable, backed by Qw/Qx/Qy/Qz ----
 struct FrameQuat{S} <: AbstractVector{Float32}

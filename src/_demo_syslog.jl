@@ -6,12 +6,13 @@
 # Edit src/sysstate.yaml instead
 
 """
-    demo_syslog(P, O=1; duration=10)
+    demo_syslog(P, O=1, D=0; duration=10)
 
 Create a demo flight log  with given duration [s] as StructArray. P is the number of tether
-particles, O the number of oriented frames (demo data fills only frame 1).
+particles, O the number of oriented frames (demo data fills only frame 1), D the
+number of aero segments (demo data has no flaps, so D=0).
 """
-function demo_syslog(P, O=1; duration=10)
+function demo_syslog(P, O=1, D=0; duration=10)
     max_height = 6.03
     steps   = Int(duration * se().sample_freq) + 1
     time_vec = Vector{Float64}(undef, steps)
@@ -60,6 +61,7 @@ function demo_syslog(P, O=1; duration=10)
     X_vec = Vector{MVector{P, MyFloat}}(undef, steps)
     Y_vec = Vector{MVector{P, MyFloat}}(undef, steps)
     Z_vec = Vector{MVector{P, MyFloat}}(undef, steps)
+    flap_angle_vec = Vector{MVector{D, MyFloat}}(undef, steps)
     set_torque_vec = Vector{MVector{4, MyFloat}}(undef, steps)
     set_speed_vec = Vector{MVector{4, MyFloat}}(undef, steps)
     set_force_vec = Vector{MVector{4, MyFloat}}(undef, steps)
@@ -131,6 +133,7 @@ function demo_syslog(P, O=1; duration=10)
         X_vec[i+1] = state.X
         Y_vec[i+1] = state.Y
         Z_vec[i+1] = state.Z
+        flap_angle_vec[i+1] = state.flap_angle
         set_torque_vec[i+1] = state.set_torque
         set_speed_vec[i+1] = state.set_speed
         set_force_vec[i+1] = state.set_force
@@ -154,16 +157,16 @@ function demo_syslog(P, O=1; duration=10)
         var_15_vec[i+1] = state.var_15
         var_16_vec[i+1] = state.var_16
     end
-    StructArray{SysState{P, O}}((time_vec, t_sim_vec, sys_state_vec, cycle_vec, fig_8_vec, e_mech_vec, 
+    StructArray{SysState{P, O, D}}((time_vec, t_sim_vec, sys_state_vec, cycle_vec, fig_8_vec, e_mech_vec, 
                               Qw_vec, Qx_vec, Qy_vec, Qz_vec, turn_rates_vec, elevation_vec, 
                               azimuth_vec, azimuth_rate_vec, l_tether_vec, v_reelout_vec, winch_force_vec, depower_vec, 
                               steering_vec, kcu_steering_vec, set_steering_vec, heading_vec, heading_rate_vec, course_vec, 
                               bearing_vec, attractor_vec, v_app_vec, v_wind_gnd_vec, v_wind_200m_vec, v_wind_kite_vec, 
                               AoA_vec, side_slip_vec, alpha3_vec, alpha4_vec, CL2_vec, CD2_vec, 
                               aero_force_b_vec, aero_moment_b_vec, tether_induced_force_vec, tether_induced_moment_vec, twist_angles_vec, vel_kite_vec, 
-                              acc_vec, X_vec, Y_vec, Z_vec, set_torque_vec, set_speed_vec, 
-                              set_force_vec, roll_vec, pitch_vec, yaw_vec, var_01_vec, var_02_vec, 
-                              var_03_vec, var_04_vec, var_05_vec, var_06_vec, var_07_vec, var_08_vec, 
-                              var_09_vec, var_10_vec, var_11_vec, var_12_vec, var_13_vec, var_14_vec, 
-                              var_15_vec, var_16_vec))
+                              acc_vec, X_vec, Y_vec, Z_vec, flap_angle_vec, set_torque_vec, 
+                              set_speed_vec, set_force_vec, roll_vec, pitch_vec, yaw_vec, var_01_vec, 
+                              var_02_vec, var_03_vec, var_04_vec, var_05_vec, var_06_vec, var_07_vec, 
+                              var_08_vec, var_09_vec, var_10_vec, var_11_vec, var_12_vec, var_13_vec, 
+                              var_14_vec, var_15_vec, var_16_vec))
 end

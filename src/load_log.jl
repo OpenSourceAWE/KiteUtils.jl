@@ -156,6 +156,11 @@ function load_log(filename::String; path="", debug=false)
         end
         
     end
+    # Flap back-compat: new logs store flap_angle (one per aero segment); logs
+    # written before the column existed have none, so default to empty (D = 0).
+    D = haskey(table, :flap_angle) ? length(table.flap_angle[1]) : 0
+    flap_angle = haskey(table, :flap_angle) ? table.flap_angle :
+        [zeros(MVector{D, MyFloat}) for _ in 1:n]
     # Orientation back-compat: new logs store Qw/Qx/Qy/Qz (one entry per oriented
     # frame); old logs store a single `orient` quaternion column.
     if haskey(table, :Qw)
@@ -174,7 +179,7 @@ function load_log(filename::String; path="", debug=false)
         Qy = [zeros(MVector{1, Float32}) for _ in 1:n]
         Qz = [zeros(MVector{1, Float32}) for _ in 1:n]
     end
-    syslog = StructArray{SysState{P, O}}((table.time, table.t_sim, table.sys_state, cycle, fig_8,
+    syslog = StructArray{SysState{P, O, D}}((table.time, table.t_sim, table.sys_state, cycle, fig_8,
                                        table.e_mech, Qw, Qx, Qy, Qz, turn_rates, table.elevation, table.azimuth,
                                        azimuth_rate, table.l_tether, table.v_reelout, winch_force, table.depower, table.steering, 
                                        kcu_steering, set_steering, table.heading, heading_rate, table.course, 
@@ -182,8 +187,9 @@ function load_log(filename::String; path="", debug=false)
                                        v_wind_kite, AoA, side_slip, alpha3, alpha4, 
                                        CL2, CD2, aero_force_b, aero_moment_b, tether_induced_force,
                                        tether_induced_moment, twist_angles, 
-                                       table.vel_kite, acc, table.X, table.Y, table.Z, 
-                                       set_torque, set_speed, set_force, roll, pitch, 
+                                       table.vel_kite, acc, table.X, table.Y, table.Z,
+                                       flap_angle,
+                                       set_torque, set_speed, set_force, roll, pitch,
                                        yaw, table.var_01, table.var_02, table.var_03, table.var_04, 
                                        table.var_05, table.var_06, table.var_07, table.var_08, table.var_09, 
                                        table.var_10, table.var_11, table.var_12, table.var_13, table.var_14, 

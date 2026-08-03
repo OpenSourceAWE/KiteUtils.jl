@@ -62,6 +62,7 @@ function log!(logger::Logger, state::SysState)
     logger.X_vec[i] .= state.X
     logger.Y_vec[i] .= state.Y
     logger.Z_vec[i] .= state.Z
+    logger.flap_angle_vec[i] .= state.flap_angle
     logger.set_torque_vec[i] .= state.set_torque
     logger.set_speed_vec[i] .= state.set_speed
     logger.set_force_vec[i] .= state.set_force

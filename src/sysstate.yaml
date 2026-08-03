@@ -46,6 +46,7 @@ sysstate:
     X: "MVector{P, MyFloat}"            # vector of particle positions in x [m]
     Y: "MVector{P, MyFloat}"            # vector of particle positions in y [m]
     Z: "MVector{P, MyFloat}"            # vector of particle positions in z [m]
+    flap_angle: "MVector{D, MyFloat}"   # flap deflection per aero segment, one per twist_surface [rad]
     set_torque: "MVector{4, MyFloat}"   # torque setting, winch 1..4       [Nm]
     set_speed: "MVector{4, MyFloat}"    # speed setting, winch 1..4       [m/s]
     set_force: "MVector{4, MyFloat}"    # force setting, winch 1..4         [N]

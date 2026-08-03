@@ -95,6 +95,7 @@ function save_log(logger::Logger, name="sim_log", compress=true;
     resize!(logger.X_vec, nl)
     resize!(logger.Y_vec, nl)
     resize!(logger.Z_vec, nl)
+    resize!(logger.flap_angle_vec, nl)
     resize!(logger.set_torque_vec, nl)
     resize!(logger.set_speed_vec, nl)
     resize!(logger.set_force_vec, nl)

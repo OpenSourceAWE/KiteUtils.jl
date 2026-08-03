@@ -6,16 +6,18 @@
 # Edit src/sysstate.yaml instead
 
 """
-    SysState{P, O}
+    SysState{P, O, D}
 
 Basic system state. One of these is saved per time step. P is the number
 of tether particles, O is the number of oriented frames (kite + extra
-wings/rigid bodies). The quaternion components `Qw/Qx/Qy/Qz` each hold O
-values; frame 1 is the kite, aliased by the `orient` property.
+wings/rigid bodies), and D is the number of aero segments (one flap
+deflection `flap_angle` per twist_surface). The quaternion components
+`Qw/Qx/Qy/Qz` each hold O values; frame 1 is the kite, aliased by the
+`orient` property.
 
 $(TYPEDFIELDS)
 """
-@with_kw_noshow mutable struct SysState{P, O}
+@with_kw_noshow mutable struct SysState{P, O, D}
     "time since start of simulation [s]"
     time::Float64 = 0
     "time needed for one simulation timestep [s]"
@@ -108,6 +110,8 @@ $(TYPEDFIELDS)
     Y::MVector{P, MyFloat} = zeros(P)
     "vector of particle positions in z [m]"
     Z::MVector{P, MyFloat} = zeros(P)
+    "flap deflection per aero segment, one per twist_surface [rad]"
+    flap_angle::MVector{D, MyFloat} = zeros(D)
     "torque setting, winch 1..4       [Nm]"
     set_torque::MVector{4, MyFloat} = [0.0, 0.0, 0.0, 0.0]
     "speed setting, winch 1..4       [m/s]"
