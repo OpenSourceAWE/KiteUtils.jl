@@ -1,5 +1,11 @@
 # Changelog
 
+## KiteUtils v0.11.11 04-08-2026
+### Fixed
+- `log_file` in the settings may be a bare filename again: parsing it threw a
+  `BoundsError` unless it contained exactly one `/`, and silently truncated
+  anything deeper (`out/logs/run` became `out/logs`)
+
 ## KiteUtils v0.11.10 03-08-2026
 ### Added
 - add a `flap_angle` field to `SysState` (and `Logger`), one flap deflection δ

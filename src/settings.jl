@@ -690,8 +690,9 @@ function se(settings::Settings, project=PROJECT; relax=false)
             end
         end
         if haskey(dict, "system")
-            tmp = split(dict["system"]["log_file"], "/")
-            settings.log_file    = joinpath(tmp[1], tmp[2])
+            # `/` is the delimiter in the yaml on any OS; splat so that a bare
+            # filename and a path deeper than two components both survive.
+            settings.log_file    = joinpath(split(dict["system"]["log_file"], "/")...)
         end
         if haskey(dict, "kite") && haskey(dict["kite"], "height")
             settings.height_k = dict["kite"]["height"]

@@ -87,8 +87,29 @@ using KiteUtils, Test, LinearAlgebra
     @test fresh_relax.v_wind == 9.51
     @test fresh_relax !== se()
 
-    # "initial" section is optional (no error when missing)
+    # log_file may be a bare filename, or a path of any depth
     settings_yaml = joinpath(get_data_path(), "settings.yaml")
+    for (value, expected) in (("fig8_200m",           "fig8_200m"),
+                              ("data/fig8_200m",      joinpath("data", "fig8_200m")),
+                              ("out/logs/fig8_200m",  joinpath("out", "logs", "fig8_200m")))
+        set_yaml = joinpath(tempdir(), "settings_log_file.yaml")
+        sys_yaml = joinpath(tempdir(), "system_log_file.yaml")
+        open(set_yaml, "w") do io
+            for line in readlines(settings_yaml)
+                println(io, replace(line, r"log_file:.*" => "log_file: \"$value\""))
+            end
+        end
+        open(sys_yaml, "w") do io
+            println(io, "system:")
+            println(io, "    sim_settings: \"settings_log_file.yaml\"")
+        end
+        old_path = get_data_path()
+        set_data_path(tempdir())
+        @test Settings("system_log_file.yaml").log_file == expected
+        set_data_path(old_path)
+    end
+
+    # "initial" section is optional (no error when missing)
     lines = readlines(settings_yaml)
     # Create a settings file without the "initial" section
     no_initial = joinpath(tempdir(), "settings_no_initial.yaml")
