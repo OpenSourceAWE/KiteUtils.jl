@@ -1,6 +1,9 @@
 # Changelog
 
 ## KiteUtils v0.11.11 04-08-2026
+### Changed
+- `bin/run_julia` no longer detects a running `Kaimon.jl` gate and no longer
+  starts one; start kaimon yourself before launching the REPL
 ### Fixed
 - `log_file` in the settings may be a bare filename again: parsing it threw a
   `BoundsError` unless it contained exactly one `/`, and silently truncated
