@@ -89,7 +89,8 @@ if [[ -z "$_sha" ]]; then
 fi
 
 if [[ -n "$(git status --porcelain)" ]]; then
-    echo "Warning: working tree has uncommitted changes." >&2
+    echo "Working tree has uncommitted changes. Commit or stash them first." >&2
+    exit 1
 fi
 
 _repo=$(gh repo view --json nameWithOwner -q .nameWithOwner)
