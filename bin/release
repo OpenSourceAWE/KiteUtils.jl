@@ -7,18 +7,22 @@ set -euo pipefail
 _dry_run=false
 _assume_yes=false
 _sha=""
+_issue=21
 
 print_usage() {
     echo "Usage:"
     echo "  ./bin/release            Register the current HEAD with JuliaRegistrator"
     echo "  ./bin/release --dry-run  Print the version, commit and release notes, then exit"
     echo "  ./bin/release --yes      Skip the confirmation prompt"
-    echo "  ./bin/release --sha SHA  Register a specific commit instead of HEAD"
+    echo "  ./bin/release --sha SHA  Verify SHA instead of HEAD is the pushed tip"
     echo "  ./bin/release -h"
     echo
     echo "Extracts the top section of CHANGELOG.md as release notes and posts a"
-    echo "'@JuliaRegistrator register' comment on the commit via the GitHub API."
-    echo "The commit must already be pushed to the remote."
+    echo "'@JuliaRegistrator register' comment on issue #$_issue via the GitHub API"
+    echo "(https://github.com/OpenSourceAWE/KiteUtils.jl/issues/$_issue), the"
+    echo "repo's standing release-tracking issue, instead of commenting on the"
+    echo "commit directly. JuliaRegistrator then registers the default branch's"
+    echo "current HEAD, so the commit must already be pushed to the remote."
 }
 
 while [[ $# -gt 0 ]]; do
@@ -89,10 +93,20 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 
 _repo=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+_default_branch=$(gh api "repos/$_repo" -q .default_branch)
+_remote_sha=$(gh api "repos/$_repo/commits/$_default_branch" -q .sha 2>/dev/null || true)
 
-if ! gh api "repos/$_repo/commits/$_sha" >/dev/null 2>&1; then
-    echo "Commit $_sha was not found on $_repo. Push it first:" >&2
-    echo "  git push" >&2
+if [[ -z "$_remote_sha" ]]; then
+    echo "Could not resolve the remote HEAD of $_default_branch on $_repo." >&2
+    exit 1
+fi
+
+if [[ "$_remote_sha" != "$_sha" ]]; then
+    echo "Commit $_sha is not the tip of $_default_branch on $_repo (that's" \
+         "$_remote_sha)." >&2
+    echo "JuliaRegistrator registers whatever is at the tip of $_default_branch" \
+         "when triggered from issue #$_issue, so push $_sha there first:" >&2
+    echo "  git push origin HEAD:$_default_branch" >&2
     exit 1
 fi
 
@@ -100,7 +114,8 @@ _body=$(printf '@JuliaRegistrator register\n\nRelease notes:\n\n%s\n' "$_notes")
 
 echo "Repository:   $_repo"
 echo "Version:      v$_version"
-echo "Commit:       $_sha"
+echo "Commit:       $_sha ($_default_branch)"
+echo "Issue:        https://github.com/$_repo/issues/$_issue"
 echo
 echo "Release notes:"
 echo "--------------------------------------------------------------------------"
@@ -115,14 +130,14 @@ fi
 
 if [[ "$_assume_yes" != true ]]; then
     echo
-    read -r -p "Post this comment and trigger JuliaRegistrator? [y/N] " _reply
+    read -r -p "Post this comment on issue #$_issue and trigger JuliaRegistrator? [y/N] " _reply
     if [[ ! "$_reply" =~ ^[Yy]$ ]]; then
         echo "Aborted."
         exit 1
     fi
 fi
 
-_url=$(gh api "repos/$_repo/commits/$_sha/comments" -f body="$_body" -q .html_url)
+_url=$(gh api "repos/$_repo/issues/$_issue/comments" -f body="$_body" -q .html_url)
 
 echo
 echo "Posted: $_url"
