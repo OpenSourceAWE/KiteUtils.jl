@@ -280,8 +280,12 @@ $(TYPEDFIELDS)
     alpha                 = 0
     "surface roughness                     [m]"
     z0                    = 0
-    "1=EXP, 2=LOG, 3=EXPLOG, 4=FAST_EXP, 5=FAST_LOG, 6=FAST_EXPLOG"
+    "0=CONST, 1=EXP, 2=LOG, 3=EXPLOG, 4=CUSTOM_LOG, 5=CUSTOM_EXP, 6=CUSTOM_JET"
     profile_law::Int64    = 0
+    "heights at which the wind speed is given, for the CUSTOM_* profile laws  [m]"
+    heights::Vector{Float64} = [6.0]
+    "wind speeds at the given heights, for the CUSTOM_* profile laws        [m/s]"
+    speeds::Vector{Float64} = [v_wind]
     "turbulence intensity relative to Cabauw, NL"
     use_turbulence        = 0
     "wind speeds at ref height for calculating the turbulent wind field [m/s]"
@@ -658,7 +662,6 @@ function se(settings::Settings, project=PROJECT; relax=false)
         # determine which sim_settings to load
         project_path = joinpath(DATA_PATH[1], processed_project)
         dict = YAML.load_file(project_path)
-        PROJECT = processed_project
         try
             settings.sim_settings = dict["system"]["sim_settings"]
         catch
@@ -698,6 +701,11 @@ function se(settings::Settings, project=PROJECT; relax=false)
             settings.height_k = dict["kite"]["height"]
         end
         sync_wind!(settings)
+        if !(0 <= settings.profile_law <= 6)
+            throw(ArgumentError("Invalid profile_law $(settings.profile_law) in $sim_settings_path; " *
+                                 "must be 0..6 (0=CONST, 1=EXP, 2=LOG, 3=EXPLOG, 4=CUSTOM_LOG, 5=CUSTOM_EXP, 6=CUSTOM_JET)"))
+        end
+        PROJECT = processed_project
     end
     return settings
 end

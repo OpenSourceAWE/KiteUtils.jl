@@ -1,5 +1,18 @@
 # Changelog
 
+## KiteUtils v0.11.12 07-08-2026
+### Added
+- `heights`/`speeds` fields on the `environment` section of `Settings`, feeding
+  the upcoming `CUSTOM_LOG`/`CUSTOM_EXP`/`CUSTOM_JET` wind profile laws
+### Changed
+- `profile_law` comments (in `settings.jl` and the shipped `data/*.yaml` files)
+  now list all six profile laws instead of the stale four
+### Fixed
+- loading a settings file with a `profile_law` outside `0..6` now raises an
+  `ArgumentError` instead of being silently accepted; fixed a related bug
+  where a rejected load still left the global `PROJECT` marker pointing at
+  the bad file, breaking the next `se()`/`update_settings()` call
+
 ## KiteUtils v0.11.11 04-08-2026
 ### Changed
 - `bin/run_julia` no longer detects a running `Kaimon.jl` gate and no longer

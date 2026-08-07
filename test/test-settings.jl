@@ -74,6 +74,26 @@ using KiteUtils, Test, LinearAlgebra
     # mutating wind_vec in-place is not allowed (KiteUtils.SVec3 is immutable)
     @test_throws Exception set_wv.wind_vec .= [7.0, 8.0, 9.0]
     @test se_dict()["environment"]["z0"] == se().z0
+    @test se().heights == [6.0]
+    @test se().speeds == [se().v_wind]
+    @test se().profile_law == 3
+
+    # an invalid profile_law must raise an error when loading the yaml file
+    bad_settings = joinpath(tempdir(), "settings_bad_profile_law.yaml")
+    bad_system = joinpath(tempdir(), "system_bad_profile_law.yaml")
+    open(bad_settings, "w") do io
+        for line in readlines(joinpath(get_data_path(), "settings.yaml"))
+            println(io, replace(line, r"profile_law:.*" => "profile_law: 7"))
+        end
+    end
+    open(bad_system, "w") do io
+        println(io, "system:")
+        println(io, "    sim_settings: \"settings_bad_profile_law.yaml\"")
+    end
+    old_path = get_data_path()
+    set_data_path(tempdir())
+    @test_throws ArgumentError Settings("system_bad_profile_law.yaml")
+    set_data_path(old_path)
     set3 = update_settings()
     @test set3 == se()
 
