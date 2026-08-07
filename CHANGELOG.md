@@ -1,5 +1,12 @@
 # Changelog
 
+## KiteUtils v0.11.13 07-08-2026
+### Added
+- `update_yaml_scalar` and `insert_yaml_scalar_in_section`, the comment-preserving
+  yaml write helpers that were duplicated in `KiteModels.jl` and `V3Kite`. Unlike
+  `change_value` they report whether the key was found, and can add a missing key
+  to a section (or the section itself)
+
 ## KiteUtils v0.11.12 07-08-2026
 ### Added
 - `heights`/`speeds` fields on the `environment` section of `Settings`, feeding

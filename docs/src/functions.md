@@ -29,6 +29,8 @@ Also look at the default example: [settings.yaml](https://github.com/ufechner7/K
 readfile
 writefile
 change_value
+update_yaml_scalar
+insert_yaml_scalar_in_section
 get_comment
 get_unit
 ```

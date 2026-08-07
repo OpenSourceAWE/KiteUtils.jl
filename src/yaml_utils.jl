@@ -72,6 +72,94 @@ function change_value(lines, varname, value::String)
 end
 
 """
+    update_yaml_scalar(lines, key, value) -> (lines, updated)
+
+Replace the value of the first line whose stripped form starts with `key`, keeping the original
+indentation and trailing comment. `key` includes the colon, e.g. `"v_wind:"`. `updated` is `false`
+if no such line exists; use [`insert_yaml_scalar_in_section`](@ref) to add the key in that case.
+
+Unlike [`change_value`](@ref), the replacement is not padded to the width of the old value, and the
+caller learns whether anything was changed.
+"""
+function update_yaml_scalar(lines::Vector{String}, key::AbstractString, value)
+    value_str = repr(value)
+    result = String[]
+    updated = false
+    pattern = Regex("^(\\s*" * escape_string(key) * "\\s*)([^#]*?)(\\s*(?:#.*)?)\$")
+    for line in lines
+        stripped = lstrip(line)
+        if !updated && startswith(stripped, key)
+            matched = match(pattern, line)
+            if isnothing(matched)
+                push!(result, key * " " * value_str)
+            else
+                prefix, _, suffix = matched.captures
+                push!(result, prefix * value_str * suffix)
+            end
+            updated = true
+        else
+            push!(result, line)
+        end
+    end
+    return result, updated
+end
+
+"""
+    insert_yaml_scalar_in_section(lines, section, key, value) -> (lines, true)
+
+Insert `key value` into `section`, indented like the section's existing children. Both `section`
+and `key` include the colon, e.g. `"gui:"` and `"default_turbulence:"`. The section itself is
+appended if it is not present at all, so the second return value is always `true`.
+"""
+function insert_yaml_scalar_in_section(lines::Vector{String}, section::AbstractString,
+                                       key::AbstractString, value)
+    value_str = repr(value)
+    result = String[]
+    in_section = false
+    inserted = false
+    section_indent = 0
+    child_indent = "    "
+    section_found = false
+
+    for line in lines
+        stripped = lstrip(line)
+        indent = length(line) - length(stripped)
+
+        if !inserted && in_section && !isempty(stripped)
+            if indent <= section_indent
+                push!(result, child_indent * key * " " * value_str)
+                inserted = true
+                in_section = false
+            elseif indent > section_indent
+                child_indent = line[begin:indent]
+            end
+        end
+
+        push!(result, line)
+
+        if !inserted && startswith(stripped, section)
+            in_section = true
+            section_found = true
+            section_indent = indent
+            child_indent = line[begin:indent] * "    "
+        end
+    end
+
+    # Still inside the section at end of file: append the key there.
+    if !inserted && in_section
+        push!(result, child_indent * key * " " * value_str)
+        inserted = true
+    end
+
+    # Only add a new section if it was never found.
+    if !inserted && !section_found
+        push!(result, section)
+        push!(result, child_indent * key * " " * value_str)
+    end
+    return result, true
+end
+
+"""
     get_comment(lines, key)
 
 Get the comment of a variable in a yaml file.
