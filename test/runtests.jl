@@ -26,3 +26,4 @@ for (_, _, files) in walkdir(@__DIR__)
         end
     end
 end
+nothing
