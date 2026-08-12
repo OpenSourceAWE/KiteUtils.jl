@@ -2,14 +2,28 @@
 # SPDX-License-Identifier: MIT
 
 include("_logger.jl")
-function Logger(P, steps)
-    Logger{P, 1, 0, steps}()
+
+"""
+    Logger(P, steps; precision=MyFloat)
+    Logger(P, O, steps; precision=MyFloat)
+    Logger(P, O, D, steps; precision=MyFloat)
+    Logger(P, O, D, L, steps; precision=MyFloat)
+
+Pre-allocate a log for `steps` time steps. Omitted counts default to one
+oriented frame and no aero segments or pulleys. Pass `precision=Float64` to log
+a differential state that round-trips exactly.
+"""
+function Logger(P, steps; precision=MyFloat)
+    Logger{P, 1, 0, 0, precision, steps}()
 end
-function Logger(P, O, steps)
-    Logger{P, O, 0, steps}()
+function Logger(P, O, steps; precision=MyFloat)
+    Logger{P, O, 0, 0, precision, steps}()
 end
-function Logger(P, O, D, steps)
-    Logger{P, O, D, steps}()
+function Logger(P, O, D, steps; precision=MyFloat)
+    Logger{P, O, D, 0, precision, steps}()
+end
+function Logger(P, O, D, L, steps; precision=MyFloat)
+    Logger{P, O, D, L, precision, steps}()
 end
 
 include("_log.jl")

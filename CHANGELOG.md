@@ -1,5 +1,28 @@
 # Changelog
 
+## KiteUtils v0.11.14 12-08-2026
+### Added
+- `SysState` and `Logger` carry a complete differential state, so a single
+  logged row is enough to restart a simulation: point velocities `VX`/`VY`/`VZ`,
+  per-frame body turn rates `turn_rate_x`/`turn_rate_y`/`turn_rate_z`, per-
+  twist_surface `twist_surface_angle` and `twist_surface_vel`, and pulley
+  `pulley_len` and `pulley_vel` via the new type parameter `L` (number of
+  pulleys). `flap_angle` is a derived deflection and is not part of that state.
+- the float type of every non-integer field is the new type parameter `T`, so a
+  log can be written at `Float64` and reproduce `integrator.u`. Construct with
+  `Logger(P, O, D, L, steps; precision=Float64)`. `MyFloat` (`Float32`) stays
+  the default, so existing logs keep their size.
+### Fixed
+- `load_log` could return a `SysLog` whose rows could not be materialised:
+  single-tether logs store `l_tether`, `v_reelout` and `winch_force` as scalars
+  rather than one entry per winch, and those are now widened into slot 1
+- columns absent from an older log were allocated with `undef` and left
+  uninitialised, so they loaded as garbage rather than zero
+### Changed
+- `Qw`/`Qx`/`Qy`/`Qz` follow `T` instead of being fixed to `Float32`
+- `SysState{P, O, D}` and `SysState{P, O, D, L}` construct with the remaining
+  parameters defaulted, so existing call sites keep working
+
 ## KiteUtils v0.11.10 03-08-2026
 ### Added
 - add a `flap_angle` field to `SysState` (and `Logger`), one flap deflection δ

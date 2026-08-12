@@ -22,6 +22,8 @@ function load_log(filename::String; path="", debug=false)
     end
     table   = Arrow.Table(fullname)
     P =  length(table.Z[1])
+    # Float type is whatever the file was written with, so Float32 logs stay Float32.
+    T =  eltype(table.Z[1])
     colmeta = Dict(:var_01=>Arrow.getmetadata(table.var_01)["name"],
                    :var_02=>Arrow.getmetadata(table.var_02)["name"],
                    :var_03=>Arrow.getmetadata(table.var_03)["name"],
@@ -44,39 +46,38 @@ function load_log(filename::String; path="", debug=false)
         return table
     end
     n = length(table.time)
-    cycle = Vector{Int16}(undef, n)
-    fig_8 = Vector{Int16}(undef, n)
-    turn_rates = Vector{Float32}(undef, n)
-    azimuth_rate = Vector{Float32}(undef, n)
-    kcu_steering = Vector{Float32}(undef, n)
-    set_steering = Vector{Float32}(undef, n)
-    heading_rate = Vector{Float32}(undef, n)
-    bearing = Vector{Float32}(undef, n)
-    attractor = Vector{MVector{2, Float32}}(undef, n)
-    v_wind_gnd = Vector{MVector{3, Float32}}(undef, n)
-    v_wind_200m = Vector{MVector{3, Float32}}(undef, n)
-    v_wind_kite = Vector{MVector{3, Float32}}(undef, n)
-    AoA = Vector{Float32}(undef, n)
-    side_slip = Vector{Float32}(undef, n)
-    alpha3 = Vector{Float32}(undef, n)
-    alpha4 = Vector{Float32}(undef, n)
-    CL2 = Vector{Float32}(undef, n)
-    CD2 = Vector{Float32}(undef, n)
-    aero_force_b = Vector{MVector{3, Float32}}(undef, n)
-    aero_moment_b = Vector{MVector{3, Float32}}(undef, n)
-    tether_induced_force = Vector{MVector{3, Float32}}(undef, n)
-    tether_induced_moment = Vector{MVector{3, Float32}}(undef, n)
-    twist_angles = Vector{MVector{4, Float32}}(undef, n)
-    acc = Vector{Float32}(undef, n)
-    set_torque = Vector{MVector{4, Float32}}(undef, n)
-    set_speed = Vector{MVector{4, Float32}}(undef, n)
-    set_force = Vector{MVector{4, Float32}}(undef, n)
-    roll = Vector{Float32}(undef, n)
-    pitch = Vector{Float32}(undef, n)
-    yaw = Vector{Float32}(undef, n)
-    winch_force = Vector{MVector{4, Float32}}(undef, n)
-
-    fill!(azimuth_rate, 0)
+    zero_col(len) = [zeros(MVector{len, T}) for _ in 1:n]
+    cycle = zeros(Int16, n)
+    fig_8 = zeros(Int16, n)
+    turn_rates = zero_col(3)
+    azimuth_rate = zeros(T, n)
+    kcu_steering = zeros(T, n)
+    set_steering = zeros(T, n)
+    heading_rate = zeros(T, n)
+    bearing = zeros(T, n)
+    attractor = zero_col(2)
+    v_wind_gnd = zero_col(3)
+    v_wind_200m = zero_col(3)
+    v_wind_kite = zero_col(3)
+    AoA = zeros(T, n)
+    side_slip = zeros(T, n)
+    alpha3 = zeros(T, n)
+    alpha4 = zeros(T, n)
+    CL2 = zeros(T, n)
+    CD2 = zeros(T, n)
+    aero_force_b = zero_col(3)
+    aero_moment_b = zero_col(3)
+    tether_induced_force = zero_col(3)
+    tether_induced_moment = zero_col(3)
+    twist_angles = zero_col(4)
+    acc = zeros(T, n)
+    set_torque = zero_col(4)
+    set_speed = zero_col(4)
+    set_force = zero_col(4)
+    roll = zeros(T, n)
+    pitch = zeros(T, n)
+    yaw = zeros(T, n)
+    winch_force = zero_col(4)
 
     for name in [:cycle, :fig_8, :turn_rates, :azimuth_rate, :kcu_steering,
                  :set_steering, :heading_rate, :bearing, :attractor, :v_wind_gnd,
@@ -160,7 +161,34 @@ function load_log(filename::String; path="", debug=false)
     # written before the column existed have none, so default to empty (D = 0).
     D = haskey(table, :flap_angle) ? length(table.flap_angle[1]) : 0
     flap_angle = haskey(table, :flap_angle) ? table.flap_angle :
-        [zeros(MVector{D, MyFloat}) for _ in 1:n]
+        [zeros(MVector{D, T}) for _ in 1:n]
+    # Single-tether logs store l_tether, v_reelout and winch_force as scalars
+    # rather than one entry per winch; widen those into slot 1.
+    function widen(col, len)
+        eltype(col) <: Number || return col
+        return [(v = zeros(MVector{len, T}); v[1] = x; v) for x in col]
+    end
+    l_tether = widen(table.l_tether, 4)
+    v_reelout = widen(table.v_reelout, 4)
+    vel_kite = widen(table.vel_kite, 3)
+    winch_force = widen(winch_force, 4)
+    set_torque, set_speed = widen(set_torque, 4), widen(set_speed, 4)
+    set_force, twist_angles = widen(set_force, 4), widen(twist_angles, 4)
+    turn_rates, attractor = widen(turn_rates, 3), widen(attractor, 2)
+    v_wind_gnd, v_wind_200m = widen(v_wind_gnd, 3), widen(v_wind_200m, 3)
+    v_wind_kite = widen(v_wind_kite, 3)
+    aero_force_b, aero_moment_b = widen(aero_force_b, 3), widen(aero_moment_b, 3)
+    tether_induced_force = widen(tether_induced_force, 3)
+    tether_induced_moment = widen(tether_induced_moment, 3)
+    # Differential-state back-compat: logs written before these columns existed
+    # restart from rest, so every one of them defaults to zero.
+    L = haskey(table, :pulley_len) ? length(table.pulley_len[1]) : 0
+    column(name, len) = haskey(table, name) ? getproperty(table, name) :
+        [zeros(MVector{len, T}) for _ in 1:n]
+    VX, VY, VZ = column(:VX, P), column(:VY, P), column(:VZ, P)
+    twist_surface_angle = column(:twist_surface_angle, D)
+    twist_surface_vel = column(:twist_surface_vel, D)
+    pulley_len, pulley_vel = column(:pulley_len, L), column(:pulley_vel, L)
     # Orientation back-compat: new logs store Qw/Qx/Qy/Qz (one entry per oriented
     # frame); old logs store a single `orient` quaternion column.
     if haskey(table, :Qw)
@@ -168,27 +196,32 @@ function load_log(filename::String; path="", debug=false)
         Qw, Qx, Qy, Qz = table.Qw, table.Qx, table.Qy, table.Qz
     elseif haskey(table, :orient)
         O = 1
-        Qw = [MVector{1, Float32}(table.orient[t][1]) for t in 1:n]
-        Qx = [MVector{1, Float32}(table.orient[t][2]) for t in 1:n]
-        Qy = [MVector{1, Float32}(table.orient[t][3]) for t in 1:n]
-        Qz = [MVector{1, Float32}(table.orient[t][4]) for t in 1:n]
+        Qw = [MVector{1, T}(table.orient[t][1]) for t in 1:n]
+        Qx = [MVector{1, T}(table.orient[t][2]) for t in 1:n]
+        Qy = [MVector{1, T}(table.orient[t][3]) for t in 1:n]
+        Qz = [MVector{1, T}(table.orient[t][4]) for t in 1:n]
     else
         O = 1
-        Qw = [ones(MVector{1, Float32}) for _ in 1:n]
-        Qx = [zeros(MVector{1, Float32}) for _ in 1:n]
-        Qy = [zeros(MVector{1, Float32}) for _ in 1:n]
-        Qz = [zeros(MVector{1, Float32}) for _ in 1:n]
+        Qw = [ones(MVector{1, T}) for _ in 1:n]
+        Qx = [zeros(MVector{1, T}) for _ in 1:n]
+        Qy = [zeros(MVector{1, T}) for _ in 1:n]
+        Qz = [zeros(MVector{1, T}) for _ in 1:n]
     end
-    syslog = StructArray{SysState{P, O, D}}((table.time, table.t_sim, table.sys_state, cycle, fig_8,
+    turn_rate_x, turn_rate_y, turn_rate_z =
+        column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
+    syslog = StructArray{SysState{P, O, D, L, T}}((table.time, table.t_sim, table.sys_state, cycle, fig_8,
                                        table.e_mech, Qw, Qx, Qy, Qz, turn_rates, table.elevation, table.azimuth,
-                                       azimuth_rate, table.l_tether, table.v_reelout, winch_force, table.depower, table.steering, 
+                                       azimuth_rate, l_tether, v_reelout, winch_force, table.depower, table.steering,
                                        kcu_steering, set_steering, table.heading, heading_rate, table.course, 
                                        bearing, attractor, table.v_app, v_wind_gnd, v_wind_200m, 
                                        v_wind_kite, AoA, side_slip, alpha3, alpha4, 
                                        CL2, CD2, aero_force_b, aero_moment_b, tether_induced_force,
                                        tether_induced_moment, twist_angles, 
-                                       table.vel_kite, acc, table.X, table.Y, table.Z,
-                                       flap_angle,
+                                       vel_kite, acc, table.X, table.Y, table.Z,
+                                       flap_angle, VX, VY, VZ,
+                                       turn_rate_x, turn_rate_y, turn_rate_z,
+                                       twist_surface_angle, twist_surface_vel,
+                                       pulley_len, pulley_vel,
                                        set_torque, set_speed, set_force, roll, pitch,
                                        yaw, table.var_01, table.var_02, table.var_03, table.var_04, 
                                        table.var_05, table.var_06, table.var_07, table.var_08, table.var_09, 

@@ -27,6 +27,8 @@ function load_log(filename::String; path="")
     P =  length(table.Z[1])
     O =  length(table.Qw[1])
     D =  haskey(table, :flap_angle) ? length(table.flap_angle[1]) : 0
+    L =  haskey(table, :pulley_len) ? length(table.pulley_len[1]) : 0
+    T =  eltype(table.Z[1])
     colmeta = Dict(:var_01=>Arrow.getmetadata(table.var_01)["name"],
                    :var_02=>Arrow.getmetadata(table.var_02)["name"],
                    :var_03=>Arrow.getmetadata(table.var_03)["name"],
@@ -45,7 +47,7 @@ function load_log(filename::String; path="")
                    :var_16=>Arrow.getmetadata(table.var_16)["name"],
     )
     # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
-    syslog = StructArray{SysState{P, O, D}}((table.time, table.t_sim, table.sys_state, table.cycle, table.fig_8, 
+    syslog = StructArray{SysState{P, O, D, L, T}}((table.time, table.t_sim, table.sys_state, table.cycle, table.fig_8, 
                                        table.e_mech, table.Qw, table.Qx, table.Qy, table.Qz, 
                                        table.turn_rates, table.elevation, table.azimuth, table.azimuth_rate, table.l_tether, 
                                        table.v_reelout, table.winch_force, table.depower, table.steering, table.kcu_steering, 
@@ -54,7 +56,9 @@ function load_log(filename::String; path="")
                                        table.AoA, table.side_slip, table.alpha3, table.alpha4, table.CL2, 
                                        table.CD2, table.aero_force_b, table.aero_moment_b, table.tether_induced_force, table.tether_induced_moment, 
                                        table.twist_angles, table.vel_kite, table.acc, table.X, table.Y, 
-                                       table.Z, table.flap_angle, table.set_torque, table.set_speed, table.set_force, 
+                                       table.Z, table.flap_angle, table.VX, table.VY, table.VZ, 
+                                       table.turn_rate_x, table.turn_rate_y, table.turn_rate_z, table.twist_surface_angle, table.twist_surface_vel, 
+                                       table.pulley_len, table.pulley_vel, table.set_torque, table.set_speed, table.set_force, 
                                        table.roll, table.pitch, table.yaw, table.var_01, table.var_02, 
                                        table.var_03, table.var_04, table.var_05, table.var_06, table.var_07, 
                                        table.var_08, table.var_09, table.var_10, table.var_11, table.var_12, 

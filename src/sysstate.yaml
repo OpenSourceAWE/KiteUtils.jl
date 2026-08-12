@@ -5,10 +5,10 @@ sysstate:
     cycle:     "Int16"                  # cycle number
     fig_8:     "Int16"                  # number of the figure of eight of the current cycle
     e_mech: "Float64"                   # mechanical energy [Wh]
-    Qw: "MVector{O, Float32}"           # quaternion w-component, one per oriented frame (frame 1 = kite)
-    Qx: "MVector{O, Float32}"           # quaternion x-component, one per oriented frame
-    Qy: "MVector{O, Float32}"           # quaternion y-component, one per oriented frame
-    Qz: "MVector{O, Float32}"           # quaternion z-component, one per oriented frame
+    Qw: "MVector{O, MyFloat}"           # quaternion w-component, one per oriented frame (frame 1 = kite)
+    Qx: "MVector{O, MyFloat}"           # quaternion x-component, one per oriented frame
+    Qy: "MVector{O, MyFloat}"           # quaternion y-component, one per oriented frame
+    Qz: "MVector{O, MyFloat}"           # quaternion z-component, one per oriented frame
     turn_rates: "MVector{3, MyFloat}"   # turn rates around the body fixed x, y and z axis [rad/s]
     elevation: "MyFloat"                # elevation angle [rad]
     azimuth: "MyFloat"                  # azimuth angle in wind reference frame [rad]
@@ -47,6 +47,16 @@ sysstate:
     Y: "MVector{P, MyFloat}"            # vector of particle positions in y [m]
     Z: "MVector{P, MyFloat}"            # vector of particle positions in z [m]
     flap_angle: "MVector{D, MyFloat}"   # flap deflection per aero segment, one per twist_surface [rad]
+    VX: "MVector{P, MyFloat}"           # vector of particle velocities in x [m/s]
+    VY: "MVector{P, MyFloat}"           # vector of particle velocities in y [m/s]
+    VZ: "MVector{P, MyFloat}"           # vector of particle velocities in z [m/s]
+    turn_rate_x: "MVector{O, MyFloat}"  # body-frame turn rate around x, one per oriented frame [rad/s]
+    turn_rate_y: "MVector{O, MyFloat}"  # body-frame turn rate around y, one per oriented frame [rad/s]
+    turn_rate_z: "MVector{O, MyFloat}"  # body-frame turn rate around z, one per oriented frame [rad/s]
+    twist_surface_angle: "MVector{D, MyFloat}" # twist angle per twist_surface [rad]
+    twist_surface_vel: "MVector{D, MyFloat}"   # twist rate per twist_surface [rad/s]
+    pulley_len: "MVector{L, MyFloat}"   # length of the first leg of each pulley [m]
+    pulley_vel: "MVector{L, MyFloat}"   # rate of change of pulley_len [m/s]
     set_torque: "MVector{4, MyFloat}"   # torque setting, winch 1..4       [Nm]
     set_speed: "MVector{4, MyFloat}"    # speed setting, winch 1..4       [m/s]
     set_force: "MVector{4, MyFloat}"    # force setting, winch 1..4         [N]
