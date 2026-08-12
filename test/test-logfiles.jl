@@ -77,7 +77,7 @@ end
     D = 3
     logger = Logger(7, 2; deflections=D)
     for i in 1:2
-        ss = SysState{7, 1, D}()
+        ss = SysState(7; deflections = D)
         ss.flap_angle .= Float32[0.1i, 0.2i, 0.3i]
         log!(logger, ss)
     end

@@ -7,33 +7,21 @@
 # `orient` property (frame 1) working for backwards compatibility.
 
 """
-    SysState{P}()
-    SysState{P, O}()
-    SysState{P, O, D}()
-    SysState{P, O, D, L}()
-    SysState{P, O, D, L, W}()
+    SysState(P; orients=1, deflections=0, pulleys=0, winches=1,
+             tethers=winches, precision=MyFloat)
 
-Construct a `SysState` with `P` points, `O` oriented frames (default 1), `D` twist
-surfaces (default 0), `L` pulleys (default 0), `W` winches and tethers (default 1) and
-`MyFloat` components. Fewer type parameters default the rest, so pre-`orients`,
-pre-`flap_angle` and pre-`pulley_len` call sites keep working.
+Construct a `SysState` of `P` points. The remaining counts are keywords so that
+adding a dimension does not add another positional method: `orients` oriented
+frames, `deflections` twist surfaces, `pulleys` pulleys, `winches` winches and
+`tethers` tethers. `tethers` defaults to `winches`, which is right whenever each
+winch drives one tether. Pass `precision=Float64` for a differential state that
+round-trips `integrator.u` exactly.
 """
-SysState{P}() where {P} = SysState{P, 1, 0, 0, 1, 1, MyFloat}()
-SysState{P}(args...; kwargs...) where {P} =
-    SysState{P, 1, 0, 0, 1, 1, MyFloat}(args...; kwargs...)
-SysState{P, O}() where {P, O} = SysState{P, O, 0, 0, 1, 1, MyFloat}()
-SysState{P, O}(args...; kwargs...) where {P, O} =
-    SysState{P, O, 0, 0, 1, 1, MyFloat}(args...; kwargs...)
-SysState{P, O, D}() where {P, O, D} = SysState{P, O, D, 0, 1, 1, MyFloat}()
-SysState{P, O, D}(args...; kwargs...) where {P, O, D} =
-    SysState{P, O, D, 0, 1, 1, MyFloat}(args...; kwargs...)
-SysState{P, O, D, L}() where {P, O, D, L} = SysState{P, O, D, L, 1, 1, MyFloat}()
-SysState{P, O, D, L}(args...; kwargs...) where {P, O, D, L} =
-    SysState{P, O, D, L, 1, 1, MyFloat}(args...; kwargs...)
-SysState{P, O, D, L, W}() where {P, O, D, L, W} =
-    SysState{P, O, D, L, W, W, MyFloat}()
-SysState{P, O, D, L, W}(args...; kwargs...) where {P, O, D, L, W} =
-    SysState{P, O, D, L, W, W, MyFloat}(args...; kwargs...)
+function SysState(P::Integer; orients=1, deflections=0, pulleys=0, winches=1,
+                  tethers=winches, precision=MyFloat)
+    SysState{P, orients, deflections, pulleys, winches, tethers,
+             precision}()
+end
 
 # ---- single-quaternion view (frame k), mutable, backed by Qw/Qx/Qy/Qz ----
 struct FrameQuat{S, T} <: AbstractVector{T}

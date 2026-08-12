@@ -8,6 +8,13 @@
 - `SysState` is now `SysState{P, O, D, L, W, T, F}`. A six-parameter spelling
   used to end in the float type and now ends in the tether count, so
   `SysState{P, O, D, L, W, Float64}` no longer means what it did.
+- `SysState` is built the way `Logger` is:
+  `SysState(P; orients, deflections, pulleys, winches, tethers, precision)`.
+  The five partial-type-parameter methods (`SysState{P}()` through
+  `SysState{P, O, D, L, W}()`) and their `args.../kwargs...` twins are gone.
+  `SysState{P}` and friends still work as *types*, so annotations,
+  `Vector{SysState{7}}` and `SysLog{P, O}` are unaffected; only construction
+  moves. Set fields by assigning them after construction.
 ### Added
 - `SysState` and `Logger` carry a complete differential state, so a single
   logged row is enough to restart a simulation: point velocities `VX`/`VY`/`VZ`,

@@ -407,22 +407,21 @@ if PLOT_3D
                 xs = MVector{N,Float64}([pos[1] * i / segments for i = 0:segments])
                 ys = MVector{N,Float64}([pos[2] * i / segments for i = 0:segments])
                 zs = MVector{N,Float64}([pos[3] * i / segments for i = 0:segments])
-                state = SysState{N}(
-                    time = t,
-                    l_tether = MVector{4,Float64}(norm(pos), 0.0, 0.0, 0.0),
-                    orient = MVector{4,Float32}(Rotations.params(q)),
-                    elevation = el,
-                    azimuth = az,
-                    heading = heading,
-                    course = heading_rate,
-                    heading_rate = heading_rate,
-                    roll = roll,
-                    pitch = pitch,
-                    yaw = yaw,
-                    X = xs,
-                    Y = ys,
-                    Z = zs,
-                )
+                state = SysState(N)
+                state.time = t
+                state.l_tether[1] = norm(pos)
+                state.orient = MVector{4,Float32}(Rotations.params(q))
+                state.elevation = el
+                state.azimuth = az
+                state.heading = heading
+                state.course = heading_rate
+                state.heading_rate = heading_rate
+                state.roll = roll
+                state.pitch = pitch
+                state.yaw = yaw
+                state.X .= xs
+                state.Y .= ys
+                state.Z .= zs
                 t += 0.05
                 update_system(viewer, state; scale = 0.25, kite_scale = 0.25, ned = true)
                 sleep(dt)

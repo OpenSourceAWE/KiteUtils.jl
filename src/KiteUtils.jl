@@ -203,7 +203,7 @@ Kite is parking and aligned with the tether.
 Returns a SysState instance.
 """
 function demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2)
-    ss = SysState{P}()
+    ss = SysState(P)
     ss.time = time
     a = 10
     turn_angle = azimuth_north+pi/2
@@ -291,7 +291,7 @@ function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
         push!(Z, z)
         return SVector(x,y,z)
     end
-    ss = SysState{P+4}()
+    ss = SysState(P + 4)
     a = 10
     turn_angle = azimuth_north+pi/2
     dist = collect(range(0, stop=10, length=P))

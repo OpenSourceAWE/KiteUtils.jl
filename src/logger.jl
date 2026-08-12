@@ -111,7 +111,7 @@ function import_log(filename)
 
         orient = parse_vector(row.orient)
         vel_kite = parse_vector(row.vel_kite)
-        ss = SysState{P}()
+        ss = SysState(P)
         ss.time = row.time
         ss.t_sim = row.t_sim
         ss.sys_state = row.sys_state
