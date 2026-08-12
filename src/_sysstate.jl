@@ -6,25 +6,26 @@
 # Edit src/sysstate.yaml instead
 
 """
-    SysState{P, O, D, L, T}
+    SysState{P, O, D, L, W, T, F}
 
 Basic system state. One of these is saved per time step. P is the number
 of tether particles, O is the number of oriented frames (kite + extra
-wings/rigid bodies), D is the number of aero segments (one flap
-deflection `flap_angle` per twist_surface), L is the number of pulleys
-and T is the float type of every non-integer field. The quaternion
+wings/rigid bodies), D is the number of twist surfaces, L is the number
+of pulleys, W is the number of winches, T the number of tethers and F the float
+type of every non-integer field. No field is a fixed length: a model
+with five winches or ten twist surfaces logs all of them. The quaternion
 components `Qw/Qx/Qy/Qz` each hold O values; frame 1 is the kite,
 aliased by the `orient` property.
 
 Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
-`twist_surface_angle`, `twist_surface_vel`, `pulley_len`, `pulley_vel`,
-`l_tether` and `v_reelout` hold a complete differential state, so a
-single row can be used to restart a simulation. `flap_angle` is a
-derived deflection, not part of that state.
+`twist_angles`, `twist_vel`, `pulley_len`, `pulley_vel`, `l_tether` and
+`v_reelout` hold a complete differential state, so a single row can be
+used to restart a simulation. `flap_angle` is a derived deflection, not
+part of that state.
 
 $(TYPEDFIELDS)
 """
-@with_kw_noshow mutable struct SysState{P, O, D, L, T}
+@with_kw_noshow mutable struct SysState{P, O, D, L, W, T, F}
     "time since start of simulation [s]"
     time::Float64 = 0
     "time needed for one simulation timestep [s]"
@@ -38,149 +39,147 @@ $(TYPEDFIELDS)
     "mechanical energy [Wh]"
     e_mech::Float64 = 0
     "quaternion w-component, one per oriented frame (frame 1 = kite)"
-    Qw::MVector{O, T} = ones(T, O)
+    Qw::MVector{O, F} = ones(F, O)
     "quaternion x-component, one per oriented frame"
-    Qx::MVector{O, T} = zeros(T, O)
+    Qx::MVector{O, F} = zeros(F, O)
     "quaternion y-component, one per oriented frame"
-    Qy::MVector{O, T} = zeros(T, O)
+    Qy::MVector{O, F} = zeros(F, O)
     "quaternion z-component, one per oriented frame"
-    Qz::MVector{O, T} = zeros(T, O)
+    Qz::MVector{O, F} = zeros(F, O)
     "turn rates around the body fixed x, y and z axis [rad/s]"
-    turn_rates::MVector{3, T} = zeros(T, 3)
+    turn_rates::MVector{3, F} = zeros(F, 3)
     "elevation angle [rad]"
-    elevation::T = 0
+    elevation::F = 0
     "azimuth angle in wind reference frame [rad]"
-    azimuth::T = 0
+    azimuth::F = 0
     "azimuth rate [rad/s]"
-    azimuth_rate::T = 0
-    "tether length, tether 1 to 4 [m]"
-    l_tether::MVector{4, T} = zeros(T, 4)
-    "reelout speed, tether 1 to 4 [m/s]"
-    v_reelout::MVector{4, T} = zeros(T, 4)
-    "tether force at the winch, tether 1 to 4 [N]"
-    winch_force::MVector{4, T} = zeros(T, 4)
+    azimuth_rate::F = 0
+    "tether length, one per tether [m]"
+    l_tether::MVector{T, F} = zeros(F, T)
+    "reelout speed, one per winch [m/s]"
+    v_reelout::MVector{W, F} = zeros(F, W)
+    "tether force at the winch, one per winch [N]"
+    winch_force::MVector{W, F} = zeros(F, W)
     "depower settings [0..1]"
-    depower::T = 0
+    depower::F = 0
     "actual steering [-1..1]"
-    steering::T = 0
+    steering::F = 0
     "steering after the kcu, before applying offset and depower scaling [-1..1]"
-    kcu_steering::T = 0
+    kcu_steering::F = 0
     "set value of the steering [-1..1]"
-    set_steering::T = 0
+    set_steering::F = 0
     "heading angle [rad]"
-    heading::T = 0
+    heading::F = 0
     "heading rate [rad/s]"
-    heading_rate::T = 0
+    heading_rate::F = 0
     "course angle [rad]"
-    course::T = 0
+    course::F = 0
     "bearing angle (set value of heading/ course) [rad]"
-    bearing::T = 0
+    bearing::F = 0
     "attractor coordinates (azimuth, elevation) [rad]"
-    attractor::MVector{2, T} = zeros(T, 2)
+    attractor::MVector{2, F} = zeros(F, 2)
     "norm of apparent wind speed [m/s]"
-    v_app::T = 0
+    v_app::F = 0
     "wind vector at reference height [m/s]"
-    v_wind_gnd::MVector{3, T} = zeros(T, 3)
+    v_wind_gnd::MVector{3, F} = zeros(F, 3)
     "wind vector at 200m height [m/s]"
-    v_wind_200m::MVector{3, T} = zeros(T, 3)
+    v_wind_200m::MVector{3, F} = zeros(F, 3)
     "wind vector at the height of the kite [m/s]"
-    v_wind_kite::MVector{3, T} = zeros(T, 3)
+    v_wind_kite::MVector{3, F} = zeros(F, 3)
     "angle of attack [rad]"
-    AoA::T = 0
+    AoA::F = 0
     "side slip angle [rad]"
-    side_slip::T = 0
+    side_slip::F = 0
     "angle of attack at particle C [rad]"
-    alpha3::T = 0
+    alpha3::F = 0
     "angle of attack at particle D [rad]"
-    alpha4::T = 0
+    alpha4::F = 0
     "lift coefficient"
-    CL2::T = 0
+    CL2::F = 0
     "drag coefficient"
-    CD2::T = 0
+    CD2::F = 0
     "aerodynamic force in KB reference frame [N]"
-    aero_force_b::MVector{3, T} = zeros(T, 3)
+    aero_force_b::MVector{3, F} = zeros(F, 3)
     "aerodynamic moment in KB reference frame [Nm]"
-    aero_moment_b::MVector{3, T} = zeros(T, 3)
+    aero_moment_b::MVector{3, F} = zeros(F, 3)
     "net tether force vector acting on kite [N]"
-    tether_induced_force::MVector{3, T} = zeros(T, 3)
+    tether_induced_force::MVector{3, F} = zeros(F, 3)
     "net tether moment acting on kite [Nm]"
-    tether_induced_moment::MVector{3, T} = zeros(T, 3)
-    "twist angles for the 4 segment groups [rad]"
-    twist_angles::MVector{4, T} = zeros(T, 4)
+    tether_induced_moment::MVector{3, F} = zeros(F, 3)
+    "twist angle, one per twist_surface [rad]"
+    twist_angles::MVector{D, F} = zeros(F, D)
     "velocity vector of the kite [m/s]"
-    vel_kite::MVector{3, T} = zeros(T, 3)
+    vel_kite::MVector{3, F} = zeros(F, 3)
     "acceleration [m/s²]"
-    acc::T = 0
+    acc::F = 0
     "vector of particle positions in x [m]"
-    X::MVector{P, T} = zeros(T, P)
+    X::MVector{P, F} = zeros(F, P)
     "vector of particle positions in y [m]"
-    Y::MVector{P, T} = zeros(T, P)
+    Y::MVector{P, F} = zeros(F, P)
     "vector of particle positions in z [m]"
-    Z::MVector{P, T} = zeros(T, P)
+    Z::MVector{P, F} = zeros(F, P)
     "flap deflection per aero segment, one per twist_surface [rad]"
-    flap_angle::MVector{D, T} = zeros(T, D)
+    flap_angle::MVector{D, F} = zeros(F, D)
     "vector of particle velocities in x [m/s]"
-    VX::MVector{P, T} = zeros(T, P)
+    VX::MVector{P, F} = zeros(F, P)
     "vector of particle velocities in y [m/s]"
-    VY::MVector{P, T} = zeros(T, P)
+    VY::MVector{P, F} = zeros(F, P)
     "vector of particle velocities in z [m/s]"
-    VZ::MVector{P, T} = zeros(T, P)
+    VZ::MVector{P, F} = zeros(F, P)
     "body-frame turn rate around x, one per oriented frame [rad/s]"
-    turn_rate_x::MVector{O, T} = zeros(T, O)
+    turn_rate_x::MVector{O, F} = zeros(F, O)
     "body-frame turn rate around y, one per oriented frame [rad/s]"
-    turn_rate_y::MVector{O, T} = zeros(T, O)
+    turn_rate_y::MVector{O, F} = zeros(F, O)
     "body-frame turn rate around z, one per oriented frame [rad/s]"
-    turn_rate_z::MVector{O, T} = zeros(T, O)
-    "twist angle per twist_surface [rad]"
-    twist_surface_angle::MVector{D, T} = zeros(T, D)
-    "twist rate per twist_surface [rad/s]"
-    twist_surface_vel::MVector{D, T} = zeros(T, D)
+    turn_rate_z::MVector{O, F} = zeros(F, O)
+    "twist rate, one per twist_surface [rad/s]"
+    twist_vel::MVector{D, F} = zeros(F, D)
     "length of the first leg of each pulley [m]"
-    pulley_len::MVector{L, T} = zeros(T, L)
+    pulley_len::MVector{L, F} = zeros(F, L)
     "rate of change of pulley_len [m/s]"
-    pulley_vel::MVector{L, T} = zeros(T, L)
-    "torque setting, winch 1..4       [Nm]"
-    set_torque::MVector{4, T} = zeros(T, 4)
-    "speed setting, winch 1..4       [m/s]"
-    set_speed::MVector{4, T} = zeros(T, 4)
-    "force setting, winch 1..4         [N]"
-    set_force::MVector{4, T} = zeros(T, 4)
+    pulley_vel::MVector{L, F} = zeros(F, L)
+    "torque setting, one per winch [Nm]"
+    set_torque::MVector{W, F} = zeros(F, W)
+    "speed setting, one per winch [m/s]"
+    set_speed::MVector{W, F} = zeros(F, W)
+    "force setting, one per winch [N]"
+    set_force::MVector{W, F} = zeros(F, W)
     "roll angle [rad]"
-    roll::T = 0
+    roll::F = 0
     "pitch angle [rad]"
-    pitch::T = 0
+    pitch::F = 0
     "yaw angle [rad]"
-    yaw::T = 0
+    yaw::F = 0
     "generic variable 01"
-    var_01::T = 0
+    var_01::F = 0
     "generic variable 02"
-    var_02::T = 0
+    var_02::F = 0
     "generic variable 03"
-    var_03::T = 0
+    var_03::F = 0
     "generic variable 04"
-    var_04::T = 0
+    var_04::F = 0
     "generic variable 05"
-    var_05::T = 0
+    var_05::F = 0
     "generic variable 06"
-    var_06::T = 0
+    var_06::F = 0
     "generic variable 07"
-    var_07::T = 0
+    var_07::F = 0
     "generic variable 08"
-    var_08::T = 0
+    var_08::F = 0
     "generic variable 09"
-    var_09::T = 0
+    var_09::F = 0
     "generic variable 10"
-    var_10::T = 0
+    var_10::F = 0
     "generic variable 11"
-    var_11::T = 0
+    var_11::F = 0
     "generic variable 12"
-    var_12::T = 0
+    var_12::F = 0
     "generic variable 13"
-    var_13::T = 0
+    var_13::F = 0
     "generic variable 14"
-    var_14::T = 0
+    var_14::F = 0
     "generic variable 15"
-    var_15::T = 0
+    var_15::F = 0
     "generic variable 16"
-    var_16::T = 0
+    var_16::F = 0
 end

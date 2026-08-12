@@ -11,24 +11,29 @@
     SysState{P, O}()
     SysState{P, O, D}()
     SysState{P, O, D, L}()
+    SysState{P, O, D, L, W}()
 
-Construct a `SysState` with `P` points, `O` oriented frames (default 1), `D` aero
-segments (default 0), `L` pulleys (default 0) and `MyFloat` components. Fewer type
-parameters default the rest, so pre-`orients`, pre-`flap_angle` and pre-`pulley_len`
-call sites keep working.
+Construct a `SysState` with `P` points, `O` oriented frames (default 1), `D` twist
+surfaces (default 0), `L` pulleys (default 0), `W` winches and tethers (default 1) and
+`MyFloat` components. Fewer type parameters default the rest, so pre-`orients`,
+pre-`flap_angle` and pre-`pulley_len` call sites keep working.
 """
-SysState{P}() where {P} = SysState{P, 1, 0, 0, MyFloat}()
+SysState{P}() where {P} = SysState{P, 1, 0, 0, 1, 1, MyFloat}()
 SysState{P}(args...; kwargs...) where {P} =
-    SysState{P, 1, 0, 0, MyFloat}(args...; kwargs...)
-SysState{P, O}() where {P, O} = SysState{P, O, 0, 0, MyFloat}()
+    SysState{P, 1, 0, 0, 1, 1, MyFloat}(args...; kwargs...)
+SysState{P, O}() where {P, O} = SysState{P, O, 0, 0, 1, 1, MyFloat}()
 SysState{P, O}(args...; kwargs...) where {P, O} =
-    SysState{P, O, 0, 0, MyFloat}(args...; kwargs...)
-SysState{P, O, D}() where {P, O, D} = SysState{P, O, D, 0, MyFloat}()
+    SysState{P, O, 0, 0, 1, 1, MyFloat}(args...; kwargs...)
+SysState{P, O, D}() where {P, O, D} = SysState{P, O, D, 0, 1, 1, MyFloat}()
 SysState{P, O, D}(args...; kwargs...) where {P, O, D} =
-    SysState{P, O, D, 0, MyFloat}(args...; kwargs...)
-SysState{P, O, D, L}() where {P, O, D, L} = SysState{P, O, D, L, MyFloat}()
+    SysState{P, O, D, 0, 1, 1, MyFloat}(args...; kwargs...)
+SysState{P, O, D, L}() where {P, O, D, L} = SysState{P, O, D, L, 1, 1, MyFloat}()
 SysState{P, O, D, L}(args...; kwargs...) where {P, O, D, L} =
-    SysState{P, O, D, L, MyFloat}(args...; kwargs...)
+    SysState{P, O, D, L, 1, 1, MyFloat}(args...; kwargs...)
+SysState{P, O, D, L, W}() where {P, O, D, L, W} =
+    SysState{P, O, D, L, W, W, MyFloat}()
+SysState{P, O, D, L, W}(args...; kwargs...) where {P, O, D, L, W} =
+    SysState{P, O, D, L, W, W, MyFloat}(args...; kwargs...)
 
 # ---- single-quaternion view (frame k), mutable, backed by Qw/Qx/Qy/Qz ----
 struct FrameQuat{S, T} <: AbstractVector{T}

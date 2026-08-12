@@ -1,26 +1,35 @@
 # Changelog
 
-## KiteUtils v0.11.14 12-08-2026
+## KiteUtils v0.12.0 12-08-2026
+### Breaking
+- `Logger` takes one positional count and keywords for the rest:
+  `Logger(P, steps; orients, deflections, pulleys, winches, tethers, precision)`.
+  The five positional methods are gone.
+- `SysState` is now `SysState{P, O, D, L, W, T, F}`. A six-parameter spelling
+  used to end in the float type and now ends in the tether count, so
+  `SysState{P, O, D, L, W, Float64}` no longer means what it did.
 ### Added
 - `SysState` and `Logger` carry a complete differential state, so a single
   logged row is enough to restart a simulation: point velocities `VX`/`VY`/`VZ`,
-  per-frame body turn rates `turn_rate_x`/`turn_rate_y`/`turn_rate_z`, per-
-  twist_surface `twist_surface_angle` and `twist_surface_vel`, and pulley
-  `pulley_len` and `pulley_vel` via the new type parameter `L` (number of
-  pulleys). `flap_angle` is a derived deflection and is not part of that state.
-- the float type of every non-integer field is the new type parameter `T`, so a
-  log can be written at `Float64` and reproduce `integrator.u`. Construct with
-  `Logger(P, O, D, L, steps; precision=Float64)`. `MyFloat` (`Float32`) stays
-  the default, so existing logs keep their size.
+  per-frame body turn rates `turn_rate_x`/`turn_rate_y`/`turn_rate_z`,
+  per-twist_surface `twist_vel`, and pulley `pulley_len` and `pulley_vel` via
+  the new type parameter `L`. `flap_angle` is a derived deflection and is not
+  part of that state.
+- type parameters `W` (winches), `T` (tethers) and `F` (float type). Passing
+  `precision=Float64` logs a state that reproduces `integrator.u`; `MyFloat`
+  (`Float32`) stays the default, so existing logs keep their size.
 ### Fixed
+- no field is fixed at four slots any more: `l_tether` follows the tether count,
+  `v_reelout`/`winch_force`/`set_torque`/`set_speed`/`set_force` the winch count
+  and `twist_angles` the twist_surface count
 - `load_log` could return a `SysLog` whose rows could not be materialised:
   single-tether logs store `l_tether`, `v_reelout` and `winch_force` as scalars
   rather than one entry per winch, and those are now widened into slot 1
 - columns absent from an older log were allocated with `undef` and left
   uninitialised, so they loaded as garbage rather than zero
 ### Changed
-- `Qw`/`Qx`/`Qy`/`Qz` follow `T` instead of being fixed to `Float32`
-- `SysState{P, O, D}` and `SysState{P, O, D, L}` construct with the remaining
+- `Qw`/`Qx`/`Qy`/`Qz` follow `F` instead of being fixed to `Float32`
+- `SysState{P}` through `SysState{P, O, D, L, W}` construct with the remaining
   parameters defaulted, so existing call sites keep working
 
 ## KiteUtils v0.11.10 03-08-2026
