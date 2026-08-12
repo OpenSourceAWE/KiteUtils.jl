@@ -1,17 +1,22 @@
 # Changelog
 
-## KiteUtils unreleased
+## KiteUtils v0.12.0 12-08-2026
 ### Breaking
 - `Logger` takes one positional count and keywords for the rest:
   `Logger(P, steps; orients, deflections, pulleys, winches, tethers, precision)`.
-  The five positional methods are gone.
+  The three positional methods `Logger(P, steps)`, `Logger(P, O, steps)` and
+  `Logger(P, O, D, steps)` are gone.
+- `Logger` is now `Logger{P, O, D, L, W, T, F, Q}`. The fourth parameter used to
+  be the step count and is now the pulley count, so a written-out
+  `Logger{P, O, D, steps}` no longer means what it did; it is an incomplete type
+  and constructing it raises a `MethodError`.
 - `SysState` is now `SysState{P, O, D, L, W, T, F}`. A six-parameter spelling
   used to end in the float type and now ends in the tether count, so
   `SysState{P, O, D, L, W, Float64}` no longer means what it did.
 - `SysState` is built the way `Logger` is:
   `SysState(P; orients, deflections, pulleys, winches, tethers, precision)`.
-  The five partial-type-parameter methods (`SysState{P}()` through
-  `SysState{P, O, D, L, W}()`) and their `args.../kwargs...` twins are gone.
+  The partial-type-parameter constructors `SysState{P}()` and `SysState{P, O}()`
+  and their `args.../kwargs...` twins are gone; they now raise a `MethodError`.
   `SysState{P}` and friends still work as *types*, so annotations,
   `Vector{SysState{7}}` and `SysLog{P, O}` are unaffected; only construction
   moves. Set fields by assigning them after construction.
@@ -25,6 +30,8 @@
 - type parameters `W` (winches), `T` (tethers) and `F` (float type). Passing
   `precision=Float64` logs a state that reproduces `integrator.u`; `MyFloat`
   (`Float32`) stays the default, so existing logs keep their size.
+- `demo_syslog` takes the new counts as well:
+  `demo_syslog(P, O=1, D=0, L=0, W=1, T=W; duration)`
 ### Fixed
 - no field is fixed at four slots any more: `l_tether` follows the tether count,
   `v_reelout`/`winch_force`/`set_torque`/`set_speed`/`set_force` the winch count
@@ -36,8 +43,9 @@
   uninitialised, so they loaded as garbage rather than zero
 ### Changed
 - `Qw`/`Qx`/`Qy`/`Qz` follow `F` instead of being fixed to `Float32`
-- `SysState{P}` through `SysState{P, O, D, L, W}` construct with the remaining
-  parameters defaulted, so existing call sites keep working
+- `load_log` derives `F` from the float type the file was written with instead
+  of forcing `Float32`, so a `Float64` log stays `Float64`; the `pos` and
+  `orients` views of a state and of a log follow that type too
 
 ## KiteUtils v0.11.13 07-08-2026
 ### Added
