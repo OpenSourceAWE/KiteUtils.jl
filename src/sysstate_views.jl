@@ -7,23 +7,29 @@
 # `orient` property (frame 1) working for backwards compatibility.
 
 """
-    SysState{P}()
-    SysState{P, O}()
+    SysState(P; orients=1, deflections=0, pulleys=0, winches=1,
+             tethers=winches, precision=MyFloat)
 
-Construct a `SysState` with `P` points, `O` oriented frames (default 1), and no aero
-segments (`D = 0`). Fewer type parameters default the rest, so pre-`orients` and
-pre-`flap_angle` call sites keep working.
+Construct a `SysState` of `P` points. The remaining counts are keywords so that
+adding a dimension does not add another positional method: `orients` oriented
+frames, `deflections` twist surfaces, `pulleys` pulleys, `winches` winches and
+`tethers` tethers. `tethers` defaults to `winches`, which is right whenever each
+winch drives one tether. Pass `precision=Float64` for a differential state that
+round-trips `integrator.u` exactly.
 """
-SysState{P}() where {P} = SysState{P, 1, 0}()
-SysState{P}(args...; kwargs...) where {P} = SysState{P, 1, 0}(args...; kwargs...)
-SysState{P, O}() where {P, O} = SysState{P, O, 0}()
-SysState{P, O}(args...; kwargs...) where {P, O} = SysState{P, O, 0}(args...; kwargs...)
+function SysState(P::Integer; orients=1, deflections=0, pulleys=0, winches=1,
+                  tethers=winches, precision=MyFloat)
+    SysState{P, orients, deflections, pulleys, winches, tethers,
+             precision}()
+end
 
 # ---- single-quaternion view (frame k), mutable, backed by Qw/Qx/Qy/Qz ----
-struct FrameQuat{S} <: AbstractVector{Float32}
+struct FrameQuat{S, T} <: AbstractVector{T}
     ss::S
     k::Int
 end
+FrameQuat(ss::S, k::Int) where {S} =
+    FrameQuat{S, eltype(getfield(ss, :Qw))}(ss, k)
 Base.size(::FrameQuat) = (4,)
 Base.@propagate_inbounds function Base.getindex(q::FrameQuat, i::Int)
     @boundscheck checkbounds(q, i)
@@ -44,9 +50,10 @@ Base.@propagate_inbounds function Base.setindex!(q::FrameQuat, v, i::Int)
 end
 
 # ---- indexable collection of all orientation frames ----
-struct OrientFrames{S} <: AbstractVector{FrameQuat{S}}
+struct OrientFrames{S, T} <: AbstractVector{FrameQuat{S, T}}
     ss::S
 end
+OrientFrames(ss::S) where {S} = OrientFrames{S, eltype(getfield(ss, :Qw))}(ss)
 Base.size(o::OrientFrames) = (length(getfield(o.ss, :Qw)),)
 Base.@propagate_inbounds function Base.getindex(o::OrientFrames, k::Int)
     @boundscheck checkbounds(o, k)
@@ -58,10 +65,11 @@ Base.@propagate_inbounds function Base.setindex!(o::OrientFrames, v, k::Int)
 end
 
 # ---- single-point position view, mutable, backed by X/Y/Z ----
-struct PointPos{S} <: AbstractVector{MyFloat}
+struct PointPos{S, T} <: AbstractVector{T}
     ss::S
     i::Int
 end
+PointPos(ss::S, i::Int) where {S} = PointPos{S, eltype(getfield(ss, :X))}(ss, i)
 Base.size(::PointPos) = (3,)
 Base.@propagate_inbounds function Base.getindex(p::PointPos, j::Int)
     @boundscheck checkbounds(p, j)
@@ -80,9 +88,10 @@ Base.@propagate_inbounds function Base.setindex!(p::PointPos, v, j::Int)
 end
 
 # ---- indexable collection of all point positions ----
-struct PointPositions{S} <: AbstractVector{PointPos{S}}
+struct PointPositions{S, T} <: AbstractVector{PointPos{S, T}}
     ss::S
 end
+PointPositions(ss::S) where {S} = PointPositions{S, eltype(getfield(ss, :X))}(ss)
 Base.size(p::PointPositions) = (length(getfield(p.ss, :X)),)
 Base.@propagate_inbounds function Base.getindex(p::PointPositions, i::Int)
     @boundscheck checkbounds(p, i)
@@ -100,14 +109,16 @@ end
 # as lazy per-timestep columns so e.g. `syslog.orient[k]` keeps working. ----
 
 # Time series of frame `k`'s quaternion: `column[t]` = quaternion at timestep t.
-struct OrientColumn{SA} <: AbstractVector{SVector{4, Float32}}
+struct OrientColumn{SA, T} <: AbstractVector{SVector{4, T}}
     sa::SA
     k::Int
 end
+OrientColumn(sa::SA, k::Int) where {SA} =
+    OrientColumn{SA, eltype(eltype(StructArrays.component(sa, :Qw)))}(sa, k)
 Base.size(c::OrientColumn) = (length(StructArrays.component(c.sa, :Qw)),)
-Base.@propagate_inbounds function Base.getindex(c::OrientColumn, t::Int)
+Base.@propagate_inbounds function Base.getindex(c::OrientColumn{SA, T}, t::Int) where {SA, T}
     @boundscheck checkbounds(c, t)
-    @inbounds SVector{4, Float32}(
+    @inbounds SVector{4, T}(
         StructArrays.component(c.sa, :Qw)[t][c.k],
         StructArrays.component(c.sa, :Qx)[t][c.k],
         StructArrays.component(c.sa, :Qy)[t][c.k],
@@ -115,9 +126,11 @@ Base.@propagate_inbounds function Base.getindex(c::OrientColumn, t::Int)
 end
 
 # `syslog.orients[k]` -> the OrientColumn time series of frame k.
-struct OrientColumns{SA} <: AbstractVector{OrientColumn{SA}}
+struct OrientColumns{SA, T} <: AbstractVector{OrientColumn{SA, T}}
     sa::SA
 end
+OrientColumns(sa::SA) where {SA} =
+    OrientColumns{SA, eltype(eltype(StructArrays.component(sa, :Qw)))}(sa)
 Base.size(c::OrientColumns) =
     (isempty(StructArrays.component(c.sa, :Qw)) ? 0 :
      length(StructArrays.component(c.sa, :Qw)[1]),)
@@ -127,23 +140,27 @@ Base.@propagate_inbounds function Base.getindex(c::OrientColumns, k::Int)
 end
 
 # Time series of point `i`'s position: `column[t]` = position at timestep t.
-struct PosColumn{SA} <: AbstractVector{SVector{3, MyFloat}}
+struct PosColumn{SA, T} <: AbstractVector{SVector{3, T}}
     sa::SA
     i::Int
 end
+PosColumn(sa::SA, i::Int) where {SA} =
+    PosColumn{SA, eltype(eltype(StructArrays.component(sa, :X)))}(sa, i)
 Base.size(c::PosColumn) = (length(StructArrays.component(c.sa, :X)),)
-Base.@propagate_inbounds function Base.getindex(c::PosColumn, t::Int)
+Base.@propagate_inbounds function Base.getindex(c::PosColumn{SA, T}, t::Int) where {SA, T}
     @boundscheck checkbounds(c, t)
-    @inbounds SVector{3, MyFloat}(
+    @inbounds SVector{3, T}(
         StructArrays.component(c.sa, :X)[t][c.i],
         StructArrays.component(c.sa, :Y)[t][c.i],
         StructArrays.component(c.sa, :Z)[t][c.i])
 end
 
 # `syslog.pos[i]` -> the PosColumn time series of point i.
-struct PosColumns{SA} <: AbstractVector{PosColumn{SA}}
+struct PosColumns{SA, T} <: AbstractVector{PosColumn{SA, T}}
     sa::SA
 end
+PosColumns(sa::SA) where {SA} =
+    PosColumns{SA, eltype(eltype(StructArrays.component(sa, :X)))}(sa)
 Base.size(c::PosColumns) =
     (isempty(StructArrays.component(c.sa, :X)) ? 0 :
      length(StructArrays.component(c.sa, :X)[1]),)

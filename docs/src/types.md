@@ -19,7 +19,7 @@ AbstractKiteModel
 ## Log files and internal state representation
 ```@docs
 MyFloat
-SysState{P}
+SysState
 SysLog{P}
 Logger
 ```

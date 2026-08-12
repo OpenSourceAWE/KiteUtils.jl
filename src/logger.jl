@@ -2,14 +2,22 @@
 # SPDX-License-Identifier: MIT
 
 include("_logger.jl")
-function Logger(P, steps)
-    Logger{P, 1, 0, steps}()
-end
-function Logger(P, O, steps)
-    Logger{P, O, 0, steps}()
-end
-function Logger(P, O, D, steps)
-    Logger{P, O, D, steps}()
+
+"""
+    Logger(P, steps; orients=1, deflections=0, pulleys=0, winches=1,
+           tethers=winches, precision=MyFloat)
+
+Pre-allocate a log of `P` points for `steps` time steps. The remaining counts
+are keywords so that adding a dimension does not add another positional method:
+`orients` oriented frames, `deflections` twist surfaces, `pulleys` pulleys,
+`winches` winches and `tethers` tethers. `tethers` defaults to `winches`, which
+is right whenever each winch drives one tether. Pass `precision=Float64` to log
+a differential state that round-trips `integrator.u` exactly.
+"""
+function Logger(P, steps; orients=1, deflections=0, pulleys=0, winches=1,
+                tethers=winches, precision=MyFloat)
+    Logger{P, orients, deflections, pulleys, winches, tethers, precision,
+           steps}()
 end
 
 include("_log.jl")
@@ -103,7 +111,7 @@ function import_log(filename)
 
         orient = parse_vector(row.orient)
         vel_kite = parse_vector(row.vel_kite)
-        ss = SysState{P}()
+        ss = SysState(P)
         ss.time = row.time
         ss.t_sim = row.t_sim
         ss.sys_state = row.sys_state

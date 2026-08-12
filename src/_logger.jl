@@ -6,25 +6,28 @@
 # Edit src/sysstate.yaml instead
 
 """
-    mutable struct Logger{P, O, D, Q}
+    mutable struct Logger{P, O, D, L, W, T, F, Q}
 
 Struct to store a simulation log. P is number of points of the tether, segments+1,
-O is the number of oriented frames, D is the number of aero segments (flap
-deflections), and Q is the number of time steps that will be pre-allocated.
+O is the number of oriented frames, D is the number of twist surfaces, L is the
+number of pulleys, W is the number of winches, T is the number of tethers, F is
+the float type of the logged
+columns and Q is the number of time steps that will be pre-allocated.
 
 Constructor:
-- Logger(P, steps)
-- Logger(P, O, steps)
-- Logger(P, O, D, steps)
+- Logger(P, steps; orients, deflections, pulleys, winches, tethers, precision)
 
 Fields:
 
 $(TYPEDFIELDS)
 """
-@with_kw mutable struct Logger{P, O, D, Q}
+@with_kw mutable struct Logger{P, O, D, L, W, T, F, Q}
     points::Int64 = P
     orients::Int64 = O
     deflections::Int64 = D
+    pulleys::Int64 = L
+    winches::Int64 = W
+    tethers::Int64 = T
     index::Int64 = 1
     time_vec::Vector{Float64} = zeros(Float64, Q)
     t_sim_vec::Vector{Float64} = zeros(Float64, Q)
@@ -32,67 +35,76 @@ $(TYPEDFIELDS)
     cycle_vec::Vector{Int16} = zeros(Int16, Q)
     fig_8_vec::Vector{Int16} = zeros(Int16, Q)
     e_mech_vec::Vector{Float64} = zeros(Float64, Q)
-    Qw_vec::Vector{MVector{O, Float32}} = [zero(MVector{O, Float32}) for _ in 1:Q]
-    Qx_vec::Vector{MVector{O, Float32}} = [zero(MVector{O, Float32}) for _ in 1:Q]
-    Qy_vec::Vector{MVector{O, Float32}} = [zero(MVector{O, Float32}) for _ in 1:Q]
-    Qz_vec::Vector{MVector{O, Float32}} = [zero(MVector{O, Float32}) for _ in 1:Q]
-    turn_rates_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
-    elevation_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    azimuth_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    azimuth_rate_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    l_tether_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
-    v_reelout_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
-    winch_force_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
-    depower_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    steering_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    kcu_steering_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    set_steering_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    heading_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    heading_rate_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    course_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    bearing_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    attractor_vec::Vector{MVector{2, MyFloat}} = [zero(MVector{2, MyFloat}) for _ in 1:Q]
-    v_app_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    v_wind_gnd_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
-    v_wind_200m_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
-    v_wind_kite_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
-    AoA_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    side_slip_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    alpha3_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    alpha4_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    CL2_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    CD2_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    aero_force_b_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
-    aero_moment_b_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
-    tether_induced_force_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
-    tether_induced_moment_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
-    twist_angles_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
-    vel_kite_vec::Vector{MVector{3, MyFloat}} = [zero(MVector{3, MyFloat}) for _ in 1:Q]
-    acc_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    X_vec::Vector{MVector{P, MyFloat}} = [zero(MVector{P, MyFloat}) for _ in 1:Q]
-    Y_vec::Vector{MVector{P, MyFloat}} = [zero(MVector{P, MyFloat}) for _ in 1:Q]
-    Z_vec::Vector{MVector{P, MyFloat}} = [zero(MVector{P, MyFloat}) for _ in 1:Q]
-    flap_angle_vec::Vector{MVector{D, MyFloat}} = [zero(MVector{D, MyFloat}) for _ in 1:Q]
-    set_torque_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
-    set_speed_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
-    set_force_vec::Vector{MVector{4, MyFloat}} = [zero(MVector{4, MyFloat}) for _ in 1:Q]
-    roll_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    pitch_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    yaw_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_01_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_02_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_03_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_04_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_05_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_06_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_07_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_08_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_09_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_10_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_11_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_12_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_13_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_14_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_15_vec::Vector{MyFloat} = zeros(MyFloat, Q)
-    var_16_vec::Vector{MyFloat} = zeros(MyFloat, Q)
+    Qw_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
+    Qx_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
+    Qy_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
+    Qz_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
+    turn_rates_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
+    elevation_vec::Vector{F} = zeros(F, Q)
+    azimuth_vec::Vector{F} = zeros(F, Q)
+    azimuth_rate_vec::Vector{F} = zeros(F, Q)
+    l_tether_vec::Vector{MVector{T, F}} = [zero(MVector{T, F}) for _ in 1:Q]
+    v_reelout_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
+    winch_force_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
+    depower_vec::Vector{F} = zeros(F, Q)
+    steering_vec::Vector{F} = zeros(F, Q)
+    kcu_steering_vec::Vector{F} = zeros(F, Q)
+    set_steering_vec::Vector{F} = zeros(F, Q)
+    heading_vec::Vector{F} = zeros(F, Q)
+    heading_rate_vec::Vector{F} = zeros(F, Q)
+    course_vec::Vector{F} = zeros(F, Q)
+    bearing_vec::Vector{F} = zeros(F, Q)
+    attractor_vec::Vector{MVector{2, F}} = [zero(MVector{2, F}) for _ in 1:Q]
+    v_app_vec::Vector{F} = zeros(F, Q)
+    v_wind_gnd_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
+    v_wind_200m_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
+    v_wind_kite_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
+    AoA_vec::Vector{F} = zeros(F, Q)
+    side_slip_vec::Vector{F} = zeros(F, Q)
+    alpha3_vec::Vector{F} = zeros(F, Q)
+    alpha4_vec::Vector{F} = zeros(F, Q)
+    CL2_vec::Vector{F} = zeros(F, Q)
+    CD2_vec::Vector{F} = zeros(F, Q)
+    aero_force_b_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
+    aero_moment_b_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
+    tether_induced_force_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
+    tether_induced_moment_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
+    twist_angles_vec::Vector{MVector{D, F}} = [zero(MVector{D, F}) for _ in 1:Q]
+    vel_kite_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
+    acc_vec::Vector{F} = zeros(F, Q)
+    X_vec::Vector{MVector{P, F}} = [zero(MVector{P, F}) for _ in 1:Q]
+    Y_vec::Vector{MVector{P, F}} = [zero(MVector{P, F}) for _ in 1:Q]
+    Z_vec::Vector{MVector{P, F}} = [zero(MVector{P, F}) for _ in 1:Q]
+    flap_angle_vec::Vector{MVector{D, F}} = [zero(MVector{D, F}) for _ in 1:Q]
+    VX_vec::Vector{MVector{P, F}} = [zero(MVector{P, F}) for _ in 1:Q]
+    VY_vec::Vector{MVector{P, F}} = [zero(MVector{P, F}) for _ in 1:Q]
+    VZ_vec::Vector{MVector{P, F}} = [zero(MVector{P, F}) for _ in 1:Q]
+    turn_rate_x_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
+    turn_rate_y_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
+    turn_rate_z_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
+    twist_vel_vec::Vector{MVector{D, F}} = [zero(MVector{D, F}) for _ in 1:Q]
+    pulley_len_vec::Vector{MVector{L, F}} = [zero(MVector{L, F}) for _ in 1:Q]
+    pulley_vel_vec::Vector{MVector{L, F}} = [zero(MVector{L, F}) for _ in 1:Q]
+    set_torque_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
+    set_speed_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
+    set_force_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
+    roll_vec::Vector{F} = zeros(F, Q)
+    pitch_vec::Vector{F} = zeros(F, Q)
+    yaw_vec::Vector{F} = zeros(F, Q)
+    var_01_vec::Vector{F} = zeros(F, Q)
+    var_02_vec::Vector{F} = zeros(F, Q)
+    var_03_vec::Vector{F} = zeros(F, Q)
+    var_04_vec::Vector{F} = zeros(F, Q)
+    var_05_vec::Vector{F} = zeros(F, Q)
+    var_06_vec::Vector{F} = zeros(F, Q)
+    var_07_vec::Vector{F} = zeros(F, Q)
+    var_08_vec::Vector{F} = zeros(F, Q)
+    var_09_vec::Vector{F} = zeros(F, Q)
+    var_10_vec::Vector{F} = zeros(F, Q)
+    var_11_vec::Vector{F} = zeros(F, Q)
+    var_12_vec::Vector{F} = zeros(F, Q)
+    var_13_vec::Vector{F} = zeros(F, Q)
+    var_14_vec::Vector{F} = zeros(F, Q)
+    var_15_vec::Vector{F} = zeros(F, Q)
+    var_16_vec::Vector{F} = zeros(F, Q)
 end

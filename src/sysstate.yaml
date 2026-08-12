@@ -5,17 +5,17 @@ sysstate:
     cycle:     "Int16"                  # cycle number
     fig_8:     "Int16"                  # number of the figure of eight of the current cycle
     e_mech: "Float64"                   # mechanical energy [Wh]
-    Qw: "MVector{O, Float32}"           # quaternion w-component, one per oriented frame (frame 1 = kite)
-    Qx: "MVector{O, Float32}"           # quaternion x-component, one per oriented frame
-    Qy: "MVector{O, Float32}"           # quaternion y-component, one per oriented frame
-    Qz: "MVector{O, Float32}"           # quaternion z-component, one per oriented frame
+    Qw: "MVector{O, MyFloat}"           # quaternion w-component, one per oriented frame (frame 1 = kite)
+    Qx: "MVector{O, MyFloat}"           # quaternion x-component, one per oriented frame
+    Qy: "MVector{O, MyFloat}"           # quaternion y-component, one per oriented frame
+    Qz: "MVector{O, MyFloat}"           # quaternion z-component, one per oriented frame
     turn_rates: "MVector{3, MyFloat}"   # turn rates around the body fixed x, y and z axis [rad/s]
     elevation: "MyFloat"                # elevation angle [rad]
     azimuth: "MyFloat"                  # azimuth angle in wind reference frame [rad]
     azimuth_rate: "MyFloat"             # azimuth rate [rad/s]
-    l_tether: "MVector{4, MyFloat}"     # tether length, tether 1 to 4 [m]
-    v_reelout: "MVector{4, MyFloat}"    # reelout speed, tether 1 to 4 [m/s]
-    winch_force: "MVector{4, MyFloat}"  # tether force at the winch, tether 1 to 4 [N]
+    l_tether: "MVector{T, MyFloat}"     # tether length, one per tether [m]
+    v_reelout: "MVector{W, MyFloat}"    # reelout speed, one per winch [m/s]
+    winch_force: "MVector{W, MyFloat}"  # tether force at the winch, one per winch [N]
     depower: "MyFloat"                  # depower settings [0..1]
     steering: "MyFloat"                 # actual steering [-1..1]
     kcu_steering: "MyFloat"             # steering after the kcu, before applying offset and depower scaling [-1..1]
@@ -40,16 +40,25 @@ sysstate:
     aero_moment_b: "MVector{3, MyFloat}" # aerodynamic moment in KB reference frame [Nm]
     tether_induced_force: "MVector{3, MyFloat}"  # net tether force vector acting on kite [N]
     tether_induced_moment: "MVector{3, MyFloat}" # net tether moment acting on kite [Nm]
-    twist_angles: "MVector{4, MyFloat}" # twist angles for the 4 segment groups [rad]
+    twist_angles: "MVector{D, MyFloat}" # twist angle, one per twist_surface [rad]
     vel_kite: "MVector{3, MyFloat}"     # velocity vector of the kite [m/s]
     acc: "MyFloat"                      # acceleration [m/s²]
     X: "MVector{P, MyFloat}"            # vector of particle positions in x [m]
     Y: "MVector{P, MyFloat}"            # vector of particle positions in y [m]
     Z: "MVector{P, MyFloat}"            # vector of particle positions in z [m]
     flap_angle: "MVector{D, MyFloat}"   # flap deflection per aero segment, one per twist_surface [rad]
-    set_torque: "MVector{4, MyFloat}"   # torque setting, winch 1..4       [Nm]
-    set_speed: "MVector{4, MyFloat}"    # speed setting, winch 1..4       [m/s]
-    set_force: "MVector{4, MyFloat}"    # force setting, winch 1..4         [N]
+    VX: "MVector{P, MyFloat}"           # vector of particle velocities in x [m/s]
+    VY: "MVector{P, MyFloat}"           # vector of particle velocities in y [m/s]
+    VZ: "MVector{P, MyFloat}"           # vector of particle velocities in z [m/s]
+    turn_rate_x: "MVector{O, MyFloat}"  # body-frame turn rate around x, one per oriented frame [rad/s]
+    turn_rate_y: "MVector{O, MyFloat}"  # body-frame turn rate around y, one per oriented frame [rad/s]
+    turn_rate_z: "MVector{O, MyFloat}"  # body-frame turn rate around z, one per oriented frame [rad/s]
+    twist_vel: "MVector{D, MyFloat}"    # twist rate, one per twist_surface [rad/s]
+    pulley_len: "MVector{L, MyFloat}"   # length of the first leg of each pulley [m]
+    pulley_vel: "MVector{L, MyFloat}"   # rate of change of pulley_len [m/s]
+    set_torque: "MVector{W, MyFloat}"   # torque setting, one per winch [Nm]
+    set_speed: "MVector{W, MyFloat}"    # speed setting, one per winch [m/s]
+    set_force: "MVector{W, MyFloat}"    # force setting, one per winch [N]
     roll: "MyFloat"                     # roll angle [rad]
     pitch: "MyFloat"                    # pitch angle [rad]
     yaw: "MyFloat"                      # yaw angle [rad]

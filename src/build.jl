@@ -16,20 +16,49 @@ COMMENT="""
 # Edit src/sysstate.yaml instead
 
 """
+"""Type of a `sysstate.yaml` field in the generated struct, with `MyFloat` as `F`."""
+generic_type(spec) = replace(spec, "MyFloat" => "F")
+
+"""Type of a `sysstate.yaml` field with `MyFloat` resolved to the package default."""
+concrete_type(spec) = spec
+
+"""Length parameter of an `MVector` field spec, or `nothing` for a scalar."""
+function vector_length(spec)
+    matched = match(r"^MVector\{(\w+), ", spec)
+    isnothing(matched) ? nothing : matched.captures[1]
+end
+
+"""Default initialiser for a field, as written into the generated struct."""
+function field_default(key, spec, eltype_name)
+    len = vector_length(spec)
+    isnothing(len) && return "= 0"
+    # Qw defaults to ones so the default frame is the identity quaternion.
+    key == "Qw" && return "= ones(" * eltype_name * ", " * len * ")"
+    return "= zeros(" * eltype_name * ", " * len * ")"
+end
+
 HEADER = """
 \"\"\"
-    SysState{P, O, D}
+    SysState{P, O, D, L, W, T, F}
 
 Basic system state. One of these is saved per time step. P is the number
 of tether particles, O is the number of oriented frames (kite + extra
-wings/rigid bodies), and D is the number of aero segments (one flap
-deflection `flap_angle` per twist_surface). The quaternion components
-`Qw/Qx/Qy/Qz` each hold O values; frame 1 is the kite, aliased by the
-`orient` property.
+wings/rigid bodies), D is the number of twist surfaces, L is the number
+of pulleys, W is the number of winches, T the number of tethers and F the float
+type of every non-integer field. No field is a fixed length: a model
+with five winches or ten twist surfaces logs all of them. The quaternion
+components `Qw/Qx/Qy/Qz` each hold O values; frame 1 is the kite,
+aliased by the `orient` property.
+
+Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
+`twist_angles`, `twist_vel`, `pulley_len`, `pulley_vel`, `l_tether` and
+`v_reelout` hold a complete differential state, so a single row can be
+used to restart a simulation. `flap_angle` is a derived deflection, not
+part of that state.
 
 \$(TYPEDFIELDS)
 \"\"\"
-@with_kw_noshow mutable struct SysState{P, O, D}"""
+@with_kw_noshow mutable struct SysState{P, O, D, L, W, T, F}"""
 FOOTER = "end"
 inputfile = joinpath("src", "sysstate.yaml")
 outputfile = joinpath("src", "_sysstate.jl")
@@ -50,25 +79,9 @@ open(outputfile,"w") do io
     for key in keys(sysstate)
         comment = get_comment(lines, key)
         println(io, "    " * comment)
-        default = "= 0"
-        if sysstate[key] == "MVector{4, Float32}"
-            default = "= [1.0, 0.0, 0.0, 0.0]"
-        elseif sysstate[key] == "MVector{4, MyFloat}"
-            default = "= [0.0, 0.0, 0.0, 0.0]"
-        elseif sysstate[key] == "MVector{3, MyFloat}"
-            default = "= [0.0, 0.0, 0.0]"
-        elseif sysstate[key] == "MVector{2, MyFloat}"
-            default = "= [0.0, 0.0]"
-        elseif sysstate[key] == "MVector{P, MyFloat}"
-            default = "= zeros(P)"
-        elseif sysstate[key] == "MVector{D, MyFloat}"
-            default = "= zeros(D)"
-        elseif sysstate[key] == "MVector{O, Float32}"
-            # Qw defaults to ones so the default frame is the identity
-            # quaternion [1,0,0,0]; the other components default to zero.
-            default = key == "Qw" ? "= ones(Float32, O)" : "= zeros(Float32, O)"
-        end
-        println(io, "    " * key * "::" * sysstate[key] * " " * default)
+        spec = generic_type(sysstate[key])
+        println(io, "    " * key * "::" * spec * " " *
+            field_default(key, sysstate[key], "F"))
     end
     println(io, FOOTER)
 end
@@ -81,7 +94,7 @@ open(outputfile2,"w") do io
             # Show the legacy single `orient` (frame 1); hide the raw components.
             description = rpad("orient [-]:", 19, " ")
             println(io, "    println(io, \"" * description *
-                "\", MVector{4, Float32}(st.orient))")
+                "\", MVector{4}(st.orient))")
         elseif key in ("Qx", "Qy", "Qz")
             continue  # merged into the orient line above
         else
@@ -94,13 +107,14 @@ open(outputfile2,"w") do io
 end
 HEADER = """
 \"\"\"
-    demo_syslog(P, O=1, D=0; duration=10)
+    demo_syslog(P, O=1, D=0, L=0, W=1, T=W; duration=10)
 
 Create a demo flight log  with given duration [s] as StructArray. P is the number of tether
 particles, O the number of oriented frames (demo data fills only frame 1), D the
-number of aero segments (demo data has no flaps, so D=0).
+number of aero segments (demo data has no flaps, so D=0) and L the number of
+pulleys (demo data has none, so L=0).
 \"\"\"
-function demo_syslog(P, O=1, D=0; duration=10)
+function demo_syslog(P, O=1, D=0, L=0, W=1, T=W; duration=10)
     max_height = 6.03
     steps   = Int(duration * se().sample_freq) + 1
 """
@@ -117,7 +131,7 @@ open(outputfile3,"w") do io
         println(io, "        " * key * "_vec[i+1] = state." * key)
     end
     println(io, "    end")
-    print(io, "    StructArray{SysState{P, O, D}}((")
+    print(io, "    StructArray{SysState{P, O, D, L, W, T, MyFloat}}((")
     for (i, key) in pairs(collect(keys(sysstate)))
         if i == length(keys(sysstate))
             print(io, key * "_vec")
@@ -133,47 +147,39 @@ open(outputfile3,"w") do io
 end
 HEADER = """
 \"\"\"
-    mutable struct Logger{P, O, D, Q}
+    mutable struct Logger{P, O, D, L, W, T, F, Q}
 
 Struct to store a simulation log. P is number of points of the tether, segments+1,
-O is the number of oriented frames, D is the number of aero segments (flap
-deflections), and Q is the number of time steps that will be pre-allocated.
+O is the number of oriented frames, D is the number of twist surfaces, L is the
+number of pulleys, W is the number of winches, T is the number of tethers, F is
+the float type of the logged
+columns and Q is the number of time steps that will be pre-allocated.
 
 Constructor:
-- Logger(P, steps)
-- Logger(P, O, steps)
-- Logger(P, O, D, steps)
+- Logger(P, steps; orients, deflections, pulleys, winches, tethers, precision)
 
 Fields:
 
 \$(TYPEDFIELDS)
 \"\"\"
-@with_kw mutable struct Logger{P, O, D, Q}
+@with_kw mutable struct Logger{P, O, D, L, W, T, F, Q}
     points::Int64 = P
     orients::Int64 = O
     deflections::Int64 = D
+    pulleys::Int64 = L
+    winches::Int64 = W
+    tethers::Int64 = T
     index::Int64 = 1
 """
 open(outputfile4,"w") do io
     print(io, COMMENT)
     print(io, HEADER)
     for key in keys(sysstate)
-        if sysstate[key] == "MVector{2, MyFloat}"
-            println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = [zero(MVector{2, MyFloat}) for _ in 1:Q]")
-        elseif sysstate[key] == "MVector{3, MyFloat}"
-            println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = [zero(MVector{3, MyFloat}) for _ in 1:Q]")
-        elseif sysstate[key] == "MVector{4, MyFloat}"
-            println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = [zero(MVector{4, MyFloat}) for _ in 1:Q]")
-        elseif sysstate[key] == "MVector{4, Float32}"
-            println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = [zero(MVector{4, Float32}) for _ in 1:Q]")
-        elseif sysstate[key] == "MVector{P, MyFloat}"
-            println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = [zero(MVector{P, MyFloat}) for _ in 1:Q]")
-        elseif sysstate[key] == "MVector{D, MyFloat}"
-            println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = [zero(MVector{D, MyFloat}) for _ in 1:Q]")
-        elseif sysstate[key] == "MVector{O, Float32}"
-            println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = [zero(MVector{O, Float32}) for _ in 1:Q]")
+        spec = generic_type(sysstate[key])
+        if isnothing(vector_length(sysstate[key]))
+            println(io, "    " * key * "_vec::Vector{" * spec * "} = zeros(" * spec * ", Q)")
         else
-            println(io, "    " * key * "_vec::Vector{" * sysstate[key] * "} = zeros(" * sysstate[key] * ", Q)")
+            println(io, "    " * key * "_vec::Vector{" * spec * "} = [zero(" * spec * ") for _ in 1:Q]")
         end
     end
     println(io, "end")
@@ -206,9 +212,9 @@ open(outputfile5,"w") do io
     println(io, "end")
 end
 HEADER = """
-function syslog(logger::Logger)
+function syslog(logger::Logger{P, O, D, L, W, T, F, Q}) where {P, O, D, L, W, T, F, Q}
     l = logger
-    StructArray{SysState{l.points, l.orients, l.deflections}}(("""
+    StructArray{SysState{P, O, D, L, W, T, F}}(("""
 open(outputfile6,"w") do io
     print(io, COMMENT)
     print(io, HEADER)
@@ -306,6 +312,8 @@ function load_log(filename::String; path="")
     P =  length(table.Z[1])
     O =  length(table.Qw[1])
     D =  haskey(table, :flap_angle) ? length(table.flap_angle[1]) : 0
+    L =  haskey(table, :pulley_len) ? length(table.pulley_len[1]) : 0
+    T =  eltype(table.Z[1])
     colmeta = Dict(:var_01=>Arrow.getmetadata(table.var_01)["name"],
                    :var_02=>Arrow.getmetadata(table.var_02)["name"],
                    :var_03=>Arrow.getmetadata(table.var_03)["name"],
@@ -324,7 +332,7 @@ function load_log(filename::String; path="")
                    :var_16=>Arrow.getmetadata(table.var_16)["name"],
     )
     # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
-    syslog = StructArray{SysState{P, O, D}}(("""
+    syslog = StructArray{SysState{P, O, D, L, W, T, F}}(("""
 open(outputfile8,"w") do io
     print(io, COMMENT)
     print(io, HEADER)
