@@ -1,6 +1,6 @@
 # Changelog
 
-## KiteUtils v0.12.0 12-08-2026
+## KiteUtils unreleased
 ### Breaking
 - `Logger` takes one positional count and keywords for the rest:
   `Logger(P, steps; orients, deflections, pulleys, winches, tethers, precision)`.
