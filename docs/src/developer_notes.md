@@ -77,8 +77,6 @@ See: [Kaimon.jl](https://github.com/kahliburke/Kaimon.jl)
 
 It is suggested to start **kaimon** before starting VSCode and keep it open in a terminal window.
 
-The `bin/run_julia` script will use it automatically if started.
-
 Sometimes you need to tell the agent manually: "Please, use kaimon!".
 
 ### Installation of Kaimon

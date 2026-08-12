@@ -32,6 +32,35 @@
 - `SysState{P}` through `SysState{P, O, D, L, W}` construct with the remaining
   parameters defaulted, so existing call sites keep working
 
+## KiteUtils v0.11.13 07-08-2026
+### Added
+- `update_yaml_scalar` and `insert_yaml_scalar_in_section`, the comment-preserving
+  yaml write helpers that were duplicated in `KiteModels.jl` and `V3Kite`. Unlike
+  `change_value` they report whether the key was found, and can add a missing key
+  to a section (or the section itself)
+
+## KiteUtils v0.11.12 07-08-2026
+### Added
+- `heights`/`speeds` fields on the `environment` section of `Settings`, feeding
+  the upcoming `CUSTOM_LOG`/`CUSTOM_EXP`/`CUSTOM_JET` wind profile laws
+### Changed
+- `profile_law` comments (in `settings.jl` and the shipped `data/*.yaml` files)
+  now list all six profile laws instead of the stale four
+### Fixed
+- loading a settings file with a `profile_law` outside `0..6` now raises an
+  `ArgumentError` instead of being silently accepted; fixed a related bug
+  where a rejected load still left the global `PROJECT` marker pointing at
+  the bad file, breaking the next `se()`/`update_settings()` call
+
+## KiteUtils v0.11.11 04-08-2026
+### Changed
+- `bin/run_julia` no longer detects a running `Kaimon.jl` gate and no longer
+  starts one; start kaimon yourself before launching the REPL
+### Fixed
+- `log_file` in the settings may be a bare filename again: parsing it threw a
+  `BoundsError` unless it contained exactly one `/`, and silently truncated
+  anything deeper (`out/logs/run` became `out/logs`)
+
 ## KiteUtils v0.11.10 03-08-2026
 ### Added
 - add a `flap_angle` field to `SysState` (and `Logger`), one flap deflection δ
