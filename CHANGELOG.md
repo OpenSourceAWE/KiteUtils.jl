@@ -1,5 +1,12 @@
 # Changelog
 
+## KiteUtils v0.12.1 14-08-2026
+### Changed
+- widen the `Parameters` compat bound to `"0.12.3, 0.13"`; the only macros used
+  (`@with_kw`, `@with_kw_noshow`, `@deftype`, on `Settings`, `Logger` and
+  `SysState`) are unaffected between 0.12.3 and 0.13.1, verified by running the
+  full test suite (1100+ tests) against 0.13.1
+
 ## KiteUtils v0.12.0 12-08-2026
 ### Breaking
 - `Logger` takes one positional count and keywords for the rest:

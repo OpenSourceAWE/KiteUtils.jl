@@ -1,7 +1,7 @@
 name = "KiteUtils"
 uuid = "90980105-b163-44e5-ba9f-8b1c83bb0533"
 authors = ["Uwe Fechner <uwe.fechner.msc@gmail.com> and contributors"]
-version = "0.12.0"
+version = "0.12.1"
 
 [workspace]
 projects = ["examples", "test", "docs"]
@@ -30,7 +30,7 @@ CSV = "0.10.14"
 DocStringExtensions = "0.9.3"
 LinearAlgebra = "1"
 OrderedCollections = "1.6.3"
-Parameters = "0.12.3"
+Parameters = "0.12.3, 0.13"
 Parsers = "2.8.1"
 Pkg = "1"
 PrecompileTools = "1.2.1"
