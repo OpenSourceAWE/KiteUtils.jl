@@ -128,17 +128,17 @@ $(TYPEDFIELDS)
     "vector of particle velocities in z [m/s]"
     VZ::MVector{P, F} = zeros(F, P)
     "aerodynamic force on each point in x, world frame [N]"
-    aero_force_X::MVector{P, F} = zeros(F, P)
+    aero_force_x::MVector{P, F} = zeros(F, P)
     "aerodynamic force on each point in y, world frame [N]"
-    aero_force_Y::MVector{P, F} = zeros(F, P)
+    aero_force_y::MVector{P, F} = zeros(F, P)
     "aerodynamic force on each point in z, world frame [N]"
-    aero_force_Z::MVector{P, F} = zeros(F, P)
+    aero_force_z::MVector{P, F} = zeros(F, P)
     "drag force on each point in x, world frame [N]"
-    drag_force_X::MVector{P, F} = zeros(F, P)
+    drag_force_x::MVector{P, F} = zeros(F, P)
     "drag force on each point in y, world frame [N]"
-    drag_force_Y::MVector{P, F} = zeros(F, P)
+    drag_force_y::MVector{P, F} = zeros(F, P)
     "drag force on each point in z, world frame [N]"
-    drag_force_Z::MVector{P, F} = zeros(F, P)
+    drag_force_z::MVector{P, F} = zeros(F, P)
     "spring force, one per segment [N]"
     spring_force::MVector{S, F} = zeros(F, S)
     "body-frame turn rate around x, one per oriented frame [rad/s]"
