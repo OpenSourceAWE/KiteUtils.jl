@@ -6,26 +6,27 @@
 # Edit src/sysstate.yaml instead
 
 """
-    SysState{P, O, D, L, W, T, F}
+    SysState{P, O, D, L, W, T, S, F}
 
 Basic system state. One of these is saved per time step. P is the number
 of tether particles, O is the number of oriented frames (kite + extra
 wings/rigid bodies), D is the number of twist surfaces, L is the number
-of pulleys, W is the number of winches, T the number of tethers and F the float
-type of every non-integer field. No field is a fixed length: a model
-with five winches or ten twist surfaces logs all of them. The quaternion
-components `Qw/Qx/Qy/Qz` each hold O values; frame 1 is the kite,
+of pulleys, W is the number of winches, T the number of tethers, S the number of
+segments and F the float type of every non-integer field. No field is a fixed
+length: a model with five winches or ten twist surfaces logs all of them. The
+quaternion components `Qw/Qx/Qy/Qz` each hold O values; frame 1 is the kite,
 aliased by the `orient` property.
 
 Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `twist_angles`, `twist_vel`, `pulley_len`, `pulley_vel`, `l_tether` and
 `v_reelout` hold a complete differential state, so a single row can be
 used to restart a simulation. `flap_angle` is a derived deflection, not
-part of that state.
+part of that state, and neither are the `aero_force_*`, `drag_force_*` and
+`spring_force` loads, which are logged for inspection.
 
 $(TYPEDFIELDS)
 """
-@with_kw_noshow mutable struct SysState{P, O, D, L, W, T, F}
+@with_kw_noshow mutable struct SysState{P, O, D, L, W, T, S, F}
     "time since start of simulation [s]"
     time::Float64 = 0
     "time needed for one simulation timestep [s]"
@@ -126,6 +127,20 @@ $(TYPEDFIELDS)
     VY::MVector{P, F} = zeros(F, P)
     "vector of particle velocities in z [m/s]"
     VZ::MVector{P, F} = zeros(F, P)
+    "aerodynamic force on each point in x, world frame [N]"
+    aero_force_X::MVector{P, F} = zeros(F, P)
+    "aerodynamic force on each point in y, world frame [N]"
+    aero_force_Y::MVector{P, F} = zeros(F, P)
+    "aerodynamic force on each point in z, world frame [N]"
+    aero_force_Z::MVector{P, F} = zeros(F, P)
+    "drag force on each point in x, world frame [N]"
+    drag_force_X::MVector{P, F} = zeros(F, P)
+    "drag force on each point in y, world frame [N]"
+    drag_force_Y::MVector{P, F} = zeros(F, P)
+    "drag force on each point in z, world frame [N]"
+    drag_force_Z::MVector{P, F} = zeros(F, P)
+    "spring force, one per segment [N]"
+    spring_force::MVector{S, F} = zeros(F, S)
     "body-frame turn rate around x, one per oriented frame [rad/s]"
     turn_rate_x::MVector{O, F} = zeros(F, O)
     "body-frame turn rate around y, one per oriented frame [rad/s]"

@@ -8,18 +8,18 @@
 
 """
     SysState(P; orients=1, deflections=0, pulleys=0, winches=1,
-             tethers=winches, precision=MyFloat)
+             tethers=winches, segments=0, precision=MyFloat)
 
 Construct a `SysState` of `P` points. The remaining counts are keywords so that
 adding a dimension does not add another positional method: `orients` oriented
-frames, `deflections` twist surfaces, `pulleys` pulleys, `winches` winches and
-`tethers` tethers. `tethers` defaults to `winches`, which is right whenever each
-winch drives one tether. Pass `precision=Float64` for a differential state that
-round-trips `integrator.u` exactly.
+frames, `deflections` twist surfaces, `pulleys` pulleys, `winches` winches,
+`tethers` tethers and `segments` segments. `tethers` defaults to `winches`, which
+is right whenever each winch drives one tether. Pass `precision=Float64` for a
+differential state that round-trips `integrator.u` exactly.
 """
 function SysState(P::Integer; orients=1, deflections=0, pulleys=0, winches=1,
-                  tethers=winches, precision=MyFloat)
-    SysState{P, orients, deflections, pulleys, winches, tethers,
+                  tethers=winches, segments=0, precision=MyFloat)
+    SysState{P, orients, deflections, pulleys, winches, tethers, segments,
              precision}()
 end
 

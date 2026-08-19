@@ -1,5 +1,20 @@
 # Changelog
 
+## KiteUtils v0.12.1 - unreleased
+### Added
+- the loads a step produces, so a log can be replayed with force vectors drawn:
+  `aero_force_X`/`aero_force_Y`/`aero_force_Z` and
+  `drag_force_X`/`drag_force_Y`/`drag_force_Z`, one entry per point, and
+  `spring_force`, one per segment.
+- type parameter `S` (segments), with `segments` a keyword of both constructors:
+  `SysState(P; ..., segments)` and `Logger(P, steps; ..., segments)`.
+### Changed
+- `SysState` is now `SysState{P, O, D, L, W, T, S, F}` and `Logger` is
+  `Logger{P, O, D, L, W, T, S, F, Q}`; both constructors take the count as the
+  `segments` keyword, so nothing that builds them the documented way changes.
+- `load_log` reads the new columns when a log carries them and zero-fills them
+  when it does not, so logs written before this release still load.
+
 ## KiteUtils v0.12.0 12-08-2026
 ### Breaking
 - `Logger` takes one positional count and keywords for the rest:

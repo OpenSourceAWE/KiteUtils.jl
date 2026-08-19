@@ -66,6 +66,13 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W; duration=10)
     VX_vec = Vector{MVector{P, MyFloat}}(undef, steps)
     VY_vec = Vector{MVector{P, MyFloat}}(undef, steps)
     VZ_vec = Vector{MVector{P, MyFloat}}(undef, steps)
+    aero_force_X_vec = Vector{MVector{P, MyFloat}}(undef, steps)
+    aero_force_Y_vec = Vector{MVector{P, MyFloat}}(undef, steps)
+    aero_force_Z_vec = Vector{MVector{P, MyFloat}}(undef, steps)
+    drag_force_X_vec = Vector{MVector{P, MyFloat}}(undef, steps)
+    drag_force_Y_vec = Vector{MVector{P, MyFloat}}(undef, steps)
+    drag_force_Z_vec = Vector{MVector{P, MyFloat}}(undef, steps)
+    spring_force_vec = Vector{MVector{S, MyFloat}}(undef, steps)
     turn_rate_x_vec = Vector{MVector{O, MyFloat}}(undef, steps)
     turn_rate_y_vec = Vector{MVector{O, MyFloat}}(undef, steps)
     turn_rate_z_vec = Vector{MVector{O, MyFloat}}(undef, steps)
@@ -147,6 +154,13 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W; duration=10)
         VX_vec[i+1] = state.VX
         VY_vec[i+1] = state.VY
         VZ_vec[i+1] = state.VZ
+        aero_force_X_vec[i+1] = state.aero_force_X
+        aero_force_Y_vec[i+1] = state.aero_force_Y
+        aero_force_Z_vec[i+1] = state.aero_force_Z
+        drag_force_X_vec[i+1] = state.drag_force_X
+        drag_force_Y_vec[i+1] = state.drag_force_Y
+        drag_force_Z_vec[i+1] = state.drag_force_Z
+        spring_force_vec[i+1] = state.spring_force
         turn_rate_x_vec[i+1] = state.turn_rate_x
         turn_rate_y_vec[i+1] = state.turn_rate_y
         turn_rate_z_vec[i+1] = state.turn_rate_z
@@ -184,10 +198,11 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W; duration=10)
                               AoA_vec, side_slip_vec, alpha3_vec, alpha4_vec, CL2_vec, CD2_vec, 
                               aero_force_b_vec, aero_moment_b_vec, tether_induced_force_vec, tether_induced_moment_vec, twist_angles_vec, vel_kite_vec, 
                               acc_vec, X_vec, Y_vec, Z_vec, flap_angle_vec, VX_vec, 
-                              VY_vec, VZ_vec, turn_rate_x_vec, turn_rate_y_vec, turn_rate_z_vec, twist_vel_vec, 
-                              pulley_len_vec, pulley_vel_vec, set_torque_vec, set_speed_vec, set_force_vec, roll_vec, 
-                              pitch_vec, yaw_vec, var_01_vec, var_02_vec, var_03_vec, var_04_vec, 
-                              var_05_vec, var_06_vec, var_07_vec, var_08_vec, var_09_vec, var_10_vec, 
-                              var_11_vec, var_12_vec, var_13_vec, var_14_vec, var_15_vec, var_16_vec
-                              ))
+                              VY_vec, VZ_vec, aero_force_X_vec, aero_force_Y_vec, aero_force_Z_vec, drag_force_X_vec, 
+                              drag_force_Y_vec, drag_force_Z_vec, spring_force_vec, turn_rate_x_vec, turn_rate_y_vec, turn_rate_z_vec, 
+                              twist_vel_vec, pulley_len_vec, pulley_vel_vec, set_torque_vec, set_speed_vec, set_force_vec, 
+                              roll_vec, pitch_vec, yaw_vec, var_01_vec, var_02_vec, var_03_vec, 
+                              var_04_vec, var_05_vec, var_06_vec, var_07_vec, var_08_vec, var_09_vec, 
+                              var_10_vec, var_11_vec, var_12_vec, var_13_vec, var_14_vec, var_15_vec, 
+                              var_16_vec))
 end
