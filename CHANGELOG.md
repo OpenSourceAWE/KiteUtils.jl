@@ -1,6 +1,6 @@
 # Changelog
 
-## KiteUtils v0.12.1 - unreleased
+## KiteUtils v0.12.2 - unreleased
 ### Added
 - the loads a step produces, so a log can be replayed with force vectors drawn:
   `aero_force_X`/`aero_force_Y`/`aero_force_Z` and
@@ -14,6 +14,13 @@
   `segments` keyword, so nothing that builds them the documented way changes.
 - `load_log` reads the new columns when a log carries them and zero-fills them
   when it does not, so logs written before this release still load.
+
+## KiteUtils v0.12.1 14-08-2026
+### Changed
+- widen the `Parameters` compat bound to `"0.12.3, 0.13"`; the only macros used
+  (`@with_kw`, `@with_kw_noshow`, `@deftype`, on `Settings`, `Logger` and
+  `SysState`) are unaffected between 0.12.3 and 0.13.1, verified by running the
+  full test suite (1100+ tests) against 0.13.1
 
 ## KiteUtils v0.12.0 12-08-2026
 ### Breaking

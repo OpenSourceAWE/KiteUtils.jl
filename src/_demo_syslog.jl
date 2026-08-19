@@ -6,14 +6,14 @@
 # Edit src/sysstate.yaml instead
 
 """
-    demo_syslog(P, O=1, D=0, L=0, W=1, T=W; duration=10)
+    demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0; duration=10)
 
 Create a demo flight log  with given duration [s] as StructArray. P is the number of tether
 particles, O the number of oriented frames (demo data fills only frame 1), D the
-number of aero segments (demo data has no flaps, so D=0) and L the number of
-pulleys (demo data has none, so L=0).
+number of aero segments (demo data has no flaps, so D=0), L the number of
+pulleys (demo data has none, so L=0) and S the number of segments (likewise 0).
 """
-function demo_syslog(P, O=1, D=0, L=0, W=1, T=W; duration=10)
+function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0; duration=10)
     max_height = 6.03
     steps   = Int(duration * se().sample_freq) + 1
     time_vec = Vector{Float64}(undef, steps)
@@ -190,7 +190,7 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W; duration=10)
         var_15_vec[i+1] = state.var_15
         var_16_vec[i+1] = state.var_16
     end
-    StructArray{SysState{P, O, D, L, W, T, MyFloat}}((time_vec, t_sim_vec, sys_state_vec, cycle_vec, fig_8_vec, e_mech_vec, 
+    StructArray{SysState{P, O, D, L, W, T, S, MyFloat}}((time_vec, t_sim_vec, sys_state_vec, cycle_vec, fig_8_vec, e_mech_vec, 
                               Qw_vec, Qx_vec, Qy_vec, Qz_vec, turn_rates_vec, elevation_vec, 
                               azimuth_vec, azimuth_rate_vec, l_tether_vec, v_reelout_vec, winch_force_vec, depower_vec, 
                               steering_vec, kcu_steering_vec, set_steering_vec, heading_vec, heading_rate_vec, course_vec, 
