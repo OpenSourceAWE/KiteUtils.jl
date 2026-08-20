@@ -1,6 +1,6 @@
 # Changelog
 
-## KiteUtils v0.12.2 - unreleased
+## KiteUtils v0.12.2
 ### Added
 - the loads a step produces, so a log can be replayed with force vectors drawn:
   `aero_force_x`/`aero_force_y`/`aero_force_z` and
