@@ -66,6 +66,13 @@ function log!(logger::Logger, state::SysState)
     logger.VX_vec[i] .= state.VX
     logger.VY_vec[i] .= state.VY
     logger.VZ_vec[i] .= state.VZ
+    logger.aero_force_x_vec[i] .= state.aero_force_x
+    logger.aero_force_y_vec[i] .= state.aero_force_y
+    logger.aero_force_z_vec[i] .= state.aero_force_z
+    logger.drag_force_x_vec[i] .= state.drag_force_x
+    logger.drag_force_y_vec[i] .= state.drag_force_y
+    logger.drag_force_z_vec[i] .= state.drag_force_z
+    logger.spring_force_vec[i] .= state.spring_force
     logger.turn_rate_x_vec[i] .= state.turn_rate_x
     logger.turn_rate_y_vec[i] .= state.turn_rate_y
     logger.turn_rate_z_vec[i] .= state.turn_rate_z

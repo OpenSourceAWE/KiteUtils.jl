@@ -221,7 +221,13 @@ function load_log(filename::String; path="", debug=false)
     end
     turn_rate_x, turn_rate_y, turn_rate_z =
         column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
-    syslog = StructArray{SysState{P, O, D, L, W, T, F}}((table.time, table.t_sim, table.sys_state, cycle, fig_8,
+    S = haskey(table, :spring_force) ? length(table.spring_force[1]) : 0
+    aero_force_x, aero_force_y, aero_force_z =
+        column(:aero_force_x, P), column(:aero_force_y, P), column(:aero_force_z, P)
+    drag_force_x, drag_force_y, drag_force_z =
+        column(:drag_force_x, P), column(:drag_force_y, P), column(:drag_force_z, P)
+    spring_force = column(:spring_force, S)
+    syslog = StructArray{SysState{P, O, D, L, W, T, S, F}}((table.time, table.t_sim, table.sys_state, cycle, fig_8,
                                        table.e_mech, Qw, Qx, Qy, Qz, turn_rates, table.elevation, table.azimuth,
                                        azimuth_rate, l_tether, v_reelout, winch_force, table.depower, table.steering,
                                        kcu_steering, set_steering, table.heading, heading_rate, table.course, 
@@ -231,6 +237,9 @@ function load_log(filename::String; path="", debug=false)
                                        tether_induced_moment, twist_angles, 
                                        vel_kite, acc, table.X, table.Y, table.Z,
                                        flap_angle, VX, VY, VZ,
+                                       aero_force_x, aero_force_y, aero_force_z,
+                                       drag_force_x, drag_force_y, drag_force_z,
+                                       spring_force,
                                        turn_rate_x, turn_rate_y, turn_rate_z,
                                        twist_vel, pulley_len, pulley_vel,
                                        set_torque, set_speed, set_force, roll, pitch,

@@ -5,19 +5,20 @@ include("_logger.jl")
 
 """
     Logger(P, steps; orients=1, deflections=0, pulleys=0, winches=1,
-           tethers=winches, precision=MyFloat)
+           tethers=winches, segments=0, precision=MyFloat)
 
 Pre-allocate a log of `P` points for `steps` time steps. The remaining counts
 are keywords so that adding a dimension does not add another positional method:
 `orients` oriented frames, `deflections` twist surfaces, `pulleys` pulleys,
-`winches` winches and `tethers` tethers. `tethers` defaults to `winches`, which
-is right whenever each winch drives one tether. Pass `precision=Float64` to log
-a differential state that round-trips `integrator.u` exactly.
+`winches` winches, `tethers` tethers and `segments` segments. `tethers` defaults
+to `winches`, which is right whenever each winch drives one tether. Pass
+`precision=Float64` to log a differential state that round-trips `integrator.u`
+exactly.
 """
 function Logger(P, steps; orients=1, deflections=0, pulleys=0, winches=1,
-                tethers=winches, precision=MyFloat)
-    Logger{P, orients, deflections, pulleys, winches, tethers, precision,
-           steps}()
+                tethers=winches, segments=0, precision=MyFloat)
+    Logger{P, orients, deflections, pulleys, winches, tethers, segments,
+           precision, steps}()
 end
 
 include("_log.jl")
