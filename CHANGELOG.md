@@ -4,8 +4,8 @@
 ### Added
 - the loads a step produces, so a log can be replayed with force vectors drawn:
   `aero_force_x`/`aero_force_y`/`aero_force_z` and
-  `drag_force_x`/`drag_force_y`/`drag_force_z`, one entry per point, and
-  `spring_force`, one per segment.
+  `drag_force_x`/`drag_force_y`/`drag_force_z`, one entry per point in the ENU
+  reference frame, and `spring_force`, one per segment.
 - type parameter `S` (segments), with `segments` a keyword of both constructors:
   `SysState(P; ..., segments)` and `Logger(P, steps; ..., segments)`.
 ### Changed
