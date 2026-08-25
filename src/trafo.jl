@@ -42,26 +42,19 @@ end
 
 Transform a vector (x,y,z) from KiteSensor to Earth Xsens reference frame.
 
+Sensor ingest only: everything downstream of the sensor works in `KA` and ENU.
 - orientation in Euler angles (roll, pitch, yaw)
 """
 function fromKS2EX(vector, orientation)
-    roll, pitch, yaw  = orientation[1], orientation[2], orientation[3]
-    rotateYAW = @SMatrix[cos(yaw) -sin(yaw) 0;
-                         sin(yaw)  cos(yaw) 0;
-                             0         0    1]
-    rotatePITCH = @SMatrix[cos(pitch)   0  sin(pitch);
-                             0          1        0;
-                       -sin(pitch)      0  cos(pitch)]
-    rotateROLL = @SMatrix[ 1        0         0;
-                           0   cos(roll) -sin(roll);
-                           0   sin(roll)  cos(roll)]
-    rotateYAW * rotatePITCH * rotateROLL * vector
+    euler2rot(orientation[begin], orientation[begin+1], orientation[begin+2]) * vector
 end
 
 """
     fromEX2EG(vector)
 
-Transform a vector (x,y,z) from EarthXsens to Earth Groundstation reference frame
+Transform a vector (x,y,z) from EarthXsens to Earth Groundstation reference frame.
+
+Sensor ingest only: everything downstream of the sensor works in `KA` and ENU.
 """
 function fromEX2EG(vector)
     rotateEX2EG = @SMatrix[1  0  0;
@@ -83,32 +76,28 @@ function fromEG2W(vector, down_wind_direction = pi/2.0)
 end
 
 """
-    calc_heading_w(orientation, down_wind_direction = pi/2.0)
+    calc_heading_w(attitude, down_wind_direction = pi/2.0; frame=KA)
 
-Calculate the heading vector in wind reference frame.
+Calculate the heading vector in wind reference frame. See [`kite_nose`](@ref) for
+the accepted forms of `attitude`.
 """
-function calc_heading_w(orientation, down_wind_direction = pi/2.0)
-    # create a unit heading vector in the Xsens reference frame
-    heading_sensor =  SVector(1, 0, 0)
-    # rotate headingSensor to the Earth Xsens reference frame
-    headingEX = fromKS2EX(heading_sensor, orientation)
-    # rotate headingEX to earth groundstation reference frame
-    headingEG = fromEX2EG(headingEX)
-    # rotate headingEG to headingW and convert to 2d HeadingW vector
-    fromEG2W(headingEG, down_wind_direction)
+function calc_heading_w(attitude, down_wind_direction = pi/2.0; frame::FrameConvention=KA)
+    fromEG2W(fromENU2EG(kite_nose(attitude, frame)), down_wind_direction)
 end
 
 """
-    calc_heading(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=true)
+    calc_heading(attitude, elevation, azimuth; frame=KA, upwind_dir=-pi/2, respos=true)
 
 Calculate the heading angle of the kite in radians. The heading is the direction the nose 
 of the kite is pointing to, expressed in the Small Earth (SE) reference frame.
 
 # Arguments
-- `orientation`: Euler angles (roll, pitch, yaw) in radians, calculated with respect to 
-                 the North, East, Down (NED) reference frame
+- `attitude`:    Orientation of the kite as a quaternion or rotation matrix in the `frame`
+                 convention, or as Euler angles (roll, pitch, yaw) in radian, which are
+                 always `KS` (measured against NED)
 - `elevation`:   Elevation angle of the kite in radians
 - `azimuth`:     Azimuth angle of the kite in radians
+- `frame`:       Convention `attitude` is expressed in (default: `KA`)
 - `upwind_dir`:  Direction the wind is coming from in radians; zero at north; clockwise 
                  positive from above (default: -π/2, wind from west)
 - `respos`:      If true, return angle in range [0, 2π]; if false, return in range [-π, π] 
@@ -117,10 +106,12 @@ of the kite is pointing to, expressed in the Small Earth (SE) reference frame.
 # Returns
 The heading angle in radians, measured from the positive x-axis of the SE reference frame.
 """
-function calc_heading(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=true)
+function calc_heading(attitude, elevation, azimuth; frame::FrameConvention=KA,
+                      upwind_dir=-pi/2, respos=true)
     down_wind_direction = wrap2pi(upwind_dir + π)
-    headingSE = fromW2SE(calc_heading_w(orientation, down_wind_direction), elevation, azimuth)
-    angle = atan(headingSE.y, headingSE.x)
+    headingSE = fromW2SE(calc_heading_w(attitude, down_wind_direction; frame),
+                         elevation, azimuth)
+    angle = atan(headingSE[begin+1], headingSE[begin])
     if angle < 0 && respos
         angle += 2π
     end
@@ -128,19 +119,21 @@ function calc_heading(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=
 end
 
 """
-    calc_clock_angle(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=true)
+    calc_clock_angle(attitude, elevation, azimuth; frame=KA, upwind_dir=-pi/2, respos=true)
 
 Calculate the clock angle of the kite in radians. The clock angle is the rotation of the
-kite's nose (x-axis) around the tether axis, measured from the world-up direction projected
+kite's nose around the tether axis, measured from the world-up direction projected
 onto the plane perpendicular to the tether. Zero means the kite's nose points toward
 12 o'clock (up in the tether cross-section plane); positive is clockwise when viewed from
 the ground station.
 
 # Arguments
-- `orientation`: Euler angles (roll, pitch, yaw) in radians, calculated with respect to
-                 the North, East, Down (NED) reference frame
+- `attitude`:    Orientation of the kite as a quaternion or rotation matrix in the `frame`
+                 convention, or as Euler angles (roll, pitch, yaw) in radian, which are
+                 always `KS` (measured against NED)
 - `elevation`:   Elevation angle of the kite in radians
 - `azimuth`:     Azimuth angle of the kite in radians
+- `frame`:       Convention `attitude` is expressed in (default: `KA`)
 - `upwind_dir`:  Direction the wind is coming from in radians; zero at north; clockwise
                  positive from above (default: -π/2, wind from west)
 - `respos`:      If true, return angle in range [0, 2π]; if false, return in range [-π, π]
@@ -149,25 +142,24 @@ the ground station.
 # Returns
 The clock angle in radians.
 """
-function calc_clock_angle(orientation, elevation, azimuth; upwind_dir=-pi/2, respos=true)
-    # Get the kite's x-axis (flight direction) in EG (Earth Groundstation, North-West-Up) frame
-    heading_sensor = SVector(1, 0, 0)
-    x_kite_EG = fromEX2EG(fromKS2EX(heading_sensor, orientation))
-    # Convert EG (North-West-Up) to ENU (East-North-Up): EG2ENU = transpose(ENU2EG)
-    x_kite_ENU = SVector(-x_kite_EG[2], x_kite_EG[1], x_kite_EG[3])
+function calc_clock_angle(attitude, elevation, azimuth; frame::FrameConvention=KA,
+                          upwind_dir=-pi/2, respos=true)
+    x_kite_ENU = kite_nose(attitude, frame)
     # Convert wind-frame azimuth to ENU north-based azimuth so this matches calc_heading.
     azimuth_n = wrap2pi(azimuth - upwind_dir - π)
-    pos_unit = SVector(-cos(elevation) * sin(azimuth_n), cos(elevation) * cos(azimuth_n), sin(elevation))
+    pos_unit = SVector(-cos(elevation) * sin(azimuth_n), cos(elevation) * cos(azimuth_n),
+                       sin(elevation))
     z_kite = -pos_unit  # points from kite toward ground station
-    # Project world-up onto the plane perpendicular to the tether (12 o'clock reference)
     up = SVector(0.0, 0.0, 1.0)
     ref_unnormalized = up - dot(up, z_kite) * z_kite
     ref_norm = norm(ref_unnormalized)
     if ref_norm <= 1e-9
-        throw(ArgumentError("calc_clock_angle is undefined when tether axis is parallel to world-up (near zenith/nadir). Use an elevation away from ±pi/2."))
+        throw(ArgumentError("calc_clock_angle is undefined when tether axis is parallel " *
+                            "to world-up (near zenith/nadir). Use an elevation away " *
+                            "from ±pi/2."))
     end
     ref = ref_unnormalized / ref_norm  # 12 o'clock direction
-    perp = cross(z_kite, ref)                         # 3 o'clock direction (viewed from ground station)
+    perp = cross(z_kite, ref)          # 3 o'clock direction (viewed from ground station)
     angle = atan(dot(x_kite_ENU, perp), dot(x_kite_ENU, ref))
     if angle < 0 && respos
         angle += 2π

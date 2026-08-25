@@ -4,13 +4,9 @@
 using LinearAlgebra, Rotations, Test, StaticArrays
 using KiteUtils
 
-# Kite reference frame
-# x: from trailing edge to leading edge
-# y: to the right looking in flight direction
-# z: down
-
-# all coordinates are in ENU (East, North, Up) reference frame
-# the orientation is calculated with respect to the NED (North, East, Down) reference frame
+# calc_orient_rot works in the KS convention: body x from trailing to leading edge,
+# y to the right looking in flight direction, z down, reported against NED. The axes
+# passed in are in ENU. SysState stores KA; see test-frames.jl for the conversion.
 
 @testset verbose=true "test calc_orient_rot and co" begin
     @testset "calc_orientation, kite pointing to the north and is at zenith" begin
@@ -145,7 +141,7 @@ using KiteUtils
         @assert is_right_handed_orthonormal(x, y, z)
         rot = calc_orient_rot(x, y, z)
         q = QuatRotation(rot)
-        q1 = quat2viewer(q)
+        q1 = quat2viewer(q, KS)
         roll, pitch, yaw = rad2deg.(quat2euler(q1))
         @test roll ≈ 90
         @test pitch ≈ 0

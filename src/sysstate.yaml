@@ -5,11 +5,11 @@ sysstate:
     cycle:     "Int16"                  # cycle number
     fig_8:     "Int16"                  # number of the figure of eight of the current cycle
     e_mech: "Float64"                   # mechanical energy [Wh]
-    Qw: "MVector{O, MyFloat}"           # quaternion w-component, one per oriented frame (frame 1 = kite)
-    Qx: "MVector{O, MyFloat}"           # quaternion x-component, one per oriented frame
-    Qy: "MVector{O, MyFloat}"           # quaternion y-component, one per oriented frame
-    Qz: "MVector{O, MyFloat}"           # quaternion z-component, one per oriented frame
-    turn_rates: "MVector{3, MyFloat}"   # turn rates around the body fixed x, y and z axis [rad/s]
+    Qw: "MVector{O, MyFloat}"           # KA quaternion w-component, one per oriented frame (frame 1 = kite)
+    Qx: "MVector{O, MyFloat}"           # KA quaternion x-component, one per oriented frame
+    Qy: "MVector{O, MyFloat}"           # KA quaternion y-component, one per oriented frame
+    Qz: "MVector{O, MyFloat}"           # KA quaternion z-component, one per oriented frame
+    turn_rates: "MVector{3, MyFloat}"   # turn rates around the KA body x, y and z axis [rad/s]
     elevation: "MyFloat"                # elevation angle [rad]
     azimuth: "MyFloat"                  # azimuth angle in wind reference frame [rad]
     azimuth_rate: "MyFloat"             # azimuth rate [rad/s]
@@ -36,8 +36,8 @@ sysstate:
     alpha4: "MyFloat"                   # angle of attack at particle D [rad]
     CL2: "MyFloat"                      # lift coefficient
     CD2: "MyFloat"                      # drag coefficient
-    aero_force_b: "MVector{3, MyFloat}" # aerodynamic force in KB reference frame [N]
-    aero_moment_b: "MVector{3, MyFloat}" # aerodynamic moment in KB reference frame [Nm]
+    aero_force_b: "MVector{3, MyFloat}" # aerodynamic force in the KA body frame [N]
+    aero_moment_b: "MVector{3, MyFloat}" # aerodynamic moment in the KA body frame [Nm]
     tether_induced_force: "MVector{3, MyFloat}"  # net tether force vector acting on kite [N]
     tether_induced_moment: "MVector{3, MyFloat}" # net tether moment acting on kite [Nm]
     twist_angles: "MVector{D, MyFloat}" # twist angle, one per twist_surface [rad]
@@ -57,18 +57,18 @@ sysstate:
     drag_force_y: "MVector{P, MyFloat}" # drag force on each point in y, ENU reference frame [N]
     drag_force_z: "MVector{P, MyFloat}" # drag force on each point in z, ENU reference frame [N]
     spring_force: "MVector{S, MyFloat}" # spring force, one per segment [N]
-    turn_rate_x: "MVector{O, MyFloat}"  # body-frame turn rate around x, one per oriented frame [rad/s]
-    turn_rate_y: "MVector{O, MyFloat}"  # body-frame turn rate around y, one per oriented frame [rad/s]
-    turn_rate_z: "MVector{O, MyFloat}"  # body-frame turn rate around z, one per oriented frame [rad/s]
+    turn_rate_x: "MVector{O, MyFloat}"  # KA turn rate around x, one per oriented frame [rad/s]
+    turn_rate_y: "MVector{O, MyFloat}"  # KA turn rate around y, one per oriented frame [rad/s]
+    turn_rate_z: "MVector{O, MyFloat}"  # KA turn rate around z, one per oriented frame [rad/s]
     twist_vel: "MVector{D, MyFloat}"    # twist rate, one per twist_surface [rad/s]
     pulley_len: "MVector{L, MyFloat}"   # length of the first leg of each pulley [m]
     pulley_vel: "MVector{L, MyFloat}"   # rate of change of pulley_len [m/s]
     set_torque: "MVector{W, MyFloat}"   # torque setting, one per winch [Nm]
     set_speed: "MVector{W, MyFloat}"    # speed setting, one per winch [m/s]
     set_force: "MVector{W, MyFloat}"    # force setting, one per winch [N]
-    roll: "MyFloat"                     # roll angle [rad]
-    pitch: "MyFloat"                    # pitch angle [rad]
-    yaw: "MyFloat"                      # yaw angle [rad]
+    roll: "MyFloat"                     # roll angle, KS (against NED) [rad]
+    pitch: "MyFloat"                    # pitch angle, KS (against NED) [rad]
+    yaw: "MyFloat"                      # yaw angle, KS (against NED) [rad]
     var_01: "MyFloat"                   # generic variable 01
     var_02: "MyFloat"                   # generic variable 02
     var_03: "MyFloat"                   # generic variable 03

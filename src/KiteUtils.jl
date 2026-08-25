@@ -59,6 +59,9 @@ export acos2, quat2euler, quat2viewer, wrap2pi                           # geome
 export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE              # reference frame transformations
 export azn2azw,  calc_clock_angle, calc_course , calc_heading, calc_heading_w # geometric functions
 export calc_orient_rot, enu2ned, is_right_handed_orthonormal, ned2enu
+export FrameConvention, KS, KA                                           # frame conventions
+export convert_world, convert_body, convert_orientation, euler_ks, kite_nose,
+    orient_matrix, log_metadata
 export angles_from_wind_vec, wind_vec_from_angles
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
 export aero_geometry_file, fpc_settings, fpp_settings, se, se_dict,
@@ -94,6 +97,7 @@ abstract type AbstractKiteModel end
 
 include("settings.jl")
 include("yaml_utils.jl")
+include("frames.jl")
 include("transformations.jl")
 include("trafo.jl")
 
@@ -211,8 +215,7 @@ function demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2)
     ss.X .= dist .* cos(turn_angle)
     ss.Y .= dist .* sin(turn_angle)
     ss.Z .= (a .* cosh.(dist./a) .- a) * height/ 5.430806
-    r_xyz = RotXYZ(pi/2, -pi/2, 0)
-    q = QuatRotation(r_xyz)
+    q = convert_orientation(QuatRotation(RotXYZ(pi/2, -pi/2, 0)); from=KS, to=KA)
     ss.orient .= MVector{4, Float32}(Rotations.params(q))
     ss.elevation = calc_elevation([ss.X[end], 0.0, ss.Z[end]])
     ss.v_wind_gnd .= [10.4855, 0, -3.08324]
@@ -315,11 +318,7 @@ function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
     let z = -normalize(delta),
         y = normalize(pos_C - pos_D)
         x = y × z
-        pos_kite_ = pod_pos
-        pos_before = pos_kite_ + z
-
-        rotation = rot(pos_kite_, pos_before, -x)
-        q = QuatRotation(rotation)
+        q = QuatRotation(convert_orientation(calc_orient_rot(x, y, z); from=KS, to=KA))
         ss.orient .= MVector{4, Float32}(Rotations.params(q))
     end
     ss.elevation = calc_elevation([X[end], 0.0, Z[end]])
@@ -372,9 +371,11 @@ function save_log(flight_log::SysLog, compress=true; path="")
     end
     filename = joinpath(path, flight_log.name) * ".arrow"
     if compress
-        Arrow.write(filename, flight_log.syslog, compress=:lz4, colmetadata = flight_log.colmeta)
+        Arrow.write(filename, flight_log.syslog; compress=:lz4,
+                    colmetadata=flight_log.colmeta, metadata=log_metadata())
     else
-        Arrow.write(filename, flight_log.syslog, colmetadata = flight_log.colmeta)
+        Arrow.write(filename, flight_log.syslog; colmetadata=flight_log.colmeta,
+                    metadata=log_metadata())
     end
 end
 

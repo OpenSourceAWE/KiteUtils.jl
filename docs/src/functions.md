@@ -56,6 +56,21 @@ Base.getproperty
 ```
 The function ```set_data_path(data_path)``` can be used to set the directory for the log files. 
 
+## Frame conventions
+Convert between the two body-frame conventions, `KS` and `KA`. Which function to use
+depends on the kind of quantity, not on the package it came from: a world vector takes the
+world rotation, a body vector the body rotation, and an orientation both.
+```@docs
+convert_world
+convert_body
+convert_orientation
+orient_matrix
+euler_ks
+kite_nose
+log_metadata
+check_log_frame
+```
+
 ## Rotation matrices and conversions
 ```@docs
 calc_orient_rot

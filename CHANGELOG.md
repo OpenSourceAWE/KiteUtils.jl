@@ -1,5 +1,39 @@
 # Changelog
 
+## KiteUtils v0.13.0
+### Added
+- `FrameConvention`, an enum with the two body-frame conventions used in the
+  OpenSourceAWE packages: `KA` (aft-right-up, reported against ENU) and `KS`
+  (forward-right-down, reported against NED).
+- `convert_world`, `convert_body` and `convert_orientation` to convert between
+  them. Which one to use follows from the kind of quantity, not from the package
+  it came from: a world vector takes the world rotation, a body vector the body
+  rotation, and an orientation, being a body-to-world rotation, takes both.
+- `euler_ks` reports roll, pitch and yaw from a `KA` attitude, `kite_nose` the
+  nose direction in ENU, and `orient_matrix` accepts an attitude in any form.
+- `.arrow` logs carry table-level metadata naming the frame convention and the
+  KiteUtils version that wrote them (`log_metadata`). `load_log` warns when it is
+  absent, which is how a log written before this release is recognised.
+### Changed
+- BREAKING: quaternions in `SysState` are `KA`. `roll`, `pitch` and `yaw` stay
+  `KS`, since that is what the sensors report and the controllers expect. Logs
+  written before this release hold `KS` quaternions and are not converted on
+  load.
+- BREAKING: `calc_heading`, `calc_heading_w` and `calc_clock_angle` take an
+  attitude in the `KA` convention, as a quaternion or rotation matrix, and a
+  `frame` keyword to say otherwise. Roll, pitch and yaw passed as a 3-element
+  vector still work and are still `KS`, so existing call sites keep their result.
+- BREAKING: `quat2viewer(attitude, frame=KA)` takes the convention as a second
+  positional argument; a `KS` orientation now needs `quat2viewer(q, KS)`.
+- `demo_state_4p` stored a viewer-frame quaternion rather than the documented
+  one; both demo states now store `KA`.
+- `fromKS2EX` and `fromEX2EG` are sensor ingest only. Nothing downstream of the
+  sensor uses them: heading and clock angle are computed in ENU from the `KA`
+  attitude, which `test-frames.jl` shows equals the old chain exactly over a
+  sweep of attitudes and kite positions.
+- `euler2rot` returns an `SMatrix`, and `ned2enu` calls `enu2ned`, the two being
+  the same involution.
+
 ## KiteUtils v0.12.2
 ### Added
 - the loads a step produces, so a log can be replayed with force vectors drawn:

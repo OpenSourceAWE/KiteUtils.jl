@@ -60,7 +60,7 @@ using KiteUtils, LinearAlgebra, StaticArrays, Test
         z = @SVector [0, 0, -1] # in ENU reference frame this is pointing down
         rotation = calc_orient_rot(x, y, z; viewer=false)
         @test rotation == I
-        orient = quat2viewer(rotation)
+        orient = quat2viewer(rotation, KS)
         @test orient ≈ [-0.0, 0.0, 0.7071067811865475, 0.7071067811865475]
         rotation = calc_orient_rot(x, y, z; viewer=true)
         @test_broken rotation ≈ [-1.0 0.0 -0.0; 0.0 0.0 1.0; 0 1 0]

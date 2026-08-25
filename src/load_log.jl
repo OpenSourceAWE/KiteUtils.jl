@@ -21,6 +21,7 @@ function load_log(filename::String; path="", debug=false)
         end
     end
     table   = Arrow.Table(fullname)
+    check_log_frame(table, basename(fullname))
     P =  length(table.Z[1])
     # Float type is whatever the file was written with, so Float32 logs stay Float32.
     F =  eltype(table.Z[1])

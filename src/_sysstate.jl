@@ -39,15 +39,15 @@ $(TYPEDFIELDS)
     fig_8::Int16 = 0
     "mechanical energy [Wh]"
     e_mech::Float64 = 0
-    "quaternion w-component, one per oriented frame (frame 1 = kite)"
+    "KA quaternion w-component, one per oriented frame (frame 1 = kite)"
     Qw::MVector{O, F} = ones(F, O)
-    "quaternion x-component, one per oriented frame"
+    "KA quaternion x-component, one per oriented frame"
     Qx::MVector{O, F} = zeros(F, O)
-    "quaternion y-component, one per oriented frame"
+    "KA quaternion y-component, one per oriented frame"
     Qy::MVector{O, F} = zeros(F, O)
-    "quaternion z-component, one per oriented frame"
+    "KA quaternion z-component, one per oriented frame"
     Qz::MVector{O, F} = zeros(F, O)
-    "turn rates around the body fixed x, y and z axis [rad/s]"
+    "turn rates around the KA body x, y and z axis [rad/s]"
     turn_rates::MVector{3, F} = zeros(F, 3)
     "elevation angle [rad]"
     elevation::F = 0
@@ -99,9 +99,9 @@ $(TYPEDFIELDS)
     CL2::F = 0
     "drag coefficient"
     CD2::F = 0
-    "aerodynamic force in KB reference frame [N]"
+    "aerodynamic force in the KA body frame [N]"
     aero_force_b::MVector{3, F} = zeros(F, 3)
-    "aerodynamic moment in KB reference frame [Nm]"
+    "aerodynamic moment in the KA body frame [Nm]"
     aero_moment_b::MVector{3, F} = zeros(F, 3)
     "net tether force vector acting on kite [N]"
     tether_induced_force::MVector{3, F} = zeros(F, 3)
@@ -141,11 +141,11 @@ $(TYPEDFIELDS)
     drag_force_z::MVector{P, F} = zeros(F, P)
     "spring force, one per segment [N]"
     spring_force::MVector{S, F} = zeros(F, S)
-    "body-frame turn rate around x, one per oriented frame [rad/s]"
+    "KA turn rate around x, one per oriented frame [rad/s]"
     turn_rate_x::MVector{O, F} = zeros(F, O)
-    "body-frame turn rate around y, one per oriented frame [rad/s]"
+    "KA turn rate around y, one per oriented frame [rad/s]"
     turn_rate_y::MVector{O, F} = zeros(F, O)
-    "body-frame turn rate around z, one per oriented frame [rad/s]"
+    "KA turn rate around z, one per oriented frame [rad/s]"
     turn_rate_z::MVector{O, F} = zeros(F, O)
     "twist rate, one per twist_surface [rad/s]"
     twist_vel::MVector{D, F} = zeros(F, D)
@@ -159,11 +159,11 @@ $(TYPEDFIELDS)
     set_speed::MVector{W, F} = zeros(F, W)
     "force setting, one per winch [N]"
     set_force::MVector{W, F} = zeros(F, W)
-    "roll angle [rad]"
+    "roll angle, KS (against NED) [rad]"
     roll::F = 0
-    "pitch angle [rad]"
+    "pitch angle, KS (against NED) [rad]"
     pitch::F = 0
-    "yaw angle [rad]"
+    "yaw angle, KS (against NED) [rad]"
     yaw::F = 0
     "generic variable 01"
     var_01::F = 0

@@ -68,9 +68,8 @@ end
 
 Convert a vector from ENU (east, north, up) to NED (north, east, down) reference frame.
 """
-function enu2ned(vec::AbstractVector)  
-    R = @SMatrix[0 1 0; 1 0 0; 0 0 -1]
-    R*vec
+function enu2ned(vec::AbstractVector)
+    WORLD_FLIP * vec
 end
 
 """
@@ -78,10 +77,7 @@ end
 
 Convert a vector from NED (north, east, down) to ENU (east, north, up) reference frame.
 """
-function ned2enu(vec::AbstractVector)  
-    R = @SMatrix[0 1 0; 1 0 0; 0 0 -1]
-    R*vec
-end
+ned2enu(vec::AbstractVector) = enu2ned(vec)
 
 """
     calc_orient_rot(x, y, z; viewer=false, ENU=true)
@@ -90,6 +86,10 @@ Calculate the rotation matrix based on the kite reference frame, by default
 passed as ENU (east, north, up), or as NED (north, east, down) if ENU is false.
 If viewer is true, the rotation matrix is calculated based with respect to
 the viewer reference frame.
+
+The axes and the result are `KS`; pass the result through
+[`convert_orientation`](@ref) to obtain the `KA` orientation stored in `SysState`.
+For `KA` axes given in ENU the orientation is simply `[x y z]`, no function needed.
 """
 function calc_orient_rot(x, y, z; viewer=false, ENU=true)
     if ENU
@@ -117,34 +117,34 @@ end
 Calculate the rotation matrix based on the roll, pitch, and yaw angles in radian.
 """
 function euler2rot(roll, pitch, yaw)
-    φ      = roll
-    R_x = [1    0       0;
-              0  cos(φ) -sin(φ);
-              0  sin(φ)  cos(φ)]
-    θ      = pitch          
-    R_y = [ cos(θ)  0  sin(θ);
-                 0     1     0;
-              -sin(θ)  0  cos(θ)]
-    ψ      = yaw
-    R_z = [cos(ψ) -sin(ψ) 0;
-              sin(ψ)  cos(ψ) 0;
-                 0       0   1]
-    R   = R_z * R_y * R_x
-    return R
+    φ, θ, ψ = roll, pitch, yaw
+    R_x = @SMatrix[1    0       0;
+                   0  cos(φ) -sin(φ);
+                   0  sin(φ)  cos(φ)]
+    R_y = @SMatrix[ cos(θ)  0  sin(θ);
+                      0     1     0;
+                   -sin(θ)  0  cos(θ)]
+    R_z = @SMatrix[cos(ψ) -sin(ψ) 0;
+                   sin(ψ)  cos(ψ) 0;
+                     0       0    1]
+    R_z * R_y * R_x
 end
 
 """
-    quat2viewer(q::QuatRotation)
-    quat2viewer(rot::AbstractMatrix)
-    quat2viewer(orient::AbstractVector)
+    quat2viewer(attitude, frame::FrameConvention=KA)
 
-Convert the quaternion q to the viewer reference frame. It can also be passed
-as a rotation matrix or as 4-element vector [w,i,j,k], where w is the real part
-and i, j, k are the imaginary parts of the quaternion.
+Convert an orientation to the viewer reference frame. See [`kite_nose`](@ref) for
+the accepted forms of `attitude`; `frame` says which convention it is given in.
+Returns a quaternion as a 4-element vector [w,i,j,k].
 """
-quat2viewer(rot::AbstractMatrix) = quat2viewer(QuatRotation(rot))
-quat2viewer(orient::AbstractVector) = quat2viewer(QuatRotation(orient))
-function quat2viewer(q::QuatRotation)
+function quat2viewer(attitude, frame::FrameConvention=KA)
+    quat2viewer_ks(QuatRotation(convert_orientation(orient_matrix(attitude, frame);
+                                                    from=KA, to=KS)))
+end
+
+# Viewer conversion of a KS (NED) orientation. The viewer frame is defined in terms
+# of KS, so this stays the reference implementation and quat2viewer converts into it.
+function quat2viewer_ks(q::QuatRotation)
     # 1. get reference frame
     rot = inv(RotMatrix{3}(q)) # from kite to inertial reference frame
     x = enu2ned(rot[1,:])
