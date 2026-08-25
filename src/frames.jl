@@ -5,7 +5,8 @@
     @enum FrameConvention KS KA
 
 Body-frame convention, together with the world frame its orientation is reported
-against. Only two combinations occur in the OpenSourceAWE packages:
+against. A body frame is attached to the kite and turns with it; a world frame is
+earth-fixed and does not. Only two combinations occur in the OpenSourceAWE packages:
 
 - `KS`: kite-sensor body frame, forward-right-down, reported against NED. The
   convention of the Xsens IMU and of `KiteModels`.
@@ -28,7 +29,8 @@ const BODY_FLIP = @SMatrix [-1 0 0; 0 1 0; 0 0 -1]
     convert_world(vec; from=KS, to=KA)
 
 Convert a vector expressed in the world frame of the `from` convention (NED for
-`KS`, ENU for `KA`) to the world frame of the `to` convention.
+`KS`, ENU for `KA`) to the world frame of the `to` convention. World frames are
+earth-fixed, so this rotation does not depend on where the kite is pointing.
 
 Only for world quantities such as position, velocity or force in ENU. A body
 vector needs [`convert_body`](@ref) and an orientation needs
@@ -43,8 +45,9 @@ end
     convert_body(vec; from=KS, to=KA)
 
 Convert a vector expressed in the body frame of the `from` convention to the body
-frame of the `to` convention. `KS` is forward-right-down and `KA` aft-right-up, so
-x and z flip and the spanwise y axis is left alone.
+frame of the `to` convention. Both frames turn with the kite, so this is a
+relabelling of the same physical vector: `KS` is forward-right-down and `KA`
+aft-right-up, so x and z flip and the spanwise y axis is left alone.
 
 Only for body quantities such as an aerodynamic force, a moment or a turn rate.
 """
@@ -59,8 +62,8 @@ end
     convert_orientation(q::AbstractVector; from=KS, to=KA)
 
 Convert an orientation from the `from` convention to the `to` convention. The
-orientation is the body-to-world rotation: its columns are the body axes
-expressed in the world frame.
+orientation is the rotation from the body frame to the world frame: its columns
+are the body axes expressed in the world frame.
 
 Both the world frame and the body frame change, so unlike a vector an
 orientation is rotated on both sides. The quaternion may be given as a

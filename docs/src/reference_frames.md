@@ -5,29 +5,44 @@ CurrentModule = KiteUtils
 
 **ENU world, `KA` body, everywhere. `KS` only at the edges.**
 
-## Position and velocity
-For position and velocity vectors of the model the **ENU** (East North Up) reference frame
-is used.
+## What a reference frame is here
 
-The controller is using the **W** (Wind) reference frame as shown in the figure below,
-y-axis downwind and z-axis up.
+Every vector in this package is expressed in one of two kinds of frame.
 
-Other reference frames are the **EG** (North West Up), and the **SE** (small earth)
-reference frames which is defined in the plane tangential to the half-sphere with a unit
-radius and the origin at the tether exit point of the ground-station.
+- A **world frame** is earth-fixed: its axes keep pointing the same way whatever the kite
+  does, so for our purposes it is an
+  [inertial frame](https://en.wikipedia.org/wiki/Inertial_frame_of_reference). Positions,
+  velocities, wind and forces drawn in space live here.
+- A **body frame** is rigidly attached to the kite and turns with it, so each of its axes
+  points somewhere different in the world at every instant. Aerodynamic forces and moments,
+  turn rates, angle of attack and side slip live here.
+
+An **orientation** is the rotation from a body frame to a world frame: its columns are the
+body axes written in world coordinates. That is why an orientation cannot be converted like
+a vector. Changing the body convention *and* the world convention means rotating it on both
+sides, which is what [`convert_orientation`](@ref) does and
+[`convert_world`](@ref)/[`convert_body`](@ref) deliberately do not.
+
+One line per frame:
+
+- **ENU** — world. x east, y north, z up. Every position, velocity and world-frame force.
+- **NED**, in the code **EX** (Earth Xsens) — world. x north, y east, z down. Used only as
+  the frame `roll`, `pitch` and `yaw` are measured against, that being what the IMU reports.
+- **EG** (Earth Ground station) — world. x north, y west, z up.
+- **W** (Wind) — world. ENU turned so that y points downwind, z up. The flight path
+  controller works here.
+- **SE** (Small Earth) — world. The plane tangential to the unit half-sphere at the kite,
+  origin at the tether exit point of the ground station.
+- **KA** (kite aero) — body. x leading to trailing edge, y left tip to right tip, z up.
+- **KS** (kite sensor) — body. x trailing to leading edge, y right, z down.
 
 ## Body frames
 
 Two body-frame conventions occur in the OpenSourceAWE packages, and the enum
-[`FrameConvention`](@ref) names them:
+[`FrameConvention`](@ref) names them. Each comes paired with the world frame its
+orientation is reported against: `KA` with ENU, `KS` with NED.
 
-| convention | body axes                        | world frame of its orientation |
-|:-----------|:---------------------------------|:-------------------------------|
-| `KA`       | aft, right, up                   | ENU                            |
-| `KS`       | forward, right, down             | NED (in the code: **EX**)      |
-
-**`KA`** (kite aero) is the convention of `SysState` and of every calculation in this
-package:
+**`KA`** is the convention of `SysState` and of every calculation in this package:
 
 - **x**: from leading edge to trailing edge
 - **y**: spanwise, from the left to the right wing tip
@@ -39,11 +54,9 @@ spanwise positive; a geometry authored the other way round does not merely relab
 aerodynamics, it inverts them. The origin is a free per-model choice — it does not enter a
 rotation — but it must be documented per model.
 
-**`KS`** (kite sensor) is the sensor-fixed frame: **x** from trailing edge to leading edge,
-**y** to the right looking in flight direction, **z** down, reported against the **NED**
-(North, East, Down) frame. In the code NED is also called **EX** (Earth Xsens), because
-that is the convention the Xsens IMU reports in. `KS` survives in three places and nowhere
-else:
+**`KS`** is the sensor-fixed frame: **x** from trailing edge to leading edge, **y** to the
+right looking in flight direction, **z** down, reported against NED because that is the
+convention the Xsens IMU reports in. `KS` survives in three places and nowhere else:
 
 - inside `KiteModels`, whose solver and aerodynamics are built on it;
 - in the `roll`, `pitch` and `yaw` angles, which are reported against NED because that is
