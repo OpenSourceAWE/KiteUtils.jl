@@ -7,29 +7,25 @@ CurrentModule = KiteUtils
 
 ## Kinds of frame
 
-A reference frame is an **origin** plus an **axis convention**. The two are independent, and
-naming only one of them is how the same word ends up meaning two things:
+A reference frame is an origin plus an axis convention.
 
-- **ENU** (East North Up) and **NED** (North East Down) are axis conventions, not frames.
-  Either can be placed at any origin.
-- The frames below name an origin as well, and several of them share one.
+**ENU** (East North Up) and **NED** (North East Down) name axis conventions. Either can be
+placed at any origin, and the world frames below do exactly that.
 
-Frames also differ in what they are attached to:
+A **world frame** is earth-fixed: its axes keep pointing the same way whatever the kite
+does, so for our purposes it is an
+[inertial frame](https://en.wikipedia.org/wiki/Inertial_frame_of_reference). Positions,
+velocities, wind and forces drawn in space are expressed in one.
 
-- A **world frame** is earth-fixed: its axes keep pointing the same way whatever the kite
-  does, so for our purposes it is an
-  [inertial frame](https://en.wikipedia.org/wiki/Inertial_frame_of_reference). Positions,
-  velocities, wind and forces drawn in space live here.
-- A **body frame** is rigidly attached to the kite and turns with it, so each of its axes
-  points somewhere different in the world at every instant. Aerodynamic forces and moments,
-  turn rates, angle of attack and side slip live here.
+A **body frame** is rigidly attached to the kite and turns with it, so each of its axes
+points somewhere different in the world at every instant. Aerodynamic forces and moments,
+turn rates, angle of attack and side slip are expressed in one.
 
-An **orientation** is the rotation from a body frame to a world frame: its columns are the
-body axes written in world coordinates. Only the axis conventions enter it, never the
-origins — a rotation is fixed by three directions. That is also why an orientation cannot be
-converted like a vector: changing the body convention *and* the world convention means
-rotating it on both sides, which is what [`convert_orientation`](@ref) does and
-[`convert_world`](@ref)/[`convert_body`](@ref) deliberately do not.
+An **orientation** is the rotation from a body frame to a world frame; its columns are the
+body axes written in world coordinates. Only the axis conventions enter it, not the origins.
+Converting one therefore takes a rotation on both sides, which is what
+[`convert_orientation`](@ref) does. [`convert_world`](@ref) and [`convert_body`](@ref)
+rotate one side each and are for vectors.
 
 ## World frames
 
@@ -73,7 +69,7 @@ Xsens). It is defined as follows:
 ## Body frames
 
 Two body-frame conventions occur in the OpenSourceAWE packages, and the enum
-[`FrameConvention`](@ref) names them. Each comes paired with the world frame its
+[`FrameConvention`](@ref) names them. Each is paired with the axis convention its
 orientation is reported against: `KA` with ENU, `KS` with NED.
 
 The **KA** (kite aero) reference frame is the convention of `SysState` and of every
@@ -85,9 +81,8 @@ a free per-model choice. It is defined as follows:
 
 These are the aerodynamic axes, so drag is +x, side force +y and lift +z, and at zenith
 they line up with ENU. Any package may assume the sense `x · (TE − LE) > 0` with y
-spanwise positive; a geometry authored the other way round does not merely relabel the
-aerodynamics, it inverts them. The origin does not enter a rotation, but it must be
-documented per model.
+spanwise positive. A geometry authored the other way round inverts the aerodynamics rather
+than relabelling them, so the sense is a requirement and not a preference.
 
 The **KS** (kite sensor) reference frame is the sensor-fixed reference frame, reported
 against NED because that is the convention the Xsens IMU reports in. Its origin is defined
@@ -105,10 +100,9 @@ by the location where the sensor is mounted. In the simulation this is equal to 
 - at sensor ingest.
 
 Everywhere else, converting is a call to [`convert_world`](@ref), [`convert_body`](@ref) or
-[`convert_orientation`](@ref). The three are not interchangeable: a world vector takes the
-world rotation, a body vector the body rotation, and an orientation — being a body-to-world
-rotation — takes one on each side. `enu2ned()` and `ned2enu()` remain available for plain
-world vectors.
+[`convert_orientation`](@ref), chosen by the kind of quantity: a world vector takes the
+world rotation, a body vector the body rotation, an orientation one on each side.
+`enu2ned()` and `ned2enu()` remain available for plain world vectors.
 
 ### The neighbouring packages
 
@@ -139,14 +133,13 @@ For the orientation, either a quaternion or roll, pitch and yaw angles are used.
 Quaternions stored in `SysState` are `KA`: the body-to-ENU rotation of the aft-right-up
 body frame. Its columns are the body axes expressed in ENU, so `-x` is the nose, which is
 what [`kite_nose`](@ref) returns and what `calc_heading()` and `calc_clock_angle()` are
-built on. It is the only orientation the state carries, in the only convention it uses.
+built on. It is the only orientation the state carries.
 
-Roll, pitch and yaw are not stored, because they are that same quaternion in another form
-and storing them would put a second convention in the state. They are measured against NED,
-that being the convention of the Xsens IMU and of flight test data, and
-[`euler_ks`](@ref)`(ss.orient)` reports them. Yaw is zero at north, clockwise positive seen
-from above. The function `quat2euler()` expects a `KS` quaternion, so it is only correct on
-the result of `convert_orientation(q; from=KA, to=KS)`.
+Roll, pitch and yaw are not stored. [`euler_ks`](@ref)`(ss.orient)` reports them, measured
+against NED, that being the convention of the Xsens IMU and of flight test data. Yaw is
+zero at north, clockwise positive seen from above. The function `quat2euler()` expects a
+`KS` quaternion, so it is only correct on the result of
+`convert_orientation(q; from=KA, to=KS)`.
 
 The origin the kite rotates about is a per-model choice and does not affect the
 orientation. For the four-point model it is the centre point $0.5 * (C + D)$, where C and D
