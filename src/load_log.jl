@@ -9,11 +9,14 @@ load_log(_, filename::String; kwargs...) = load_log(filename; kwargs...)
 
 Read a log file that was saved as .arrow file. Orientations are returned in `KA`.
 
-Logs written by KiteUtils 0.13 and later declare their convention and are converted
-accordingly. Older logs declare nothing, so `frame` says what to assume; it defaults
-to `KS`, the convention those logs were documented to hold. A log written by
-SymbolicAWEModels already holds `KA` despite that documentation, so pass `frame=KA`
-for one of those, or its orientations will be turned upside down.
+Logs written by KiteUtils 0.13 and later declare their convention. An older log
+declares nothing and is `KS`: that is what the format specified, so that is how it
+is read.
+
+`frame` is an escape hatch for a log that did not honour the specification.
+SymbolicAWEModels wrote `Q_b_to_w` into the field unconverted, so its logs of that
+era hold `KA` already and need `load_log(name; frame=KA)`, or their orientations
+come back upside down.
 """
 function load_log(filename::String; path="", debug=false, frame::FrameConvention=KS)
     if path == ""
@@ -231,9 +234,9 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
     convention = isnothing(declared) ? frame : declared
     if isnothing(declared)
         @warn "Log $(basename(fullname)) declares no frame convention, so it predates " *
-              "KiteUtils 0.13. Reading its orientations as $convention. Reload with " *
-              "load_log(...; frame=KA) if it was written by SymbolicAWEModels, whose " *
-              "quaternions were already KA."
+              "KiteUtils 0.13 and is specified to be KS. Reading its orientations as " *
+              "$convention. A log SymbolicAWEModels wrote in that era holds KA in " *
+              "breach of that, and needs load_log(...; frame=KA)."
     end
     if convention !== KA
         Qw = [MVector{O, F}(q) for q in Qw]

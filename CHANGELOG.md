@@ -18,11 +18,10 @@
 - BREAKING: quaternions in `SysState` are `KA`. `roll`, `pitch` and `yaw` stay
   `KS`, since that is what the sensors report and the controllers expect.
 - Logs carry their frame convention, so `load_log` converts what it reads into
-  `KA`. Only logs from 0.13 onwards declare one; an older log is assumed `KS`,
-  which is what those logs were documented to hold, and `load_log(name;
-  frame=KA)` overrides that for a log written by SymbolicAWEModels, whose
-  quaternions were already `KA`. Either way the caller is warned which was
-  assumed.
+  `KA`. Only logs from 0.13 onwards declare one; an older log is `KS`, that being
+  what the format specified, and is converted on load with a warning saying so.
+  `load_log(name; frame=KA)` is the escape hatch for a log that did not honour the
+  specification, SymbolicAWEModels having written `KA` into the field unconverted.
 - BREAKING: `calc_heading`, `calc_heading_w` and `calc_clock_angle` take an
   attitude in the `KA` convention, as a quaternion or rotation matrix, and a
   `frame` keyword to say otherwise. Roll, pitch and yaw passed as a 3-element
