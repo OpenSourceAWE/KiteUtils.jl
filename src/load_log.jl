@@ -1,13 +1,21 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-"""
-    load_log(filename::String; path="")
+# The first argument was P and is ignored.
+load_log(_, filename::String; kwargs...) = load_log(filename; kwargs...)
 
-Read a log file that was saved as .arrow file.
 """
-load_log(_, filename::String) = load_log(filename) # for compatibility, the first argument was P and is ignored
-function load_log(filename::String; path="", debug=false)
+    load_log(filename::String; path="", frame=KS)
+
+Read a log file that was saved as .arrow file. Orientations are returned in `KA`.
+
+Logs written by KiteUtils 0.13 and later declare their convention and are converted
+accordingly. Older logs declare nothing, so `frame` says what to assume; it defaults
+to `KS`, the convention those logs were documented to hold. A log written by
+SymbolicAWEModels already holds `KA` despite that documentation, so pass `frame=KA`
+for one of those, or its orientations will be turned upside down.
+"""
+function load_log(filename::String; path="", debug=false, frame::FrameConvention=KS)
     if path == ""
         path = DATA_PATH[1]
     end
@@ -21,7 +29,6 @@ function load_log(filename::String; path="", debug=false)
         end
     end
     table   = Arrow.Table(fullname)
-    check_log_frame(table, basename(fullname))
     P =  length(table.Z[1])
     # Float type is whatever the file was written with, so Float32 logs stay Float32.
     F =  eltype(table.Z[1])
@@ -219,6 +226,21 @@ function load_log(filename::String; path="", debug=false)
         Qx = [zeros(MVector{1, F}) for _ in 1:n]
         Qy = [zeros(MVector{1, F}) for _ in 1:n]
         Qz = [zeros(MVector{1, F}) for _ in 1:n]
+    end
+    declared = log_convention(table)
+    convention = isnothing(declared) ? frame : declared
+    if isnothing(declared)
+        @warn "Log $(basename(fullname)) declares no frame convention, so it predates " *
+              "KiteUtils 0.13. Reading its orientations as $convention. Reload with " *
+              "load_log(...; frame=KA) if it was written by SymbolicAWEModels, whose " *
+              "quaternions were already KA."
+    end
+    if convention !== KA
+        Qw = [MVector{O, F}(q) for q in Qw]
+        Qx = [MVector{O, F}(q) for q in Qx]
+        Qy = [MVector{O, F}(q) for q in Qy]
+        Qz = [MVector{O, F}(q) for q in Qz]
+        convert_orient_columns!(Qw, Qx, Qy, Qz; from=convention, to=KA)
     end
     turn_rate_x, turn_rate_y, turn_rate_z =
         column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)

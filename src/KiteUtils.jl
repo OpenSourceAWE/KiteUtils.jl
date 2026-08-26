@@ -61,7 +61,7 @@ export azn2azw,  calc_clock_angle, calc_course , calc_heading, calc_heading_w # 
 export calc_orient_rot, enu2ned, is_right_handed_orthonormal, ned2enu
 export FrameConvention, KS, KA                                           # frame conventions
 export convert_world, convert_body, convert_orientation, euler_ks, kite_nose,
-    orient_matrix, log_metadata
+    orient_matrix, log_metadata, log_convention
 export angles_from_wind_vec, wind_vec_from_angles
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
 export aero_geometry_file, fpc_settings, fpp_settings, se, se_dict,

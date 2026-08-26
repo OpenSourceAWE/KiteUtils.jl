@@ -113,6 +113,45 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         @test (@test_logs load_log("frame_stamp")) isa SysLog
         set_data_path(data_path)
     end
+    @testset "an undeclared log is converted on load" begin
+        data_path = get_data_path()
+        log = demo_log(7, "old_style")
+        # A known KS attitude: nose north at zenith, so KA is a quarter turn away.
+        q_ks = Rotations.params(QuatRotation(calc_orient_rot([0, 1, 0], [1, 0, 0],
+                                                             [0, 0, -1])))
+        q_ka = convert_orientation(q_ks; from=KS, to=KA)
+        for step in eachindex(log.syslog)
+            log.syslog.Qw[step][1], log.syslog.Qx[step][1] = q_ks[1], q_ks[2]
+            log.syslog.Qy[step][1], log.syslog.Qz[step][1] = q_ks[3], q_ks[4]
+        end
+        set_data_path(mktempdir())
+        # Written without the stamp, exactly as a pre-0.13 KiteUtils would have.
+        KiteUtils.Arrow.write(joinpath(get_data_path(), "old_style.arrow"), log.syslog,
+                              colmetadata=log.colmeta)
+        @test isnothing(log_convention(KiteUtils.Arrow.Table(
+            joinpath(get_data_path(), "old_style.arrow"))))
+
+        loaded = load_log("old_style")                      # warns, assumes KS
+        @test all(collect(loaded.syslog.orient[1]) .≈ q_ka)
+        @test all(rad2deg.(euler_ks(loaded.syslog.orient[1])) .≈ (0, 0, 0))
+
+        # A SAM-written log of the same era was already KA; frame=KA leaves it alone.
+        untouched = load_log("old_style"; frame=KA)
+        @test all(collect(untouched.syslog.orient[1]) .≈ q_ks)
+
+        # A declared log is taken at its word and never converted.
+        log.name = "declared"
+        for step in eachindex(log.syslog)
+            log.syslog.Qw[step][1], log.syslog.Qx[step][1] = q_ka[1], q_ka[2]
+            log.syslog.Qy[step][1], log.syslog.Qz[step][1] = q_ka[3], q_ka[4]
+        end
+        save_log(log)
+        @test log_convention(KiteUtils.Arrow.Table(
+            joinpath(get_data_path(), "declared.arrow"))) == KA
+        kept = @test_logs load_log("declared")
+        @test all(collect(kept.syslog.orient[1]) .≈ q_ka)
+        set_data_path(data_path)
+    end
     @testset "quat2viewer is convention aware" begin
         for (roll, pitch, yaw) in attitudes
             q_ks = QuatRotation(euler2rot(roll, pitch, yaw))

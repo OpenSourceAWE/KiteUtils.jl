@@ -1,6 +1,6 @@
 # Changelog
 
-## KiteUtils v0.13.0
+## Unreleased
 ### Added
 - `FrameConvention`, an enum with the two body-frame conventions used in the
   OpenSourceAWE packages: `KA` (aft-right-up, reported against ENU) and `KS`
@@ -12,13 +12,17 @@
 - `euler_ks` reports roll, pitch and yaw from a `KA` attitude, `kite_nose` the
   nose direction in ENU, and `orient_matrix` accepts an attitude in any form.
 - `.arrow` logs carry table-level metadata naming the frame convention and the
-  KiteUtils version that wrote them (`log_metadata`). `load_log` warns when it is
-  absent, which is how a log written before this release is recognised.
+  KiteUtils version that wrote them (`log_metadata`); `log_convention` reads it
+  back. Nothing was stored there before, so its absence identifies an older log.
 ### Changed
 - BREAKING: quaternions in `SysState` are `KA`. `roll`, `pitch` and `yaw` stay
-  `KS`, since that is what the sensors report and the controllers expect. Logs
-  written before this release hold `KS` quaternions and are not converted on
-  load.
+  `KS`, since that is what the sensors report and the controllers expect.
+- Logs carry their frame convention, so `load_log` converts what it reads into
+  `KA`. Only logs from 0.13 onwards declare one; an older log is assumed `KS`,
+  which is what those logs were documented to hold, and `load_log(name;
+  frame=KA)` overrides that for a log written by SymbolicAWEModels, whose
+  quaternions were already `KA`. Either way the caller is warned which was
+  assumed.
 - BREAKING: `calc_heading`, `calc_heading_w` and `calc_clock_angle` take an
   attitude in the `KA` convention, as a quaternion or rotation matrix, and a
   `frame` keyword to say otherwise. Roll, pitch and yaw passed as a 3-element

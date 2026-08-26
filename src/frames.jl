@@ -140,19 +140,34 @@ log_metadata() = Dict("frame_convention" => string(KA),
                       "kiteutils_version" => string(pkgversion(@__MODULE__)))
 
 """
-    check_log_frame(table, name)
+    log_convention(table)
 
-Warn if an Arrow log does not declare `KA` quaternions. A log written before
-KiteUtils 0.13 carries no declaration at all and holds `KS` quaternions, which
-`convert_orientation` turns into `KA`.
+Frame convention an Arrow log declares, or `nothing` when it declares none. Only
+logs written by KiteUtils 0.13 and later carry a declaration, so `nothing` means
+the log is older and its convention has to be assumed.
 """
-function check_log_frame(table, name)
+function log_convention(table)
     meta = Arrow.getmetadata(table)
-    convention = isnothing(meta) ? nothing : get(meta, "frame_convention", nothing)
-    if convention != string(KA)
-        @warn "Log $name declares no KA quaternions; it predates KiteUtils 0.13 and " *
-              "its orientations are most likely KS. Convert them with " *
-              "convert_orientation(q; from=KS, to=KA)." convention
+    isnothing(meta) && return nothing
+    name = get(meta, "frame_convention", nothing)
+    name == string(KA) && return KA
+    name == string(KS) && return KS
+    nothing
+end
+
+"""
+    convert_orient_columns!(Qw, Qx, Qy, Qz; from, to=KA)
+
+Convert every orientation in a log's quaternion columns in place, one per
+timestep and oriented frame. The columns must be mutable; Arrow columns are not.
+"""
+function convert_orient_columns!(Qw, Qx, Qy, Qz; from::FrameConvention,
+                                 to::FrameConvention=KA)
+    from === to && return nothing
+    for t in eachindex(Qw), k in eachindex(Qw[t])
+        q = convert_orientation(SVector(Qw[t][k], Qx[t][k], Qy[t][k], Qz[t][k]);
+                                from, to)
+        Qw[t][k], Qx[t][k], Qy[t][k], Qz[t][k] = q
     end
     nothing
 end

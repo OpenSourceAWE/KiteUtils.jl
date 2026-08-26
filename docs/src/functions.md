@@ -68,7 +68,8 @@ orient_matrix
 euler_ks
 kite_nose
 log_metadata
-check_log_frame
+log_convention
+convert_orient_columns!
 ```
 
 ## Rotation matrices and conversions
