@@ -30,9 +30,9 @@ velocity and world-frame force is expressed in it. It is defined as follows:
 - **y**: north
 - **z**: up
 
-The **NED** (North East Down) reference frame is the frame the orientation angles are
-measured against, because that is the convention the Xsens IMU reports in. In the code it
-is also called **EX** (Earth Xsens). Nothing is positioned in it. It is defined as follows:
+The **NED** (North East Down) reference frame, called **EX** (Earth Xsens) in the code, is
+the convention the Xsens IMU reports in and the frame a `KS` orientation is reported
+against. Nothing is positioned in it. It is defined as follows:
 - **x**: north
 - **y**: east
 - **z**: down
@@ -43,17 +43,15 @@ code. It is defined as follows:
 - **y**: west
 - **z**: up
 
-The **W** (Wind) reference frame is the frame the flight path controller works in. It is
-NWU rotated about the vertical by the downwind direction, which is measured clockwise from
-north, so it turns as the wind turns. It is shown in the figure below and defined as
-follows:
+The **W** (Wind) reference frame is the frame the flight path controller works in, shown in
+the figure below. It is defined as follows:
 - **x**: downwind
 - **y**: cross-wind, to the left when looking downwind from above
 - **z**: up
 
 The **SE** (Small Earth) reference frame is the plane tangential to the unit half-sphere
-around the ground station, touching it at the position of the kite. Unlike the frames above
-it rotates, following the kite. It is defined as follows:
+around the ground station, touching it at the position of the kite, so it follows the kite
+rather than being earth-fixed. It is defined as follows:
 - **x**: towards zenith, so the heading is zero when the nose points up the sphere
 - **y**: completing the right-handed set
 - **z**: from the kite back towards the ground station
@@ -87,8 +85,8 @@ by the location where the sensor is mounted. In the simulation this is equal to 
 `KS` survives in three places and nowhere else:
 
 - inside `KiteModels`, whose solver and aerodynamics are built on it;
-- in the `roll`, `pitch` and `yaw` angles, which are reported against NED because that is
-  what the sensors deliver and the flight controllers expect;
+- in [`euler_ks`](@ref), which reports roll, pitch and yaw against NED, that being what
+  the sensors deliver and what flight test data is compared against;
 - at sensor ingest.
 
 Everywhere else, converting is a call to [`convert_world`](@ref), [`convert_body`](@ref) or
@@ -120,7 +118,7 @@ Three azimuth angles are used, the azimuth angle in the wind reference frame and
 The functions `calc_heading()` and `calc_clock_angle()` both use this same wind-frame azimuth convention.
 
 ## Orientation of the kite
-For the orientation, either a quaternion or roll, pitch and yaw angles are used.
+The orientation is stored as a quaternion, and can be reported as roll, pitch and yaw.
 
 Quaternions stored in `SysState` are `KA`: the body-to-ENU rotation of the aft-right-up
 body frame. Its columns are the body axes expressed in ENU, so `-x` is the nose, which is

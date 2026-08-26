@@ -109,8 +109,8 @@ end
 
 Roll, pitch and yaw angles in radian of a kite whose attitude is given in the
 `frame` convention. The angles themselves are always `KS`: they are measured
-against NED, because that is what the sensors report and what the flight
-controllers expect.
+against NED, because that is what the sensors report and what flight test data
+is compared against.
 """
 function euler_ks(attitude, frame::FrameConvention=KA)
     quat2euler(QuatRotation(convert_orientation(orient_matrix(attitude, frame);
