@@ -5,7 +5,7 @@ CurrentModule = KiteUtils
 
 **ENU world, `KA` body, everywhere. `KS` only at the edges.**
 
-## What a reference frame is here
+## Kinds of frame
 
 Every vector in this package is expressed in one of two kinds of frame.
 
@@ -23,18 +23,41 @@ a vector. Changing the body convention *and* the world convention means rotating
 sides, which is what [`convert_orientation`](@ref) does and
 [`convert_world`](@ref)/[`convert_body`](@ref) deliberately do not.
 
-One line per frame:
+## World frames
 
-- **ENU** — world. x east, y north, z up. Every position, velocity and world-frame force.
-- **NED**, in the code **EX** (Earth Xsens) — world. x north, y east, z down. Used only as
-  the frame `roll`, `pitch` and `yaw` are measured against, that being what the IMU reports.
-- **EG** (Earth Ground station) — world. x north, y west, z up.
-- **W** (Wind) — world. ENU turned so that y points downwind, z up. The flight path
-  controller works here.
-- **SE** (Small Earth) — world. The plane tangential to the unit half-sphere at the kite,
-  origin at the tether exit point of the ground station.
-- **KA** (kite aero) — body. x leading to trailing edge, y left tip to right tip, z up.
-- **KS** (kite sensor) — body. x trailing to leading edge, y right, z down.
+The **ENU** (East North Up) reference frame is the simulation frame. Every position,
+velocity and world-frame force is expressed in it. It is defined as follows:
+- **x**: east
+- **y**: north
+- **z**: up
+
+The **NED** (North East Down) reference frame is the frame the orientation angles are
+measured against, because that is the convention the Xsens IMU reports in. In the code it
+is also called **EX** (Earth Xsens). Nothing is positioned in it: `roll`, `pitch` and `yaw`
+are its only users. It is defined as follows:
+- **x**: north
+- **y**: east
+- **z**: down
+
+The **EG** (Earth Groundstation) reference frame has its origin at the tether exit point of
+the ground station. It is defined as follows:
+- **x**: north
+- **y**: west
+- **z**: up
+
+The **W** (Wind) reference frame is the frame the flight path controller works in. It is
+the EG frame turned about the vertical so that one axis follows the wind, as shown in the
+figure below. It is defined as follows:
+- **x**: downwind
+- **y**: cross-wind, to the left when looking downwind from above
+- **z**: up
+
+The **SE** (Small Earth) reference frame is the plane tangential to the unit half-sphere
+around the ground station, touching it at the position of the kite. This is a rotating
+reference frame: it follows the kite. Its **x** axis points towards zenith, which is why
+the heading is zero when the nose of the kite points up the sphere, its **z** axis points
+from the kite back towards the ground station, and its **y** axis completes the
+right-handed set.
 
 ## Body frames
 
@@ -42,8 +65,9 @@ Two body-frame conventions occur in the OpenSourceAWE packages, and the enum
 [`FrameConvention`](@ref) names them. Each comes paired with the world frame its
 orientation is reported against: `KA` with ENU, `KS` with NED.
 
-**`KA`** is the convention of `SysState` and of every calculation in this package:
-
+The **KA** (kite aero) reference frame is the convention of `SysState` and of every
+calculation in this package. Like `KS` it is a rotating reference frame, and its origin is
+a free per-model choice. It is defined as follows:
 - **x**: from leading edge to trailing edge
 - **y**: spanwise, from the left to the right wing tip
 - **z**: up
@@ -51,12 +75,18 @@ orientation is reported against: `KA` with ENU, `KS` with NED.
 These are the aerodynamic axes, so drag is +x, side force +y and lift +z, and at zenith
 they line up with ENU. Any package may assume the sense `x · (TE − LE) > 0` with y
 spanwise positive; a geometry authored the other way round does not merely relabel the
-aerodynamics, it inverts them. The origin is a free per-model choice — it does not enter a
-rotation — but it must be documented per model.
+aerodynamics, it inverts them. The origin does not enter a rotation, but it must be
+documented per model.
 
-**`KS`** is the sensor-fixed frame: **x** from trailing edge to leading edge, **y** to the
-right looking in flight direction, **z** down, reported against NED because that is the
-convention the Xsens IMU reports in. `KS` survives in three places and nowhere else:
+The **KS** (kite sensor) reference frame is the sensor-fixed reference frame, reported
+against NED because that is the convention the Xsens IMU reports in. Its origin is defined
+by the location where the sensor is mounted. In the simulation this is equal to the **K**
+(kite) reference frame, which is defined as follows:
+- **x**: from trailing edge to leading edge
+- **y**: to the right looking in flight direction
+- **z**: down
+
+`KS` survives in three places and nowhere else:
 
 - inside `KiteModels`, whose solver and aerodynamics are built on it;
 - in the `roll`, `pitch` and `yaw` angles, which are reported against NED because that is
