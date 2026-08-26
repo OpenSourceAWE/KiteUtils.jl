@@ -7,64 +7,39 @@ CurrentModule = KiteUtils
 
 ## Kinds of frame
 
-A reference frame is an origin plus an axis convention.
+A reference frame is an origin plus an axis convention. Three axis conventions appear here:
 
-**ENU** (East North Up) and **NED** (North East Down) name axis conventions. Either can be
-placed at any origin, and the world frames below do exactly that.
+- **ENU**: east, north, up
+- **NED**: north, east, down
+- **NWU**: north, west, up
 
-A **world frame** is earth-fixed: its axes keep pointing the same way whatever the kite
-does, so for our purposes it is an
-[inertial frame](https://en.wikipedia.org/wiki/Inertial_frame_of_reference). Positions,
-velocities, wind and forces drawn in space are expressed in one.
-
-A **body frame** is rigidly attached to the kite and turns with it, so each of its axes
-points somewhere different in the world at every instant. Aerodynamic forces and moments,
-turn rates, angle of attack and side slip are expressed in one.
-
-An **orientation** is the rotation from a body frame to a world frame; its columns are the
-body axes written in world coordinates. Only the axis conventions enter it, not the origins.
-Converting one therefore takes a rotation on both sides, which is what
-[`convert_orientation`](@ref) does. [`convert_world`](@ref) and [`convert_body`](@ref)
-rotate one side each and are for vectors.
+A world frame is earth-fixed. A body frame is attached to the kite and turns with it. An
+orientation is the rotation from a body frame to a world frame, so only the axis
+conventions enter it, not the origins.
 
 ## World frames
 
-All three of the earth-fixed frames below share one origin, the tether exit point of the
-ground station, and differ only by a rotation about the vertical.
+The simulation frame uses **ENU** with its origin at the tether exit point of the ground
+station. Every position, velocity and world-frame force is expressed in it.
 
-The **ENU** (East North Up) reference frame is the simulation frame. Every position,
-velocity and world-frame force is expressed in it. It is defined as follows:
-- **x**: east
-- **y**: north
-- **z**: up
+The **EG** (Earth Groundstation) reference frame uses **NWU** with that same origin.
 
-The **EG** (Earth Groundstation) reference frame is ENU turned a quarter turn about the
-vertical. It is defined as follows:
-- **x**: north
-- **y**: west
-- **z**: up
-
-The **W** (Wind) reference frame is the frame the flight path controller works in. It is EG
-turned further about the vertical so that one axis follows the wind, as shown in the figure
-below. It is defined as follows:
+The **W** (Wind) reference frame is EG turned about the vertical so that its x axis follows
+the wind, as shown in the figure below. It is defined as follows:
 - **x**: downwind
 - **y**: cross-wind, to the left when looking downwind from above
 - **z**: up
 
 The **SE** (Small Earth) reference frame is the plane tangential to the unit half-sphere
-around the ground station, touching it at the position of the kite. Unlike the three above
-it is a rotating reference frame, following the kite. Its **x** axis points towards zenith,
-which is why the heading is zero when the nose of the kite points up the sphere, its **z**
-axis points from the kite back towards the ground station, and its **y** axis completes the
-right-handed set.
+around the ground station, touching it at the position of the kite. Unlike the frames above
+it rotates, following the kite. It is defined as follows:
+- **x**: towards zenith, so the heading is zero when the nose points up the sphere
+- **y**: completing the right-handed set
+- **z**: from the kite back towards the ground station
 
-The **NED** (North East Down) axis convention has no frame of its own here: nothing is
-positioned in it. It exists only as the convention orientation angles are measured against,
-because that is what the Xsens IMU reports, and in the code it is also called **EX** (Earth
-Xsens). It is defined as follows:
-- **x**: north
-- **y**: east
-- **z**: down
+**NED** has no frame of its own here, because nothing is positioned in it. It is the
+convention the orientation angles are measured against, that being what the Xsens IMU
+reports, and in the code it is also called **EX** (Earth Xsens).
 
 ## Body frames
 
