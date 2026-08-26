@@ -7,7 +7,14 @@ CurrentModule = KiteUtils
 
 ## Kinds of frame
 
-Every vector in this package is expressed in one of two kinds of frame.
+A reference frame is an **origin** plus an **axis convention**. The two are independent, and
+naming only one of them is how the same word ends up meaning two things:
+
+- **ENU** (East North Up) and **NED** (North East Down) are axis conventions, not frames.
+  Either can be placed at any origin.
+- The frames below name an origin as well, and several of them share one.
+
+Frames also differ in what they are attached to:
 
 - A **world frame** is earth-fixed: its axes keep pointing the same way whatever the kite
   does, so for our purposes it is an
@@ -18,12 +25,16 @@ Every vector in this package is expressed in one of two kinds of frame.
   turn rates, angle of attack and side slip live here.
 
 An **orientation** is the rotation from a body frame to a world frame: its columns are the
-body axes written in world coordinates. That is why an orientation cannot be converted like
-a vector. Changing the body convention *and* the world convention means rotating it on both
-sides, which is what [`convert_orientation`](@ref) does and
+body axes written in world coordinates. Only the axis conventions enter it, never the
+origins — a rotation is fixed by three directions. That is also why an orientation cannot be
+converted like a vector: changing the body convention *and* the world convention means
+rotating it on both sides, which is what [`convert_orientation`](@ref) does and
 [`convert_world`](@ref)/[`convert_body`](@ref) deliberately do not.
 
 ## World frames
+
+All three of the earth-fixed frames below share one origin, the tether exit point of the
+ground station, and differ only by a rotation about the vertical.
 
 The **ENU** (East North Up) reference frame is the simulation frame. Every position,
 velocity and world-frame force is expressed in it. It is defined as follows:
@@ -31,33 +42,33 @@ velocity and world-frame force is expressed in it. It is defined as follows:
 - **y**: north
 - **z**: up
 
-The **NED** (North East Down) reference frame is the frame the orientation angles are
-measured against, because that is the convention the Xsens IMU reports in. In the code it
-is also called **EX** (Earth Xsens). Nothing is positioned in it: `roll`, `pitch` and `yaw`
-are its only users. It is defined as follows:
-- **x**: north
-- **y**: east
-- **z**: down
-
-The **EG** (Earth Groundstation) reference frame has its origin at the tether exit point of
-the ground station. It is defined as follows:
+The **EG** (Earth Groundstation) reference frame is ENU turned a quarter turn about the
+vertical. It is defined as follows:
 - **x**: north
 - **y**: west
 - **z**: up
 
-The **W** (Wind) reference frame is the frame the flight path controller works in. It is
-the EG frame turned about the vertical so that one axis follows the wind, as shown in the
-figure below. It is defined as follows:
+The **W** (Wind) reference frame is the frame the flight path controller works in. It is EG
+turned further about the vertical so that one axis follows the wind, as shown in the figure
+below. It is defined as follows:
 - **x**: downwind
 - **y**: cross-wind, to the left when looking downwind from above
 - **z**: up
 
 The **SE** (Small Earth) reference frame is the plane tangential to the unit half-sphere
-around the ground station, touching it at the position of the kite. This is a rotating
-reference frame: it follows the kite. Its **x** axis points towards zenith, which is why
-the heading is zero when the nose of the kite points up the sphere, its **z** axis points
-from the kite back towards the ground station, and its **y** axis completes the
+around the ground station, touching it at the position of the kite. Unlike the three above
+it is a rotating reference frame, following the kite. Its **x** axis points towards zenith,
+which is why the heading is zero when the nose of the kite points up the sphere, its **z**
+axis points from the kite back towards the ground station, and its **y** axis completes the
 right-handed set.
+
+The **NED** (North East Down) axis convention has no frame of its own here: nothing is
+positioned in it. It exists only as the convention orientation angles are measured against,
+because that is what the Xsens IMU reports, and in the code it is also called **EX** (Earth
+Xsens). It is defined as follows:
+- **x**: north
+- **y**: east
+- **z**: down
 
 ## Body frames
 
@@ -128,14 +139,14 @@ For the orientation, either a quaternion or roll, pitch and yaw angles are used.
 Quaternions stored in `SysState` are `KA`: the body-to-ENU rotation of the aft-right-up
 body frame. Its columns are the body axes expressed in ENU, so `-x` is the nose, which is
 what [`kite_nose`](@ref) returns and what `calc_heading()` and `calc_clock_angle()` are
-built on.
+built on. It is the only orientation the state carries, in the only convention it uses.
 
-Roll, pitch and yaw are `KS`: measured against NED, because that is the convention of the
-Xsens IMU and of the flight controllers. [`euler_ks`](@ref) reports them from a `KA`
-attitude. The function `quat2euler()` expects a `KS` quaternion as input, so it is only
-correct on the result of `convert_orientation(q; from=KA, to=KS)`.
-
-- yaw angle: zero north, clockwise positive as seen from above
+Roll, pitch and yaw are not stored, because they are that same quaternion in another form
+and storing them would put a second convention in the state. They are measured against NED,
+that being the convention of the Xsens IMU and of flight test data, and
+[`euler_ks`](@ref)`(ss.orient)` reports them. Yaw is zero at north, clockwise positive seen
+from above. The function `quat2euler()` expects a `KS` quaternion, so it is only correct on
+the result of `convert_orientation(q; from=KA, to=KS)`.
 
 The origin the kite rotates about is a per-model choice and does not affect the
 orientation. For the four-point model it is the centre point $0.5 * (C + D)$, where C and D

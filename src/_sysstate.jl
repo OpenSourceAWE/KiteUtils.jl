@@ -159,12 +159,6 @@ $(TYPEDFIELDS)
     set_speed::MVector{W, F} = zeros(F, W)
     "force setting, one per winch [N]"
     set_force::MVector{W, F} = zeros(F, W)
-    "roll angle, KS (against NED) [rad]"
-    roll::F = 0
-    "pitch angle, KS (against NED) [rad]"
-    pitch::F = 0
-    "yaw angle, KS (against NED) [rad]"
-    yaw::F = 0
     "generic variable 01"
     var_01::F = 0
     "generic variable 02"

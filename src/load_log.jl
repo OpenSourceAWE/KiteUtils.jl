@@ -85,9 +85,6 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
     set_torque = zero_col(0)
     set_speed = zero_col(0)
     set_force = zero_col(0)
-    roll = zeros(F, n)
-    pitch = zeros(F, n)
-    yaw = zeros(F, n)
     winch_force = zero_col(0)
 
     for name in [:cycle, :fig_8, :turn_rates, :azimuth_rate, :kcu_steering,
@@ -95,7 +92,7 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
                  :v_wind_200m, :v_wind_kite, :AoA, :side_slip, :alpha3, :alpha4, :CL2, :CD2,
                  :aero_force_b, :aero_moment_b, :tether_induced_force, :tether_induced_moment,
                  :twist_angles, :acc, :set_torque, :set_speed,
-                 :set_force, :roll, :pitch, :yaw, :force, :winch_force]
+                 :set_force, :force, :winch_force]
         if haskey(table, name)
             if name == :cycle
                 cycle = table.cycle
@@ -151,12 +148,6 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
                 set_speed = table.set_speed
             elseif name == :set_force
                 set_force = table.set_force
-            elseif name == :roll
-                roll = table.roll
-            elseif name == :pitch
-                pitch = table.pitch
-            elseif name == :yaw
-                yaw = table.yaw
             elseif name == :force
                 winch_force = table.force
             elseif name == :winch_force
@@ -268,8 +259,8 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
                                        spring_force,
                                        turn_rate_x, turn_rate_y, turn_rate_z,
                                        twist_vel, pulley_len, pulley_vel,
-                                       set_torque, set_speed, set_force, roll, pitch,
-                                       yaw, table.var_01, table.var_02, table.var_03, table.var_04, 
+                                       set_torque, set_speed, set_force,
+                                       table.var_01, table.var_02, table.var_03, table.var_04, 
                                        table.var_05, table.var_06, table.var_07, table.var_08, table.var_09, 
                                        table.var_10, table.var_11, table.var_12, table.var_13, table.var_14, 
                                        table.var_15, table.var_16))

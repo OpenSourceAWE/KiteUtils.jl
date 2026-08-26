@@ -20,9 +20,8 @@ function syslog(logger::Logger{P, O, D, L, W, T, S, F, Q}) where {P, O, D, L, W,
                                      l.aero_force_x_vec, l.aero_force_y_vec, l.aero_force_z_vec, l.drag_force_x_vec, l.drag_force_y_vec, 
                                      l.drag_force_z_vec, l.spring_force_vec, l.turn_rate_x_vec, l.turn_rate_y_vec, l.turn_rate_z_vec, 
                                      l.twist_vel_vec, l.pulley_len_vec, l.pulley_vel_vec, l.set_torque_vec, l.set_speed_vec, 
-                                     l.set_force_vec, l.roll_vec, l.pitch_vec, l.yaw_vec, l.var_01_vec, 
-                                     l.var_02_vec, l.var_03_vec, l.var_04_vec, l.var_05_vec, l.var_06_vec, 
-                                     l.var_07_vec, l.var_08_vec, l.var_09_vec, l.var_10_vec, l.var_11_vec, 
-                                     l.var_12_vec, l.var_13_vec, l.var_14_vec, l.var_15_vec, l.var_16_vec
-                                     ))
+                                     l.set_force_vec, l.var_01_vec, l.var_02_vec, l.var_03_vec, l.var_04_vec, 
+                                     l.var_05_vec, l.var_06_vec, l.var_07_vec, l.var_08_vec, l.var_09_vec, 
+                                     l.var_10_vec, l.var_11_vec, l.var_12_vec, l.var_13_vec, l.var_14_vec, 
+                                     l.var_15_vec, l.var_16_vec))
 end

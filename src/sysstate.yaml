@@ -66,9 +66,6 @@ sysstate:
     set_torque: "MVector{W, MyFloat}"   # torque setting, one per winch [Nm]
     set_speed: "MVector{W, MyFloat}"    # speed setting, one per winch [m/s]
     set_force: "MVector{W, MyFloat}"    # force setting, one per winch [N]
-    roll: "MyFloat"                     # roll angle, KS (against NED) [rad]
-    pitch: "MyFloat"                    # pitch angle, KS (against NED) [rad]
-    yaw: "MyFloat"                      # yaw angle, KS (against NED) [rad]
     var_01: "MyFloat"                   # generic variable 01
     var_02: "MyFloat"                   # generic variable 02
     var_03: "MyFloat"                   # generic variable 03

@@ -15,8 +15,14 @@
   KiteUtils version that wrote them (`log_metadata`); `log_convention` reads it
   back. Nothing was stored there before, so its absence identifies an older log.
 ### Changed
-- BREAKING: quaternions in `SysState` are `KA`. `roll`, `pitch` and `yaw` stay
-  `KS`, since that is what the sensors report and the controllers expect.
+- BREAKING: quaternions in `SysState` are `KA`, and it holds no other convention.
+- BREAKING: `SysState` drops `roll`, `pitch` and `yaw`. They were the same
+  orientation in another form, and keeping them meant keeping a second convention
+  in the state: measured against NED, because that is what the Xsens IMU and flight
+  test data use, whereas everything else is ENU. Reporting them in `KA` instead was
+  the alternative and is worse — the axis names stop matching the axes, so roll
+  changes sign and yaw is offset a quarter turn and runs backwards, which reads as
+  a model error next to a measured trace. Call `euler_ks(ss.orient)` instead.
 - Logs carry their frame convention, so `load_log` converts what it reads into
   `KA`. Only logs from 0.13 onwards declare one; an older log is `KS`, that being
   what the format specified, and is converted on load with a warning saying so.
