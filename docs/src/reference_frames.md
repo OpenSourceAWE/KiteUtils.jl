@@ -37,15 +37,16 @@ is also called **EX** (Earth Xsens). Nothing is positioned in it. It is defined 
 - **y**: east
 - **z**: down
 
-The **NWU** (North West Up) reference frame, called **EG** (Earth Groundstation) in the
-code, is a step on the way from ENU to the wind reference frame. It is defined as follows:
+The **NWU** (North West Up) reference frame is called **EG** (Earth Groundstation) in the
+code. It is defined as follows:
 - **x**: north
 - **y**: west
 - **z**: up
 
 The **W** (Wind) reference frame is the frame the flight path controller works in. It is
-NWU turned about the vertical so that its x axis follows the wind, as shown in the figure
-below. It is defined as follows:
+NWU rotated about the vertical by the downwind direction, which is measured clockwise from
+north, so it turns as the wind turns. It is shown in the figure below and defined as
+follows:
 - **x**: downwind
 - **y**: cross-wind, to the left when looking downwind from above
 - **z**: up
