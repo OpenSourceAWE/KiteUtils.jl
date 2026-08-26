@@ -7,25 +7,45 @@ CurrentModule = KiteUtils
 
 ## Kinds of frame
 
-A reference frame is an origin plus an axis convention. Three axis conventions appear here:
+A **world frame** is earth-fixed: its axes keep pointing the same way whatever the kite
+does. Positions, velocities, wind and forces drawn in space are expressed in one.
 
-- **ENU**: east, north, up
-- **NED**: north, east, down
-- **NWU**: north, west, up
+A **body frame** is attached to the kite and turns with it, so each of its axes points
+somewhere different in the world at every instant. Aerodynamic forces and moments, turn
+rates, angle of attack and side slip are expressed in one.
 
-A world frame is earth-fixed. A body frame is attached to the kite and turns with it. An
-orientation is the rotation from a body frame to a world frame, so only the axis
-conventions enter it, not the origins.
+An **orientation** is the rotation from a body frame to a world frame; its columns are the
+body axes written in world coordinates. Converting one takes a rotation on both sides,
+which is what [`convert_orientation`](@ref) does. [`convert_world`](@ref) and
+[`convert_body`](@ref) rotate one side each and are for vectors.
 
 ## World frames
 
-The simulation frame uses **ENU** with its origin at the tether exit point of the ground
-station. Every position, velocity and world-frame force is expressed in it.
+The origin of these frames is the tether exit point of the ground station, apart from SE,
+which is a plane touching the sphere at the position of the kite.
 
-The **EG** (Earth Groundstation) reference frame uses **NWU** with that same origin.
+The **ENU** (East North Up) reference frame is the simulation frame. Every position,
+velocity and world-frame force is expressed in it. It is defined as follows:
+- **x**: east
+- **y**: north
+- **z**: up
 
-The **W** (Wind) reference frame is EG turned about the vertical so that its x axis follows
-the wind, as shown in the figure below. It is defined as follows:
+The **NED** (North East Down) reference frame is the frame the orientation angles are
+measured against, because that is the convention the Xsens IMU reports in. In the code it
+is also called **EX** (Earth Xsens). Nothing is positioned in it. It is defined as follows:
+- **x**: north
+- **y**: east
+- **z**: down
+
+The **NWU** (North West Up) reference frame, called **EG** (Earth Groundstation) in the
+code, is a step on the way from ENU to the wind reference frame. It is defined as follows:
+- **x**: north
+- **y**: west
+- **z**: up
+
+The **W** (Wind) reference frame is the frame the flight path controller works in. It is
+NWU turned about the vertical so that its x axis follows the wind, as shown in the figure
+below. It is defined as follows:
 - **x**: downwind
 - **y**: cross-wind, to the left when looking downwind from above
 - **z**: up
@@ -36,10 +56,6 @@ it rotates, following the kite. It is defined as follows:
 - **x**: towards zenith, so the heading is zero when the nose points up the sphere
 - **y**: completing the right-handed set
 - **z**: from the kite back towards the ground station
-
-**NED** has no frame of its own here, because nothing is positioned in it. It is the
-convention the orientation angles are measured against, that being what the Xsens IMU
-reports, and in the code it is also called **EX** (Earth Xsens).
 
 ## Body frames
 
