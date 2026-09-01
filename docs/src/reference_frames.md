@@ -3,7 +3,7 @@ CurrentModule = KiteUtils
 ```
 # Reference frames
 
-**ENU world, `KA` body, everywhere. `KS` only at the edges.**
+Positions, velocities and forces in space are ENU. Orientations in `SysState` are `KA`.
 
 ## Kinds of frame
 
@@ -62,9 +62,8 @@ a free per-model choice. It is defined as follows:
 - **z**: up
 
 These are the aerodynamic axes, so drag is +x, side force +y and lift +z, and at zenith
-they line up with ENU. Any package may assume the sense `x · (TE − LE) > 0` with y
-spanwise positive. A geometry authored the other way round inverts the aerodynamics rather
-than relabelling them, so the sense is a requirement and not a preference.
+they line up with ENU. Geometry must satisfy `x · (TE − LE) > 0` with y spanwise positive;
+with x reversed, drag, side force and lift change sign.
 
 The **KS** (kite sensor) reference frame is the sensor-fixed reference frame, reported
 against NED because that is the convention the Xsens IMU reports in. Its origin is defined
@@ -74,16 +73,15 @@ by the location where the sensor is mounted. In the simulation this is equal to 
 - **y**: to the right looking in flight direction
 - **z**: down
 
-`KS` survives in three places and nowhere else:
+`KS` is used in exactly three places:
 
+- at sensor ingest;
 - inside `KiteModels`, whose solver and aerodynamics are built on it;
-- in [`euler_KS`](@ref), which reports roll, pitch and yaw against NED, that being what
-  the sensors deliver and what flight test data is compared against;
-- at sensor ingest.
+- in [`euler_KS`](@ref), which reports roll, pitch and yaw against NED.
 
-Everywhere else, converting an orientation is a call to [`KS2KA`](@ref) or
-[`KA2KS`](@ref), which rotate on both sides. A plain world vector is not an orientation
-and takes [`ENU2NED`](@ref) or [`NED2ENU`](@ref), which rotate on one.
+Converting an orientation between the two conventions is [`KS2KA`](@ref) or
+[`KA2KS`](@ref), which rotate on both sides. A world vector is not an orientation and
+takes [`ENU2NED`](@ref) or [`NED2ENU`](@ref), which rotate on one.
 
 ### The neighbouring packages
 
@@ -93,23 +91,22 @@ and takes [`ENU2NED`](@ref) or [`NED2ENU`](@ref), which rotate on one.
 | ASKITE                  | `KA`-shaped geometry  | CAD identical to V3Kite.jl's         |
 | KiteModels.jl           | `KS`                  | `kite_ref_frame`, z down the tether  |
 | EKF-AWE                 | forward x, ENU world  | `postprocess/postprocessing.py`      |
-| AWETrim                 | undocumented          | needs reading or asking              |
+| AWETrim                 | undocumented          | unknown                              |
 
 ## SE frame
 
 The **SE** (Small Earth) reference frame is neither a world nor a body frame: it is the
 plane tangential to the unit half-sphere around the ground station, touching it at the
-position of the kite. It follows the kite's position but not its attitude, which is what
-makes the heading angle meaningful. It is defined as follows:
+position of the kite. It follows the kite's position but not its attitude, so a direction
+expressed in it varies only with the attitude. It is defined as follows:
 - **x**: towards zenith, so the heading is zero when the nose points up the sphere
 - **y**: completing the right-handed set
 - **z**: from the kite back towards the ground station
 
-`KS` and `KA` do not reach this far: a vector is resolved to ENU first and then passed
+An SE vector carries no body convention. A vector is resolved to ENU first, then passed
 through `fromENU2EG`, `fromEG2W` and `fromW2SE`, none of which take a convention.
-[`ENU2NED`](@ref) converts between those two frames only, so it does not apply to an SE
-vector. See [Small earth reference frame](@ref) for why the
-frame is used.
+[`ENU2NED`](@ref) converts between those two frames only and does not apply to an SE
+vector. See [Small earth reference frame](@ref) for the role of the frame.
 
 ## Wind direction
 The `upwind_dir` (degrees) is the direction the wind is coming from. Zero is at north; clockwise positive.
