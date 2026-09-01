@@ -38,21 +38,20 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
 @testset verbose=true "frame conventions" begin
     @testset "conversion matrices" begin
         vec = SVector(1.0, 2.0, 3.0)
-        @test ENU2NED(vec) == SVector(2.0, 1.0, -3.0)
-        @test NED2ENU(ENU2NED(vec)) == vec
-        @test_throws ArgumentError KS2KA(vec)
+        @test fromENU2NED(vec) == SVector(2.0, 1.0, -3.0)
+        @test fromNED2ENU(fromENU2NED(vec)) == vec
+        @test_throws ArgumentError fromKS2KA(vec)
     end
     @testset "orientation needs a rotation on both sides" begin
         # Kite at zenith, nose north. KS is then the identity against NED; the same
         # attitude in KA has the aft axis pointing south and the up axis up.
         rot_KS = calc_orient_rot([0, 1, 0], [1, 0, 0], [0, 0, -1])
         @test rot_KS ≈ I
-        rot_KA = KS2KA(rot_KS)
+        rot_KA = fromKS2KA(rot_KS)
         @test rot_KA[:, 1] ≈ [0, -1, 0]   # aft, pointing south in ENU
         @test rot_KA[:, 2] ≈ [1, 0, 0]    # right tip, pointing east in ENU
         @test rot_KA[:, 3] ≈ [0, 0, 1]    # up
-        @test kite_nose(rot_KA) ≈ [0, 1, 0]
-        @test KA2KS(rot_KA) ≈ rot_KS
+        @test fromKA2KS(rot_KA) ≈ rot_KS
         @test all(rad2deg.(euler_KS(rot_KA)) .≈ (0, 0, 0))
     end
     @testset "euler_KS against physical attitudes" begin
@@ -68,21 +67,21 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
     @testset "round trips over every form" begin
         for (roll, pitch, yaw) in attitudes
             rot_KS = euler2rot(roll, pitch, yaw)
-            rot_KA = KS2KA(rot_KS)
-            @test KA2KS(rot_KA) ≈ rot_KS
+            rot_KA = fromKS2KA(rot_KS)
+            @test fromKA2KS(rot_KA) ≈ rot_KS
             @test det(rot_KA) ≈ 1
-            q_KA = KS2KA(QuatRotation(rot_KS))
+            q_KA = fromKS2KA(QuatRotation(rot_KS))
             @test RotMatrix{3}(q_KA) ≈ rot_KA
-            v_KA = KS2KA(Rotations.params(QuatRotation(rot_KS)))
+            v_KA = fromKS2KA(Rotations.params(QuatRotation(rot_KS)))
             @test QuatRotation(v_KA) ≈ q_KA
             @test all(euler_KS(q_KA) .≈ (roll, pitch, yaw))
-            @test all(euler_KS((roll, pitch, yaw) |> collect, KS) .≈ (roll, pitch, yaw))
+            @test all(euler_KS((roll, pitch, yaw) |> collect) .≈ (roll, pitch, yaw))
         end
     end
     @testset "heading and clock angle: KA equals the old KS chain" begin
         for (roll, pitch, yaw) in attitudes
             euler = [roll, pitch, yaw]
-            q_KA = KS2KA(QuatRotation(euler2rot(roll, pitch, yaw)))
+            q_KA = fromKS2KA(QuatRotation(euler2rot(roll, pitch, yaw)))
             for (elevation, azimuth) in positions
                 @test calc_heading(q_KA, elevation, azimuth) ≈
                       heading_KS_reference(euler, elevation, azimuth)
@@ -112,7 +111,7 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         # A known KS attitude: nose north at zenith, so KA is a quarter turn away.
         q_KS = Rotations.params(QuatRotation(calc_orient_rot([0, 1, 0], [1, 0, 0],
                                                              [0, 0, -1])))
-        q_KA = KS2KA(q_KS)
+        q_KA = fromKS2KA(q_KS)
         for step in eachindex(log.syslog)
             log.syslog.Qw[step][1], log.syslog.Qx[step][1] = q_KS[1], q_KS[2]
             log.syslog.Qy[step][1], log.syslog.Qz[step][1] = q_KS[3], q_KS[4]
@@ -145,11 +144,11 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         @test all(collect(kept.syslog.orient[1]) .≈ q_KA)
         set_data_path(data_path)
     end
-    @testset "quat2viewer is convention aware" begin
+    @testset "quat2viewer matches the KS reference implementation" begin
         for (roll, pitch, yaw) in attitudes
             q_KS = QuatRotation(euler2rot(roll, pitch, yaw))
-            q_KA = KS2KA(q_KS)
-            @test quat2viewer(q_KA) ≈ quat2viewer(q_KS, KS)
+            @test RotMatrix{3}(QuatRotation(quat2viewer(fromKS2KA(q_KS)))) ≈
+                  RotMatrix{3}(QuatRotation(KiteUtils.quat2viewer_KS(q_KS)))
         end
     end
 end

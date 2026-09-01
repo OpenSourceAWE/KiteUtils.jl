@@ -141,7 +141,7 @@ using KiteUtils
         @assert is_right_handed_orthonormal(x, y, z)
         rot = calc_orient_rot(x, y, z)
         q = QuatRotation(rot)
-        q1 = quat2viewer(q, KS)
+        q1 = quat2viewer(fromKS2KA(q))
         roll, pitch, yaw = rad2deg.(quat2euler(q1))
         @test roll ≈ 90
         @test pitch ≈ 0

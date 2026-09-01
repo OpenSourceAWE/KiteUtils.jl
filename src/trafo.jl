@@ -76,28 +76,28 @@ function fromEG2W(vector, down_wind_direction = pi/2.0)
 end
 
 """
-    calc_heading_w(attitude, down_wind_direction = pi/2.0; frame=KA)
+    calc_heading_w(attitude, down_wind_direction = pi/2.0)
 
-Calculate the heading vector in wind reference frame. See [`kite_nose`](@ref) for
-the accepted forms of `attitude`.
+Calculate the heading vector in wind reference frame from a `KA` attitude. See
+[`orient_matrix`](@ref) for the accepted forms of `attitude`.
 """
-function calc_heading_w(attitude, down_wind_direction = pi/2.0; frame::FrameConvention=KA)
-    fromEG2W(fromENU2EG(kite_nose(attitude, frame)), down_wind_direction)
+function calc_heading_w(attitude, down_wind_direction = pi/2.0)
+    nose = -orient_matrix(attitude)[:, 1]
+    fromEG2W(fromENU2EG(nose), down_wind_direction)
 end
 
 """
-    calc_heading(attitude, elevation, azimuth; frame=KA, upwind_dir=-pi/2, respos=true)
+    calc_heading(attitude, elevation, azimuth; upwind_dir=-pi/2, respos=true)
 
 Calculate the heading angle of the kite in radians. The heading is the direction the nose 
 of the kite is pointing to, expressed in the Small Earth (SE) reference frame.
 
 # Arguments
-- `attitude`:    Orientation of the kite as a quaternion or rotation matrix in the `frame`
-                 convention, or as Euler angles (roll, pitch, yaw) in radian, which are
-                 always `KS` (measured against NED)
+- `attitude`:    Orientation of the kite as a `KA` quaternion or rotation matrix, or as
+                 Euler angles (roll, pitch, yaw) in radian, which are `KS` (measured
+                 against NED)
 - `elevation`:   Elevation angle of the kite in radians
 - `azimuth`:     Azimuth angle of the kite in radians
-- `frame`:       Convention `attitude` is expressed in (default: `KA`)
 - `upwind_dir`:  Direction the wind is coming from in radians; zero at north; clockwise 
                  positive from above (default: -π/2, wind from west)
 - `respos`:      If true, return angle in range [0, 2π]; if false, return in range [-π, π] 
@@ -106,10 +106,9 @@ of the kite is pointing to, expressed in the Small Earth (SE) reference frame.
 # Returns
 The heading angle in radians, measured from the positive x-axis of the SE reference frame.
 """
-function calc_heading(attitude, elevation, azimuth; frame::FrameConvention=KA,
-                      upwind_dir=-pi/2, respos=true)
+function calc_heading(attitude, elevation, azimuth; upwind_dir=-pi/2, respos=true)
     down_wind_direction = wrap2pi(upwind_dir + π)
-    headingSE = fromW2SE(calc_heading_w(attitude, down_wind_direction; frame),
+    headingSE = fromW2SE(calc_heading_w(attitude, down_wind_direction),
                          elevation, azimuth)
     angle = atan(headingSE[begin+1], headingSE[begin])
     if angle < 0 && respos
@@ -119,7 +118,7 @@ function calc_heading(attitude, elevation, azimuth; frame::FrameConvention=KA,
 end
 
 """
-    calc_clock_angle(attitude, elevation, azimuth; frame=KA, upwind_dir=-pi/2, respos=true)
+    calc_clock_angle(attitude, elevation, azimuth; upwind_dir=-pi/2, respos=true)
 
 Calculate the clock angle of the kite in radians. The clock angle is the rotation of the
 kite's nose around the tether axis, measured from the world-up direction projected
@@ -128,12 +127,11 @@ onto the plane perpendicular to the tether. Zero means the kite's nose points to
 the ground station.
 
 # Arguments
-- `attitude`:    Orientation of the kite as a quaternion or rotation matrix in the `frame`
-                 convention, or as Euler angles (roll, pitch, yaw) in radian, which are
-                 always `KS` (measured against NED)
+- `attitude`:    Orientation of the kite as a `KA` quaternion or rotation matrix, or as
+                 Euler angles (roll, pitch, yaw) in radian, which are `KS` (measured
+                 against NED)
 - `elevation`:   Elevation angle of the kite in radians
 - `azimuth`:     Azimuth angle of the kite in radians
-- `frame`:       Convention `attitude` is expressed in (default: `KA`)
 - `upwind_dir`:  Direction the wind is coming from in radians; zero at north; clockwise
                  positive from above (default: -π/2, wind from west)
 - `respos`:      If true, return angle in range [0, 2π]; if false, return in range [-π, π]
@@ -142,9 +140,8 @@ the ground station.
 # Returns
 The clock angle in radians.
 """
-function calc_clock_angle(attitude, elevation, azimuth; frame::FrameConvention=KA,
-                          upwind_dir=-pi/2, respos=true)
-    x_kite_ENU = kite_nose(attitude, frame)
+function calc_clock_angle(attitude, elevation, azimuth; upwind_dir=-pi/2, respos=true)
+    x_kite_ENU = -orient_matrix(attitude)[:, 1]
     # Convert wind-frame azimuth to ENU north-based azimuth so this matches calc_heading.
     azimuth_n = wrap2pi(azimuth - upwind_dir - π)
     pos_unit = SVector(-cos(elevation) * sin(azimuth_n), cos(elevation) * cos(azimuth_n),

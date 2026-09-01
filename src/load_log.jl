@@ -234,7 +234,7 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
         Qx = [MVector{O, F}(q) for q in Qx]
         Qy = [MVector{O, F}(q) for q in Qy]
         Qz = [MVector{O, F}(q) for q in Qz]
-        KS2KA_columns!(Qw, Qx, Qy, Qz)
+        fromKS2KA_columns!(Qw, Qx, Qy, Qz)
     end
     turn_rate_x, turn_rate_y, turn_rate_z =
         column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)

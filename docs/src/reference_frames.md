@@ -16,8 +16,8 @@ rates, angle of attack and side slip are expressed in one.
 
 An **orientation** is the rotation from a body frame to a world frame; its columns are the
 body axes written in world coordinates. Converting one takes a rotation on both sides,
-which is what [`KS2KA`](@ref) and [`KA2KS`](@ref) do. A world vector is rotated on one
-side only, by [`ENU2NED`](@ref) or [`NED2ENU`](@ref).
+which is what [`fromKS2KA`](@ref) and [`fromKA2KS`](@ref) do. A world vector is rotated on one
+side only, by [`fromENU2NED`](@ref) or [`fromNED2ENU`](@ref).
 
 ## World frames
 
@@ -79,9 +79,9 @@ by the location where the sensor is mounted. In the simulation this is equal to 
 - inside `KiteModels`, whose solver and aerodynamics are built on it;
 - in [`euler_KS`](@ref), which reports roll, pitch and yaw against NED.
 
-Converting an orientation between the two conventions is [`KS2KA`](@ref) or
-[`KA2KS`](@ref), which rotate on both sides. A world vector is not an orientation and
-takes [`ENU2NED`](@ref) or [`NED2ENU`](@ref), which rotate on one.
+Converting an orientation between the two conventions is [`fromKS2KA`](@ref) or
+[`fromKA2KS`](@ref), which rotate on both sides. A world vector is not an orientation and
+takes [`fromENU2NED`](@ref) or [`fromNED2ENU`](@ref), which rotate on one.
 
 ### The neighbouring packages
 
@@ -105,7 +105,7 @@ expressed in it varies only with the attitude. It is defined as follows:
 
 An SE vector carries no body convention. A vector is resolved to ENU first, then passed
 through `fromENU2EG`, `fromEG2W` and `fromW2SE`, none of which take a convention.
-[`ENU2NED`](@ref) converts between those two frames only and does not apply to an SE
+[`fromENU2NED`](@ref) converts between those two frames only and does not apply to an SE
 vector. See [Small earth reference frame](@ref) for the role of the frame.
 
 ## Wind direction
@@ -125,14 +125,14 @@ The functions `calc_heading()` and `calc_clock_angle()` both use this same wind-
 The orientation is stored as a quaternion, and can be reported as roll, pitch and yaw.
 
 Quaternions stored in `SysState` are `KA`: the body-to-ENU rotation of the aft-right-up
-body frame. Its columns are the body axes expressed in ENU, so `-x` is the nose, which is
-what [`kite_nose`](@ref) returns and what `calc_heading()` and `calc_clock_angle()` are
-built on. It is the only orientation the state carries.
+body frame. Its columns are the body axes expressed in ENU, so `-x` is the nose, which is what
+`calc_heading()` and `calc_clock_angle()` are built on. It is the only orientation the
+state carries.
 
 Roll, pitch and yaw are not stored. [`euler_KS`](@ref)`(ss.orient)` reports them, measured
 against NED, that being the convention of the Xsens IMU and of flight test data. Yaw is
 zero at north, clockwise positive seen from above. The function `quat2euler()` expects a
-`KS` quaternion, so it is only correct on the result of `KA2KS(q)`.
+`KS` quaternion, so it is only correct on the result of `fromKA2KS(q)`.
 
 The origin the kite rotates about is a per-model choice and does not affect the
 orientation. For the four-point model it is the centre point $0.5 * (C + D)$, where C and D

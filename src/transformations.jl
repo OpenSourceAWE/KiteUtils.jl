@@ -64,20 +64,20 @@ end
 
 
 """
-    ENU2NED(vec::AbstractVector)
+    fromENU2NED(vec::AbstractVector)
 
 Convert a vector from ENU (east, north, up) to NED (north, east, down) reference frame.
 """
-function ENU2NED(vec::AbstractVector)
+function fromENU2NED(vec::AbstractVector)
     WORLD_FLIP * vec
 end
 
 """
-    NED2ENU(vec::AbstractVector)
+    fromNED2ENU(vec::AbstractVector)
 
 Convert a vector from NED (north, east, down) to ENU (east, north, up) reference frame.
 """
-NED2ENU(vec::AbstractVector) = ENU2NED(vec)
+fromNED2ENU(vec::AbstractVector) = fromENU2NED(vec)
 
 """
     calc_orient_rot(x, y, z; viewer=false, ENU=true)
@@ -88,14 +88,14 @@ If viewer is true, the rotation matrix is calculated based with respect to
 the viewer reference frame.
 
 The axes and the result are `KS`; pass the result through
-[`KS2KA`](@ref) to obtain the `KA` orientation stored in `SysState`.
+[`fromKS2KA`](@ref) to obtain the `KA` orientation stored in `SysState`.
 For `KA` axes given in ENU the orientation is simply `[x y z]`, no function needed.
 """
 function calc_orient_rot(x, y, z; viewer=false, ENU=true)
     if ENU
-        x = ENU2NED(x)
-        y = ENU2NED(y)
-        z = ENU2NED(z)
+        x = fromENU2NED(x)
+        y = fromENU2NED(y)
+        z = fromENU2NED(z)
     end
     if viewer
         pos_kite_ = @SVector ones(3)
@@ -131,24 +131,22 @@ function euler2rot(roll, pitch, yaw)
 end
 
 """
-    quat2viewer(attitude, frame::FrameConvention=KA)
+    quat2viewer(attitude)
 
-Convert an orientation to the viewer reference frame. See [`kite_nose`](@ref) for
-the accepted forms of `attitude`; `frame` says which convention it is given in.
-Returns a quaternion as a 4-element vector [w,i,j,k].
+Convert a `KA` orientation to the viewer reference frame. See [`orient_matrix`](@ref)
+for the accepted forms of `attitude`. Returns a quaternion as a 4-element vector
+[w,i,j,k].
 """
-function quat2viewer(attitude, frame::FrameConvention=KA)
-    quat2viewer_KS(QuatRotation(KA2KS(orient_matrix(attitude, frame))))
-end
+quat2viewer(attitude) = quat2viewer_KS(QuatRotation(fromKA2KS(orient_matrix(attitude))))
 
 # Viewer conversion of a KS (NED) orientation. The viewer frame is defined in terms
 # of KS, so this stays the reference implementation and quat2viewer converts into it.
 function quat2viewer_KS(q::QuatRotation)
     # 1. get reference frame
     rot = inv(RotMatrix{3}(q)) # from kite to inertial reference frame
-    x = ENU2NED(rot[1,:])
-    y = ENU2NED(rot[2,:])
-    z = ENU2NED(rot[3,:])
+    x = fromENU2NED(rot[1,:])
+    y = fromENU2NED(rot[2,:])
+    z = fromENU2NED(rot[3,:])
     # 2. convert it using the old method
     ax = @SVector [0, 1, 0]  # in ENU reference frame this is pointing to the south
     ay = @SVector [1, 0, 0]  # in ENU reference frame this is pointing to the west

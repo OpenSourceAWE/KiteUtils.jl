@@ -58,23 +58,22 @@ The function ```set_data_path(data_path)``` can be used to set the directory for
 
 ## Frame conventions
 Convert an orientation between the two body-frame conventions, `KS` and `KA`. A world
-vector is not an orientation and takes `ENU2NED` or `NED2ENU` instead.
+vector is not an orientation and takes `fromENU2NED` or `fromNED2ENU` instead.
 ```@docs
-KS2KA
-KA2KS
+fromKS2KA
+fromKA2KS
 orient_matrix
 euler_KS
-kite_nose
 log_metadata
 log_convention
-KS2KA_columns!
+fromKS2KA_columns!
 ```
 
 ## Rotation matrices and conversions
 ```@docs
 calc_orient_rot
-ENU2NED
-NED2ENU
+fromENU2NED
+fromNED2ENU
 is_right_handed_orthonormal
 quat2euler
 quat2viewer

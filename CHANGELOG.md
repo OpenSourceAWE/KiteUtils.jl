@@ -5,12 +5,12 @@
 - `FrameConvention`, an enum with the two body-frame conventions used in the
   OpenSourceAWE packages: `KA` (aft-right-up, reported against ENU) and `KS`
   (forward-right-down, reported against NED).
-- `KS2KA` and `KA2KS` convert an orientation between the two conventions. An
+- `fromKS2KA` and `fromKA2KS` convert an orientation between the two conventions. An
   orientation is a body-to-world rotation, so it is rotated on both sides; a world
-  vector is not an orientation and takes `ENU2NED` or `NED2ENU`, which rotate on
-  one. `KS2KA_columns!` converts a log's quaternion columns in place.
-- `euler_KS` reports roll, pitch and yaw from a `KA` attitude, `kite_nose` the
-  nose direction in ENU, and `orient_matrix` accepts an attitude in any form.
+  vector is not an orientation and takes `fromENU2NED` or `fromNED2ENU`, which rotate on
+  one. `fromKS2KA_columns!` converts a log's quaternion columns in place.
+- `euler_KS` reports roll, pitch and yaw from a `KA` attitude, and `orient_matrix`
+  accepts an attitude in any form.
 - `.arrow` logs carry table-level metadata naming the frame convention and the
   KiteUtils version that wrote them (`log_metadata`); `log_convention` reads it
   back. Nothing was stored there before, so its absence identifies an older log.
@@ -28,21 +28,20 @@
   what the format specified, and is converted on load with a warning saying so.
   `load_log(name; frame=KA)` is the escape hatch for a log that did not honour the
   specification, SymbolicAWEModels having written `KA` into the field unconverted.
-- BREAKING: `calc_heading`, `calc_heading_w` and `calc_clock_angle` take an
-  attitude in the `KA` convention, as a quaternion or rotation matrix, and a
-  `frame` keyword to say otherwise. Roll, pitch and yaw passed as a 3-element
-  vector still work and are still `KS`, so existing call sites keep their result.
-- BREAKING: `quat2viewer(attitude, frame=KA)` takes the convention as a second
-  positional argument; a `KS` orientation now needs `quat2viewer(q, KS)`.
+- BREAKING: `calc_heading`, `calc_heading_w`, `calc_clock_angle` and `quat2viewer`
+  take an attitude in the `KA` convention, as a quaternion or rotation matrix. A
+  `KS` orientation is converted by the caller: `quat2viewer(fromKS2KA(q))`. Roll, pitch
+  and yaw passed as a 3-element vector still work and are still `KS`, so existing
+  call sites keep their result.
 - `demo_state_4p` stored a viewer-frame quaternion rather than the documented
   one; both demo states now store `KA`.
 - `fromKS2EX` and `fromEX2EG` are sensor ingest only. Nothing downstream of the
   sensor uses them: heading and clock angle are computed in ENU from the `KA`
   attitude, which `test-frames.jl` shows equals the old chain exactly over a
   sweep of attitudes and kite positions.
-- BREAKING: `enu2ned` and `ned2enu` are renamed `ENU2NED` and `NED2ENU`, frame
-  names being capitalised throughout.
-- `euler2rot` returns an `SMatrix`, and `NED2ENU` calls `ENU2NED`, the two being
+- BREAKING: `enu2ned` and `ned2enu` are renamed `fromENU2NED` and `fromNED2ENU`,
+  matching the `fromX2Y` naming the other frame transformations already use.
+- `euler2rot` returns an `SMatrix`, and `fromNED2ENU` calls `fromENU2NED`, the two being
   the same involution.
 
 ## KiteUtils v0.12.2
