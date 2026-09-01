@@ -58,9 +58,9 @@ export asin2, azimuth_east, azimuth_north, calc_elevation, ground_dist, rot, rot
 export acos2, quat2euler, quat2viewer, wrap2pi                           # geometric functions
 export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE              # reference frame transformations
 export azn2azw,  calc_clock_angle, calc_course , calc_heading, calc_heading_w # geometric functions
-export calc_orient_rot, enu2ned, is_right_handed_orthonormal, ned2enu
+export calc_orient_rot, ENU2NED, is_right_handed_orthonormal, NED2ENU
 export FrameConvention, KS, KA                                           # frame conventions
-export convert_world, convert_body, convert_orientation, euler_ks, kite_nose,
+export KS2KA, KA2KS, KS2KA_columns!, euler_ks, kite_nose,
     orient_matrix, log_metadata, log_convention
 export angles_from_wind_vec, wind_vec_from_angles
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
@@ -215,7 +215,7 @@ function demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2)
     ss.X .= dist .* cos(turn_angle)
     ss.Y .= dist .* sin(turn_angle)
     ss.Z .= (a .* cosh.(dist./a) .- a) * height/ 5.430806
-    q = convert_orientation(QuatRotation(RotXYZ(pi/2, -pi/2, 0)); from=KS, to=KA)
+    q = KS2KA(QuatRotation(RotXYZ(pi/2, -pi/2, 0)))
     ss.orient .= MVector{4, Float32}(Rotations.params(q))
     ss.elevation = calc_elevation([ss.X[end], 0.0, ss.Z[end]])
     ss.v_wind_gnd .= [10.4855, 0, -3.08324]
@@ -318,7 +318,7 @@ function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
     let z = -normalize(delta),
         y = normalize(pos_C - pos_D)
         x = y × z
-        q = QuatRotation(convert_orientation(calc_orient_rot(x, y, z); from=KS, to=KA))
+        q = QuatRotation(KS2KA(calc_orient_rot(x, y, z)))
         ss.orient .= MVector{4, Float32}(Rotations.params(q))
     end
     ss.elevation = calc_elevation([X[end], 0.0, Z[end]])

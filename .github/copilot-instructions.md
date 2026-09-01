@@ -55,7 +55,7 @@ All source files that start with an underscore (`_`) are auto-generated from `da
 - `update_settings(settings; kwargs...)`: Update specific settings
 
 ### Coordinate Transformations
-- `ned2enu()`, `enu2ned()`: NED ↔ ENU frame conversions
+- `NED2ENU()`, `ENU2NED()`: NED ↔ ENU frame conversions
 - `fromW2SE()`, `fromSE2W()`: Wind frame ↔ System Earth frame
 - `fromENU2EG()`, `fromEG2ENU()`: ENU ↔ Earth-Ground frame
 - `fromEX2EG()`, `fromKS2EX()`: Additional frame transformations

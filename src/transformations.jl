@@ -64,20 +64,20 @@ end
 
 
 """
-    enu2ned(vec::AbstractVector)
+    ENU2NED(vec::AbstractVector)
 
 Convert a vector from ENU (east, north, up) to NED (north, east, down) reference frame.
 """
-function enu2ned(vec::AbstractVector)
+function ENU2NED(vec::AbstractVector)
     WORLD_FLIP * vec
 end
 
 """
-    ned2enu(vec::AbstractVector)
+    NED2ENU(vec::AbstractVector)
 
 Convert a vector from NED (north, east, down) to ENU (east, north, up) reference frame.
 """
-ned2enu(vec::AbstractVector) = enu2ned(vec)
+NED2ENU(vec::AbstractVector) = ENU2NED(vec)
 
 """
     calc_orient_rot(x, y, z; viewer=false, ENU=true)
@@ -88,14 +88,14 @@ If viewer is true, the rotation matrix is calculated based with respect to
 the viewer reference frame.
 
 The axes and the result are `KS`; pass the result through
-[`convert_orientation`](@ref) to obtain the `KA` orientation stored in `SysState`.
+[`KS2KA`](@ref) to obtain the `KA` orientation stored in `SysState`.
 For `KA` axes given in ENU the orientation is simply `[x y z]`, no function needed.
 """
 function calc_orient_rot(x, y, z; viewer=false, ENU=true)
     if ENU
-        x = enu2ned(x)
-        y = enu2ned(y)
-        z = enu2ned(z)
+        x = ENU2NED(x)
+        y = ENU2NED(y)
+        z = ENU2NED(z)
     end
     if viewer
         pos_kite_ = @SVector ones(3)
@@ -138,8 +138,7 @@ the accepted forms of `attitude`; `frame` says which convention it is given in.
 Returns a quaternion as a 4-element vector [w,i,j,k].
 """
 function quat2viewer(attitude, frame::FrameConvention=KA)
-    quat2viewer_ks(QuatRotation(convert_orientation(orient_matrix(attitude, frame);
-                                                    from=KA, to=KS)))
+    quat2viewer_ks(QuatRotation(KA2KS(orient_matrix(attitude, frame))))
 end
 
 # Viewer conversion of a KS (NED) orientation. The viewer frame is defined in terms
@@ -147,9 +146,9 @@ end
 function quat2viewer_ks(q::QuatRotation)
     # 1. get reference frame
     rot = inv(RotMatrix{3}(q)) # from kite to inertial reference frame
-    x = enu2ned(rot[1,:])
-    y = enu2ned(rot[2,:])
-    z = enu2ned(rot[3,:])
+    x = ENU2NED(rot[1,:])
+    y = ENU2NED(rot[2,:])
+    z = ENU2NED(rot[3,:])
     # 2. convert it using the old method
     ax = @SVector [0, 1, 0]  # in ENU reference frame this is pointing to the south
     ay = @SVector [1, 0, 0]  # in ENU reference frame this is pointing to the west

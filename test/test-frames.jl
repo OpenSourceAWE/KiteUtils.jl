@@ -38,26 +38,21 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
 @testset verbose=true "frame conventions" begin
     @testset "conversion matrices" begin
         vec = SVector(1.0, 2.0, 3.0)
-        @test convert_world(vec; from=KS, to=KA) == SVector(2.0, 1.0, -3.0)
-        @test convert_world(convert_world(vec; from=KS, to=KA); from=KA, to=KS) == vec
-        @test convert_body(vec; from=KS, to=KA) == SVector(-1.0, 2.0, -3.0)
-        @test convert_body(convert_body(vec; from=KA, to=KS); from=KS, to=KA) == vec
-        @test convert_world(vec; from=KA, to=KA) == vec
-        @test convert_body(vec; from=KS, to=KS) == vec
-        @test convert_world(vec; from=KS, to=KA) == enu2ned(vec)
-        @test ned2enu(enu2ned(vec)) == vec
+        @test ENU2NED(vec) == SVector(2.0, 1.0, -3.0)
+        @test NED2ENU(ENU2NED(vec)) == vec
+        @test_throws ArgumentError KS2KA(vec)
     end
     @testset "orientation needs a rotation on both sides" begin
         # Kite at zenith, nose north. KS is then the identity against NED; the same
         # attitude in KA has the aft axis pointing south and the up axis up.
         rot_ks = calc_orient_rot([0, 1, 0], [1, 0, 0], [0, 0, -1])
         @test rot_ks ≈ I
-        rot_ka = convert_orientation(rot_ks; from=KS, to=KA)
+        rot_ka = KS2KA(rot_ks)
         @test rot_ka[:, 1] ≈ [0, -1, 0]   # aft, pointing south in ENU
         @test rot_ka[:, 2] ≈ [1, 0, 0]    # right tip, pointing east in ENU
         @test rot_ka[:, 3] ≈ [0, 0, 1]    # up
         @test kite_nose(rot_ka) ≈ [0, 1, 0]
-        @test convert_orientation(rot_ka; from=KA, to=KS) ≈ rot_ks
+        @test KA2KS(rot_ka) ≈ rot_ks
         @test all(rad2deg.(euler_ks(rot_ka)) .≈ (0, 0, 0))
     end
     @testset "euler_ks against physical attitudes" begin
@@ -73,13 +68,12 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
     @testset "round trips over every form" begin
         for (roll, pitch, yaw) in attitudes
             rot_ks = euler2rot(roll, pitch, yaw)
-            rot_ka = convert_orientation(rot_ks; from=KS, to=KA)
-            @test convert_orientation(rot_ka; from=KA, to=KS) ≈ rot_ks
+            rot_ka = KS2KA(rot_ks)
+            @test KA2KS(rot_ka) ≈ rot_ks
             @test det(rot_ka) ≈ 1
-            q_ka = convert_orientation(QuatRotation(rot_ks); from=KS, to=KA)
+            q_ka = KS2KA(QuatRotation(rot_ks))
             @test RotMatrix{3}(q_ka) ≈ rot_ka
-            v_ka = convert_orientation(Rotations.params(QuatRotation(rot_ks));
-                                       from=KS, to=KA)
+            v_ka = KS2KA(Rotations.params(QuatRotation(rot_ks)))
             @test QuatRotation(v_ka) ≈ q_ka
             @test all(euler_ks(q_ka) .≈ (roll, pitch, yaw))
             @test all(euler_ks((roll, pitch, yaw) |> collect, KS) .≈ (roll, pitch, yaw))
@@ -88,8 +82,7 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
     @testset "heading and clock angle: KA equals the old KS chain" begin
         for (roll, pitch, yaw) in attitudes
             euler = [roll, pitch, yaw]
-            q_ka = convert_orientation(QuatRotation(euler2rot(roll, pitch, yaw));
-                                       from=KS, to=KA)
+            q_ka = KS2KA(QuatRotation(euler2rot(roll, pitch, yaw)))
             for (elevation, azimuth) in positions
                 @test calc_heading(q_ka, elevation, azimuth) ≈
                       heading_ks_reference(euler, elevation, azimuth)
@@ -119,7 +112,7 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         # A known KS attitude: nose north at zenith, so KA is a quarter turn away.
         q_ks = Rotations.params(QuatRotation(calc_orient_rot([0, 1, 0], [1, 0, 0],
                                                              [0, 0, -1])))
-        q_ka = convert_orientation(q_ks; from=KS, to=KA)
+        q_ka = KS2KA(q_ks)
         for step in eachindex(log.syslog)
             log.syslog.Qw[step][1], log.syslog.Qx[step][1] = q_ks[1], q_ks[2]
             log.syslog.Qy[step][1], log.syslog.Qz[step][1] = q_ks[3], q_ks[4]
@@ -155,7 +148,7 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
     @testset "quat2viewer is convention aware" begin
         for (roll, pitch, yaw) in attitudes
             q_ks = QuatRotation(euler2rot(roll, pitch, yaw))
-            q_ka = convert_orientation(q_ks; from=KS, to=KA)
+            q_ka = KS2KA(q_ks)
             @test quat2viewer(q_ka) ≈ quat2viewer(q_ks, KS)
         end
     end

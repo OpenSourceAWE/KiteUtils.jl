@@ -57,26 +57,24 @@ Base.getproperty
 The function ```set_data_path(data_path)``` can be used to set the directory for the log files. 
 
 ## Frame conventions
-Convert between the two body-frame conventions, `KS` and `KA`. Which function to use
-depends on the kind of quantity, not on the package it came from: a world vector takes the
-world rotation, a body vector the body rotation, and an orientation both.
+Convert an orientation between the two body-frame conventions, `KS` and `KA`. A world
+vector is not an orientation and takes `ENU2NED` or `NED2ENU` instead.
 ```@docs
-convert_world
-convert_body
-convert_orientation
+KS2KA
+KA2KS
 orient_matrix
 euler_ks
 kite_nose
 log_metadata
 log_convention
-convert_orient_columns!
+KS2KA_columns!
 ```
 
 ## Rotation matrices and conversions
 ```@docs
 calc_orient_rot
-enu2ned
-ned2enu
+ENU2NED
+NED2ENU
 is_right_handed_orthonormal
 quat2euler
 quat2viewer

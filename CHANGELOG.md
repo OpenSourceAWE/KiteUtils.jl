@@ -5,10 +5,10 @@
 - `FrameConvention`, an enum with the two body-frame conventions used in the
   OpenSourceAWE packages: `KA` (aft-right-up, reported against ENU) and `KS`
   (forward-right-down, reported against NED).
-- `convert_world`, `convert_body` and `convert_orientation` to convert between
-  them. Which one to use follows from the kind of quantity, not from the package
-  it came from: a world vector takes the world rotation, a body vector the body
-  rotation, and an orientation, being a body-to-world rotation, takes both.
+- `KS2KA` and `KA2KS` convert an orientation between the two conventions. An
+  orientation is a body-to-world rotation, so it is rotated on both sides; a world
+  vector is not an orientation and takes `ENU2NED` or `NED2ENU`, which rotate on
+  one. `KS2KA_columns!` converts a log's quaternion columns in place.
 - `euler_ks` reports roll, pitch and yaw from a `KA` attitude, `kite_nose` the
   nose direction in ENU, and `orient_matrix` accepts an attitude in any form.
 - `.arrow` logs carry table-level metadata naming the frame convention and the
@@ -40,7 +40,9 @@
   sensor uses them: heading and clock angle are computed in ENU from the `KA`
   attitude, which `test-frames.jl` shows equals the old chain exactly over a
   sweep of attitudes and kite positions.
-- `euler2rot` returns an `SMatrix`, and `ned2enu` calls `enu2ned`, the two being
+- BREAKING: `enu2ned` and `ned2enu` are renamed `ENU2NED` and `NED2ENU`, frame
+  names being capitalised throughout.
+- `euler2rot` returns an `SMatrix`, and `NED2ENU` calls `ENU2NED`, the two being
   the same involution.
 
 ## KiteUtils v0.12.2

@@ -16,8 +16,8 @@ rates, angle of attack and side slip are expressed in one.
 
 An **orientation** is the rotation from a body frame to a world frame; its columns are the
 body axes written in world coordinates. Converting one takes a rotation on both sides,
-which is what [`convert_orientation`](@ref) does. [`convert_world`](@ref) and
-[`convert_body`](@ref) rotate one side each and are for vectors.
+which is what [`KS2KA`](@ref) and [`KA2KS`](@ref) do. A world vector is rotated on one
+side only, by [`ENU2NED`](@ref) or [`NED2ENU`](@ref).
 
 ## World frames
 
@@ -89,10 +89,9 @@ by the location where the sensor is mounted. In the simulation this is equal to 
   the sensors deliver and what flight test data is compared against;
 - at sensor ingest.
 
-Everywhere else, converting is a call to [`convert_world`](@ref), [`convert_body`](@ref) or
-[`convert_orientation`](@ref), chosen by the kind of quantity: a world vector takes the
-world rotation, a body vector the body rotation, an orientation one on each side.
-`enu2ned()` and `ned2enu()` remain available for plain world vectors.
+Everywhere else, converting an orientation is a call to [`KS2KA`](@ref) or
+[`KA2KS`](@ref), which rotate on both sides. A plain world vector is not an orientation
+and takes [`ENU2NED`](@ref) or [`NED2ENU`](@ref), which rotate on one.
 
 ### The neighbouring packages
 
@@ -128,8 +127,7 @@ built on. It is the only orientation the state carries.
 Roll, pitch and yaw are not stored. [`euler_ks`](@ref)`(ss.orient)` reports them, measured
 against NED, that being the convention of the Xsens IMU and of flight test data. Yaw is
 zero at north, clockwise positive seen from above. The function `quat2euler()` expects a
-`KS` quaternion, so it is only correct on the result of
-`convert_orientation(q; from=KA, to=KS)`.
+`KS` quaternion, so it is only correct on the result of `KA2KS(q)`.
 
 The origin the kite rotates about is a per-model choice and does not affect the
 orientation. For the four-point model it is the centre point $0.5 * (C + D)$, where C and D
