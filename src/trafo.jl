@@ -12,8 +12,8 @@ ENU2EG = @SMatrix [ 0  1  0;
 """ 
     fromENU2EG(pointENU)
 
-Transform the position of the kite in the East North Up reference frame to the Earth Groundstation
-(North West Up) reference frame.
+Transform the position of the kite in the ENU (east, north, up) reference frame to the
+Earth Groundstation (north, west, up) reference frame.
 """
 function fromENU2EG(pointENU)
     ENU2EG * pointENU

@@ -15,28 +15,29 @@ somewhere different in the world at every instant. Aerodynamic forces and moment
 rates, angle of attack and side slip are expressed in one.
 
 An **orientation** is the rotation from a body frame to a world frame; its columns are the
-body axes written in world coordinates. Converting one takes a rotation on both sides,
-which is what [`fromKS2KA`](@ref) and [`fromKA2KS`](@ref) do. A world vector is rotated on one
-side only, by [`fromENU2NED`](@ref) or [`fromNED2ENU`](@ref).
+body axes written in world coordinates. Converting one rotates the world frame and the
+body frame, which is what [`fromKS2KA`](@ref) and [`fromKA2KS`](@ref) do. Converting a
+world vector rotates the world frame only, by [`fromENU2NED`](@ref) or
+[`fromNED2ENU`](@ref).
 
 ## World frames
 
 The origin of these frames is the tether exit point of the ground station.
 
-The **ENU** (East North Up) reference frame is the simulation frame. Every position,
+The **ENU** (east, north, up) reference frame is the simulation frame. Every position,
 velocity and world-frame force is expressed in it. It is defined as follows:
 - **x**: east
 - **y**: north
 - **z**: up
 
-The **NED** (North East Down) reference frame, called **EX** (Earth Xsens) in the code, is
+The **NED** (north, east, down) reference frame, called **EX** (Earth Xsens) in the code, is
 the convention the Xsens IMU reports in and the frame a `KS` orientation is reported
 against. Nothing is positioned in it. It is defined as follows:
 - **x**: north
 - **y**: east
 - **z**: down
 
-The **NWU** (North West Up) reference frame is called **EG** (Earth Groundstation) in the
+The **NWU** (north, west, up) reference frame is called **EG** (Earth Groundstation) in the
 code. It is defined as follows:
 - **x**: north
 - **y**: west
@@ -51,8 +52,8 @@ the figure below. It is defined as follows:
 ## Body frames
 
 Two body-frame conventions occur in the OpenSourceAWE packages, and the enum
-[`FrameConvention`](@ref) names them. Each is paired with the axis convention its
-orientation is reported against: `KA` with ENU, `KS` with NED.
+[`FrameConvention`](@ref) names them. A `KA` orientation is reported against ENU, a `KS`
+orientation against NED.
 
 The **KA** (kite aero) reference frame is the convention of `SysState` and of every
 calculation in this package. Like `KS` it is a rotating reference frame, and its origin is
@@ -62,8 +63,8 @@ a free per-model choice. It is defined as follows:
 - **z**: up
 
 These are the aerodynamic axes, so drag is +x, side force +y and lift +z, and at zenith
-they line up with ENU. Geometry must satisfy `x · (TE − LE) > 0` with y spanwise positive;
-with x reversed, drag, side force and lift change sign.
+they line up with ENU. Geometry must satisfy `x · (TE − LE) > 0` with y spanwise
+positive.
 
 The **KS** (kite sensor) reference frame is the sensor-fixed reference frame, reported
 against NED because that is the convention the Xsens IMU reports in. Its origin is defined
@@ -80,8 +81,9 @@ by the location where the sensor is mounted. In the simulation this is equal to 
 - in [`euler_KS`](@ref), which reports roll, pitch and yaw against NED.
 
 Converting an orientation between the two conventions is [`fromKS2KA`](@ref) or
-[`fromKA2KS`](@ref), which rotate on both sides. A world vector is not an orientation and
-takes [`fromENU2NED`](@ref) or [`fromNED2ENU`](@ref), which rotate on one.
+[`fromKA2KS`](@ref), which rotate the world frame and the body frame. A world vector is
+not an orientation and takes [`fromENU2NED`](@ref) or [`fromNED2ENU`](@ref), which rotate
+the world frame only.
 
 ### The neighbouring packages
 
