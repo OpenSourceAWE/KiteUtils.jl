@@ -9,7 +9,7 @@
   orientation is a body-to-world rotation, so it is rotated on both sides; a world
   vector is not an orientation and takes `ENU2NED` or `NED2ENU`, which rotate on
   one. `KS2KA_columns!` converts a log's quaternion columns in place.
-- `euler_ks` reports roll, pitch and yaw from a `KA` attitude, `kite_nose` the
+- `euler_KS` reports roll, pitch and yaw from a `KA` attitude, `kite_nose` the
   nose direction in ENU, and `orient_matrix` accepts an attitude in any form.
 - `.arrow` logs carry table-level metadata naming the frame convention and the
   KiteUtils version that wrote them (`log_metadata`); `log_convention` reads it
@@ -22,7 +22,7 @@
   test data use, whereas everything else is ENU. Reporting them in `KA` instead was
   the alternative and is worse — the axis names stop matching the axes, so roll
   changes sign and yaw is offset a quarter turn and runs backwards, which reads as
-  a model error next to a measured trace. Call `euler_ks(ss.orient)` instead.
+  a model error next to a measured trace. Call `euler_KS(ss.orient)` instead.
 - Logs carry their frame convention, so `load_log` converts what it reads into
   `KA`. Only logs from 0.13 onwards declare one; an older log is `KS`, that being
   what the format specified, and is converted on load with a warning saying so.

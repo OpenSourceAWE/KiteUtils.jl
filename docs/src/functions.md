@@ -63,7 +63,7 @@ vector is not an orientation and takes `ENU2NED` or `NED2ENU` instead.
 KS2KA
 KA2KS
 orient_matrix
-euler_ks
+euler_KS
 kite_nose
 log_metadata
 log_convention

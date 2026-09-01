@@ -60,7 +60,7 @@ export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE              # refer
 export azn2azw,  calc_clock_angle, calc_course , calc_heading, calc_heading_w # geometric functions
 export calc_orient_rot, ENU2NED, is_right_handed_orthonormal, NED2ENU
 export FrameConvention, KS, KA                                           # frame conventions
-export KS2KA, KA2KS, KS2KA_columns!, euler_ks, kite_nose,
+export KS2KA, KA2KS, KS2KA_columns!, euler_KS, kite_nose,
     orient_matrix, log_metadata, log_convention
 export angles_from_wind_vec, wind_vec_from_angles
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters

@@ -138,12 +138,12 @@ the accepted forms of `attitude`; `frame` says which convention it is given in.
 Returns a quaternion as a 4-element vector [w,i,j,k].
 """
 function quat2viewer(attitude, frame::FrameConvention=KA)
-    quat2viewer_ks(QuatRotation(KA2KS(orient_matrix(attitude, frame))))
+    quat2viewer_KS(QuatRotation(KA2KS(orient_matrix(attitude, frame))))
 end
 
 # Viewer conversion of a KS (NED) orientation. The viewer frame is defined in terms
 # of KS, so this stays the reference implementation and quat2viewer converts into it.
-function quat2viewer_ks(q::QuatRotation)
+function quat2viewer_KS(q::QuatRotation)
     # 1. get reference frame
     rot = inv(RotMatrix{3}(q)) # from kite to inertial reference frame
     x = ENU2NED(rot[1,:])

@@ -77,7 +77,7 @@ by the location where the sensor is mounted. In the simulation this is equal to 
 `KS` survives in three places and nowhere else:
 
 - inside `KiteModels`, whose solver and aerodynamics are built on it;
-- in [`euler_ks`](@ref), which reports roll, pitch and yaw against NED, that being what
+- in [`euler_KS`](@ref), which reports roll, pitch and yaw against NED, that being what
   the sensors deliver and what flight test data is compared against;
 - at sensor ingest.
 
@@ -132,7 +132,7 @@ body frame. Its columns are the body axes expressed in ENU, so `-x` is the nose,
 what [`kite_nose`](@ref) returns and what `calc_heading()` and `calc_clock_angle()` are
 built on. It is the only orientation the state carries.
 
-Roll, pitch and yaw are not stored. [`euler_ks`](@ref)`(ss.orient)` reports them, measured
+Roll, pitch and yaw are not stored. [`euler_KS`](@ref)`(ss.orient)` reports them, measured
 against NED, that being the convention of the Xsens IMU and of flight test data. Yaw is
 zero at north, clockwise positive seen from above. The function `quat2euler()` expects a
 `KS` quaternion, so it is only correct on the result of `KA2KS(q)`.
