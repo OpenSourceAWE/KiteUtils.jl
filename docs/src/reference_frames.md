@@ -21,8 +21,7 @@ side only, by [`ENU2NED`](@ref) or [`NED2ENU`](@ref).
 
 ## World frames
 
-The origin of these frames is the tether exit point of the ground station, apart from SE,
-which is a plane touching the sphere at the position of the kite.
+The origin of these frames is the tether exit point of the ground station.
 
 The **ENU** (East North Up) reference frame is the simulation frame. Every position,
 velocity and world-frame force is expressed in it. It is defined as follows:
@@ -48,13 +47,6 @@ the figure below. It is defined as follows:
 - **x**: downwind
 - **y**: cross-wind, to the left when looking downwind from above
 - **z**: up
-
-The **SE** (Small Earth) reference frame is the plane tangential to the unit half-sphere
-around the ground station, touching it at the position of the kite, so it follows the kite
-rather than being earth-fixed. It is defined as follows:
-- **x**: towards zenith, so the heading is zero when the nose points up the sphere
-- **y**: completing the right-handed set
-- **z**: from the kite back towards the ground station
 
 ## Body frames
 
@@ -102,6 +94,22 @@ and takes [`ENU2NED`](@ref) or [`NED2ENU`](@ref), which rotate on one.
 | KiteModels.jl           | `KS`                  | `kite_ref_frame`, z down the tether  |
 | EKF-AWE                 | forward x, ENU world  | `postprocess/postprocessing.py`      |
 | AWETrim                 | undocumented          | needs reading or asking              |
+
+## SE frame
+
+The **SE** (Small Earth) reference frame is neither a world nor a body frame: it is the
+plane tangential to the unit half-sphere around the ground station, touching it at the
+position of the kite. It follows the kite's position but not its attitude, which is what
+makes the heading angle meaningful. It is defined as follows:
+- **x**: towards zenith, so the heading is zero when the nose points up the sphere
+- **y**: completing the right-handed set
+- **z**: from the kite back towards the ground station
+
+`KS` and `KA` do not reach this far: a vector is resolved to ENU first and then passed
+through `fromENU2EG`, `fromEG2W` and `fromW2SE`, none of which take a convention.
+[`ENU2NED`](@ref) converts between those two frames only, so it does not apply to an SE
+vector. See [Small earth reference frame](@ref) for why the
+frame is used.
 
 ## Wind direction
 The `upwind_dir` (degrees) is the direction the wind is coming from. Zero is at north; clockwise positive.
