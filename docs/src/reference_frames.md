@@ -57,7 +57,7 @@ orientation against NED.
 
 The **KA** (kite aero) reference frame is the convention of `SysState` and of every
 calculation in this package. Like `KS` it is a rotating reference frame, and its origin is
-a free per-model choice. It is defined as follows:
+the tow point, which is the KCU for a model that has one. It is defined as follows:
 - **x**: from leading edge to trailing edge
 - **y**: spanwise, from the left to the right wing tip
 - **z**: up
@@ -92,7 +92,7 @@ the world frame only.
 | SymbolicAWEModels.jl    | `KA`                  | computed from both shipped kites     |
 | ASKITE                  | `KA`-shaped geometry  | CAD identical to V3Kite.jl's         |
 | KiteModels.jl           | `KS`                  | `kite_ref_frame`, z down the tether  |
-| EKF-AWE                 | forward x, ENU world  | `postprocess/postprocessing.py`      |
+| EKF-AWE                 | `KS`                  | roll, pitch, yaw against NED         |
 | AWETrim                 | undocumented          | unknown                              |
 
 ## SE frame
@@ -136,9 +136,8 @@ against NED, that being the convention of the Xsens IMU and of flight test data.
 zero at north, clockwise positive seen from above. The function `quat2euler()` expects a
 `KS` quaternion, so it is only correct on the result of `fromKA2KS(q)`.
 
-The origin the kite rotates about is a per-model choice and does not affect the
-orientation. For the four-point model it is the centre point $0.5 * (C + D)$, where C and D
-are the point masses close to the wing tips.
+The origin of the body frame is the tow point, the KCU for a model that has one. It does
+not affect the orientation, a rotation being independent of where it is anchored.
 
 ## Control inputs
 see: [Reference frames and control inputs](https://ufechner7.github.io/KiteModels.jl/dev/#Reference-frames-and-control-inputs)
