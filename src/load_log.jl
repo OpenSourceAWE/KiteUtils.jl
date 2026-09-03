@@ -1,13 +1,24 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-"""
-    load_log(filename::String; path="")
+# The first argument was P and is ignored.
+load_log(_, filename::String; kwargs...) = load_log(filename; kwargs...)
 
-Read a log file that was saved as .arrow file.
 """
-load_log(_, filename::String) = load_log(filename) # for compatibility, the first argument was P and is ignored
-function load_log(filename::String; path="", debug=false)
+    load_log(filename::String; path="", frame=KS)
+
+Read a log file that was saved as .arrow file. Orientations are returned in `KA`.
+
+Logs written by KiteUtils 0.13 and later declare their convention. An older log
+declares nothing and is `KS`: that is what the format specified, so that is how it
+is read.
+
+`frame` is an escape hatch for a log that did not honour the specification.
+SymbolicAWEModels wrote `Q_b_to_w` into the field unconverted, so its logs of that
+era hold `KA` already and need `load_log(name; frame=KA)`, or their orientations
+come back upside down.
+"""
+function load_log(filename::String; path="", debug=false, frame::FrameConvention=KS)
     if path == ""
         path = DATA_PATH[1]
     end
@@ -74,9 +85,6 @@ function load_log(filename::String; path="", debug=false)
     set_torque = zero_col(0)
     set_speed = zero_col(0)
     set_force = zero_col(0)
-    roll = zeros(F, n)
-    pitch = zeros(F, n)
-    yaw = zeros(F, n)
     winch_force = zero_col(0)
 
     for name in [:cycle, :fig_8, :turn_rates, :azimuth_rate, :kcu_steering,
@@ -84,7 +92,7 @@ function load_log(filename::String; path="", debug=false)
                  :v_wind_200m, :v_wind_kite, :AoA, :side_slip, :alpha3, :alpha4, :CL2, :CD2,
                  :aero_force_b, :aero_moment_b, :tether_induced_force, :tether_induced_moment,
                  :twist_angles, :acc, :set_torque, :set_speed,
-                 :set_force, :roll, :pitch, :yaw, :force, :winch_force]
+                 :set_force, :force, :winch_force]
         if haskey(table, name)
             if name == :cycle
                 cycle = table.cycle
@@ -140,12 +148,6 @@ function load_log(filename::String; path="", debug=false)
                 set_speed = table.set_speed
             elseif name == :set_force
                 set_force = table.set_force
-            elseif name == :roll
-                roll = table.roll
-            elseif name == :pitch
-                pitch = table.pitch
-            elseif name == :yaw
-                yaw = table.yaw
             elseif name == :force
                 winch_force = table.force
             elseif name == :winch_force
@@ -219,6 +221,21 @@ function load_log(filename::String; path="", debug=false)
         Qy = [zeros(MVector{1, F}) for _ in 1:n]
         Qz = [zeros(MVector{1, F}) for _ in 1:n]
     end
+    declared = log_convention(table)
+    convention = isnothing(declared) ? frame : declared
+    if isnothing(declared)
+        @warn "Log $(basename(fullname)) declares no frame convention, so it predates " *
+              "KiteUtils 0.13 and is specified to be KS. Reading its orientations as " *
+              "$convention. A log SymbolicAWEModels wrote in that era holds KA in " *
+              "breach of that, and needs load_log(...; frame=KA)."
+    end
+    if convention !== KA
+        Qw = [MVector{O, F}(q) for q in Qw]
+        Qx = [MVector{O, F}(q) for q in Qx]
+        Qy = [MVector{O, F}(q) for q in Qy]
+        Qz = [MVector{O, F}(q) for q in Qz]
+        fromKS2KA_columns!(Qw, Qx, Qy, Qz)
+    end
     turn_rate_x, turn_rate_y, turn_rate_z =
         column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
     S = haskey(table, :spring_force) ? length(table.spring_force[1]) : 0
@@ -242,8 +259,8 @@ function load_log(filename::String; path="", debug=false)
                                        spring_force,
                                        turn_rate_x, turn_rate_y, turn_rate_z,
                                        twist_vel, pulley_len, pulley_vel,
-                                       set_torque, set_speed, set_force, roll, pitch,
-                                       yaw, table.var_01, table.var_02, table.var_03, table.var_04, 
+                                       set_torque, set_speed, set_force,
+                                       table.var_01, table.var_02, table.var_03, table.var_04, 
                                        table.var_05, table.var_06, table.var_07, table.var_08, table.var_09, 
                                        table.var_10, table.var_11, table.var_12, table.var_13, table.var_14, 
                                        table.var_15, table.var_16))

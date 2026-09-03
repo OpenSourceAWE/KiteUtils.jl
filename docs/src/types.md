@@ -11,6 +11,11 @@ Settings(project)
 ```
 Also look at the default file that is parsed to fill the Settings struct with data: [settings.yaml](https://github.com/ufechner7/KiteUtils.jl/blob/main/data/settings.yaml) .
 
+## Frame conventions
+```@docs
+FrameConvention
+```
+
 ## Abstract interface
 ```@docs
 AbstractKiteModel

@@ -97,9 +97,6 @@ $(TYPEDFIELDS)
     set_torque_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
     set_speed_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
     set_force_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
-    roll_vec::Vector{F} = zeros(F, Q)
-    pitch_vec::Vector{F} = zeros(F, Q)
-    yaw_vec::Vector{F} = zeros(F, Q)
     var_01_vec::Vector{F} = zeros(F, Q)
     var_02_vec::Vector{F} = zeros(F, Q)
     var_03_vec::Vector{F} = zeros(F, Q)

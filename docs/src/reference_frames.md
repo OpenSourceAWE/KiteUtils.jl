@@ -3,28 +3,112 @@ CurrentModule = KiteUtils
 ```
 # Reference frames
 
-## Position and velocity
-For position and velocity vectors of the model the **ENU** (East North Up) reference frame is used.
+Positions, velocities and forces in space are ENU. Orientations in `SysState` are `KA`.
 
-The controller is using the **W** (Wind) reference frame as shown in the figure below, y-axis downwind and z-axis up.
+## Kinds of frame
 
-The orientation of the kite is expressed with respect to the **NED** (North, East, Down)
-reference frame. In the code this frame is also called **EX** (Earth Xsens), because the
-Xsens IMU reports orientation in NED. Since the rest of the codebase uses ENU for
-positions and velocities, the helper functions `enu2ned()` and `ned2enu()` are provided
-to convert vectors between the two frames.
+A **world frame** is earth-fixed: its axes keep pointing the same way whatever the kite
+does. Positions, velocities, wind and forces drawn in space are expressed in one.
 
-The **KS** (kite sensor) reference frame is the sensor-fixed reference frame. The origin
-is defined by the location where the sensor is mounted. This is a rotating reference
-frame. Currently, in the simulation, this is equal to the **K** (kite) reference frame,
-which is defined as follows:
+A **body frame** is attached to the kite and turns with it, so each of its axes points
+somewhere different in the world at every instant. Aerodynamic forces and moments, turn
+rates, angle of attack and side slip are expressed in one.
+
+An **orientation** is the rotation from a body frame to a world frame; its columns are the
+body axes written in world coordinates. Converting one rotates the world frame and the
+body frame, which is what [`fromKS2KA`](@ref) and [`fromKA2KS`](@ref) do. Converting a
+world vector rotates the world frame only, by [`fromENU2NED`](@ref) or
+[`fromNED2ENU`](@ref).
+
+## World frames
+
+The origin of these frames is the tether exit point of the ground station.
+
+The **ENU** (east, north, up) reference frame is the simulation frame. Every position,
+velocity and world-frame force is expressed in it. It is defined as follows:
+- **x**: east
+- **y**: north
+- **z**: up
+
+The **NED** (north, east, down) reference frame, called **EX** (Earth Xsens) in the code, is
+the convention the Xsens IMU reports in and the frame a `KS` orientation is reported
+against. Nothing is positioned in it. It is defined as follows:
+- **x**: north
+- **y**: east
+- **z**: down
+
+The **NWU** (north, west, up) reference frame is called **EG** (Earth Groundstation) in the
+code. It is defined as follows:
+- **x**: north
+- **y**: west
+- **z**: up
+
+The **W** (Wind) reference frame is the frame the flight path controller works in, shown in
+the figure below. It is defined as follows:
+- **x**: downwind
+- **y**: cross-wind, to the left when looking downwind from above
+- **z**: up
+
+## Body frames
+
+Two body-frame conventions occur in the OpenSourceAWE packages, and the enum
+[`FrameConvention`](@ref) names them. A `KA` orientation is reported against ENU, a `KS`
+orientation against NED.
+
+The **KA** (kite aero) reference frame is the convention of `SysState` and of every
+calculation in this package. Like `KS` it is a rotating reference frame, and its origin is
+the tow point, which is the KCU for a model that has one. It is defined as follows:
+- **x**: from leading edge to trailing edge
+- **y**: spanwise, from the left to the right wing tip
+- **z**: up
+
+These are the aerodynamic axes, so drag is +x, side force +y and lift +z, and at zenith
+they line up with ENU. Geometry must satisfy `x · (TE − LE) > 0` with y spanwise
+positive.
+
+The **KS** (kite sensor) reference frame is the sensor-fixed reference frame, reported
+against NED because that is the convention the Xsens IMU reports in. Its origin is defined
+by the location where the sensor is mounted. In the simulation this is equal to the **K**
+(kite) reference frame, which is defined as follows:
 - **x**: from trailing edge to leading edge
 - **y**: to the right looking in flight direction
 - **z**: down
 
-Other reference frames are the **EG** (North West Up), and the **SE** (small earth)
-reference frames which is defined in the plane tangential to the half-sphere with a unit
-radius and the origin at the tether exit point of the ground-station.
+`KS` is used in exactly three places:
+
+- at sensor ingest;
+- inside `KiteModels`, whose solver and aerodynamics are built on it;
+- in [`euler_KS`](@ref), which reports roll, pitch and yaw against NED.
+
+Converting an orientation between the two conventions is [`fromKS2KA`](@ref) or
+[`fromKA2KS`](@ref), which rotate the world frame and the body frame. A world vector is
+not an orientation and takes [`fromENU2NED`](@ref) or [`fromNED2ENU`](@ref), which rotate
+the world frame only.
+
+### The neighbouring packages
+
+| package                 | body frame            | established by                       |
+|:------------------------|:----------------------|:-------------------------------------|
+| SymbolicAWEModels.jl    | `KA`                  | computed from both shipped kites     |
+| ASKITE                  | `KA`-shaped geometry  | CAD identical to V3Kite.jl's         |
+| KiteModels.jl           | `KS`                  | `kite_ref_frame`, z down the tether  |
+| EKF-AWE                 | `KS`                  | roll, pitch, yaw against NED         |
+| AWETrim                 | undocumented          | unknown                              |
+
+## SE frame
+
+The **SE** (Small Earth) reference frame is neither a world nor a body frame: it is the
+plane tangential to the unit half-sphere around the ground station, touching it at the
+position of the kite. It follows the kite's position but not its attitude, so a direction
+expressed in it varies only with the attitude. It is defined as follows:
+- **x**: towards zenith, so the heading is zero when the nose points up the sphere
+- **y**: completing the right-handed set
+- **z**: from the kite back towards the ground station
+
+An SE vector carries no body convention. A vector is resolved to ENU first, then passed
+through `fromENU2EG`, `fromEG2W` and `fromW2SE`, none of which take a convention.
+[`fromENU2NED`](@ref) converts between those two frames only and does not apply to an SE
+vector. See [Small earth reference frame](@ref) for the role of the frame.
 
 ## Wind direction
 The `upwind_dir` (degrees) is the direction the wind is coming from. Zero is at north; clockwise positive.
@@ -37,19 +121,22 @@ Default: `0`, horizontal wind.
 The position of the kite can be described with two angles, the azimuth angle φ and the elevation angle β .The elevation angle is zero when the height of the kite is zero, and 90° when it is at Zenith.
 Three azimuth angles are used, the azimuth angle in the wind reference frame and $\mathrm{azimuth\_east}$ and $\mathrm{azimuth\_north}$. The azimuth angles in wind reference frame and $\mathrm{azimuth\_north}$ are defined positive anti-clockwise when seen from above, $\mathrm{azimuth\_east}$ is defined positive clockwise when seen from above. In the log file and the system state $\mathrm{azimuth}$ in wind reference frame is used (for KiteUtils 0.8.2 and higher).
 
-The functions `calc_heading()` and `calc_clock_angle()` both use this same wind-frame azimuth convention.
+The function `calc_heading()` uses this same wind-frame azimuth convention.
 
 ## Orientation of the kite
-For the orientation, either a quaternion or roll, pitch and yaw angles are used. The
-orientation is defined with respect to the NED reference frame (see above), because
-that is the convention used by the Xsens IMU. Quaternions and Euler angles stored in
-`SysState.orient` follow this NED convention. The function `quat2euler()` expects a
-NED-based quaternion as input.
+The orientation is stored as a quaternion, and can be reported as roll, pitch and yaw.
 
-The origin of the kite reference frame around which it rotates is the centre point
-defined as $0.5 * (C + D)$, where C and D are positions of the point masses of the
-model close to the tips of the wing.
-- yaw angle: zero north, clockwise positive as seen from above
+Quaternions stored in `SysState` are `KA`: the body-to-ENU rotation of the aft-right-up
+body frame. Its columns are the body axes expressed in ENU, so `-x` is the nose, which is what
+`calc_heading()` is built on. It is the only orientation the state carries.
+
+Roll, pitch and yaw are not stored. [`euler_KS`](@ref)`(ss.orient)` reports them, measured
+against NED, that being the convention of the Xsens IMU and of flight test data. Yaw is
+zero at north, clockwise positive seen from above. The function `quat2euler()` expects a
+`KS` quaternion, so it is only correct on the result of `fromKA2KS(q)`.
+
+The origin of the body frame is the tow point, the KCU for a model that has one. It does
+not affect the orientation, a rotation being independent of where it is anchored.
 
 ## Control inputs
 see: [Reference frames and control inputs](https://ufechner7.github.io/KiteModels.jl/dev/#Reference-frames-and-control-inputs)
@@ -77,7 +164,8 @@ fly the kite on a prescribed trajectory that is adapted to the wind conditions.
 
 ![Small earth reference frame](small_earth.png)
 
-In Fig. 5.1 the vectors $x_k, y_k$ and $z_k$ define the body-fixed kite reference frame. In this
+In Fig. 5.1 the vectors $x_k, y_k$ and $z_k$ define the body-fixed kite reference frame
+in the `KS` convention. In this
 chapter, the combination of the wing and the kite control unit (KCU) is seen as kite.
 The $y_k$ axis is defined by the vector from the left to the right wing tip, the $z_k$ axis is
 pointing downwards from the position of the kite parallel to the upper part of the tether,
