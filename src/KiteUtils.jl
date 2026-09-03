@@ -57,7 +57,7 @@ export demo_state_4p, initial_kite_ref_frame                                    
 export asin2, azimuth_east, azimuth_north, calc_elevation, ground_dist, rot, rot3d
 export acos2, quat2euler, quat2viewer, wrap2pi                           # geometric functions
 export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE              # reference frame transformations
-export azn2azw,  calc_clock_angle, calc_course , calc_heading, calc_heading_w # geometric functions
+export azn2azw, calc_course, calc_heading, calc_heading_w             # geometric functions
 export calc_orient_rot, fromENU2NED, is_right_handed_orthonormal, fromNED2ENU
 export FrameConvention, KS, KA                                           # frame conventions
 export fromKS2KA, fromKA2KS, fromKS2KA_columns!, euler_KS, orient_matrix,

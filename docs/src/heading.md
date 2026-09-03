@@ -107,9 +107,8 @@ R_\mathrm{el}(\beta) =
 
 $$\mathbf{h}^\mathrm{SE} = R_\mathrm{el}(\beta)\, R_\mathrm{az}(\varphi)\, R_\mathrm{first}\, \mathbf{h}^\mathrm{W}.$$
 
-The same elevation/azimuth convention is also used by `calc_clock_angle`.
-In particular, both `calc_heading` and `calc_clock_angle` expect azimuth in the wind frame,
-with positive direction counter-clockwise when viewed from above.
+`calc_heading` expects azimuth in the wind frame, with positive direction
+counter-clockwise when viewed from above.
 
 ## Heading angle definition
 

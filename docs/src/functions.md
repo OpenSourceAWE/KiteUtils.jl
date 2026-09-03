@@ -103,7 +103,6 @@ calculate the heading angle, the heading vector, the asin and acos (safe version
 ```@docs
 calc_elevation
 calc_heading
-calc_clock_angle
 calc_course
 calc_heading_w
 azimuth_east

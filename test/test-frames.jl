@@ -15,21 +15,6 @@ function heading_KS_reference(orientation, elevation, azimuth; upwind_dir=-pi/2,
     angle < 0 && respos ? angle + 2π : angle
 end
 
-function clock_KS_reference(orientation, elevation, azimuth; upwind_dir=-pi/2,
-                           respos=true)
-    x_kite_EG = fromEX2EG(fromKS2EX(SVector(1.0, 0.0, 0.0), orientation))
-    x_kite_ENU = SVector(-x_kite_EG[2], x_kite_EG[1], x_kite_EG[3])
-    azimuth_n = wrap2pi(azimuth - upwind_dir - π)
-    pos_unit = SVector(-cos(elevation) * sin(azimuth_n), cos(elevation) * cos(azimuth_n),
-                       sin(elevation))
-    z_kite = -pos_unit
-    up = SVector(0.0, 0.0, 1.0)
-    ref = normalize(up - dot(up, z_kite) * z_kite)
-    perp = cross(z_kite, ref)
-    angle = atan(dot(x_kite_ENU, perp), dot(x_kite_ENU, ref))
-    angle < 0 && respos ? angle + 2π : angle
-end
-
 attitudes = [(r, p, y) for r in deg2rad.(-150:37:150) for p in deg2rad.(-80:23:80)
                        for y in deg2rad.(-170:41:170)]
 positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
@@ -78,20 +63,16 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
             @test all(euler_KS((roll, pitch, yaw) |> collect) .≈ (roll, pitch, yaw))
         end
     end
-    @testset "heading and clock angle: KA equals the old KS chain" begin
+    @testset "heading: KA equals the old KS chain" begin
         for (roll, pitch, yaw) in attitudes
             euler = [roll, pitch, yaw]
             q_KA = fromKS2KA(QuatRotation(euler2rot(roll, pitch, yaw)))
             for (elevation, azimuth) in positions
                 @test calc_heading(q_KA, elevation, azimuth) ≈
                       heading_KS_reference(euler, elevation, azimuth)
-                @test calc_clock_angle(q_KA, elevation, azimuth) ≈
-                      clock_KS_reference(euler, elevation, azimuth)
                 # Euler angles are always KS, so the old call sites keep working.
                 @test calc_heading(euler, elevation, azimuth) ≈
                       heading_KS_reference(euler, elevation, azimuth)
-                @test calc_clock_angle(euler, elevation, azimuth) ≈
-                      clock_KS_reference(euler, elevation, azimuth)
             end
         end
     end

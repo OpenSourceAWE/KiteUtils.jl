@@ -33,6 +33,10 @@
   `KS` orientation is converted by the caller: `quat2viewer(fromKS2KA(q))`. Roll, pitch
   and yaw passed as a 3-element vector still work and are still `KS`, so existing
   call sites keep their result.
+- BREAKING: `calc_clock_angle` is removed. It returned the same angle as
+  `calc_heading` for every attitude and kite position, projecting the nose onto the
+  same plane against the same reference, and threw near zenith where `calc_heading`
+  does not.
 - `demo_state_4p` stored a viewer-frame quaternion rather than the documented
   one; both demo states now store `KA`.
 - `fromKS2EX` and `fromEX2EG` are sensor ingest only. Nothing downstream of the
