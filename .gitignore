@@ -20,3 +20,4 @@ Manifest-v1.11.toml
 docs/src/heading.pdf
 examples/.CondaPkg/
 data/transition.arrow
+LocalPreferences.toml
