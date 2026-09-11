@@ -167,3 +167,23 @@ end
               getproperty(written[step], field)
     end
 end
+
+@testset "KiteUtils.jl: log metadata    " begin
+    set_data_path(tempdir())
+    logger = Logger(7, 3)
+    for _ in 1:3
+        log!(logger, KiteUtils.demo_state(7))
+    end
+    document = "{\"sections\": [1, 2], \"note\": \"ünïcode and a newline\n\"}"
+
+    save_log(logger, "metadata_test"; metadata = Dict("document" => document))
+    @test load_log("metadata_test").metadata == Dict("document" => document)
+
+    save_log(logger, "no_metadata_test")
+    @test load_log("no_metadata_test").metadata == Dict{String, String}()
+
+    carried = KiteUtils.sys_log(logger, "metadata_carried")
+    carried.metadata["document"] = document
+    save_log(carried, false)
+    @test load_log("metadata_carried").metadata == Dict("document" => document)
+end

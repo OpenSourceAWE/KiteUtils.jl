@@ -4,7 +4,8 @@
 """
     load_log(filename::String; path="")
 
-Read a log file that was saved as .arrow file.
+Read a log file that was saved as .arrow file. The table metadata the file carries is
+returned as the `metadata` field of the `SysLog`.
 """
 load_log(_, filename::String) = load_log(filename) # for compatibility, the first argument was P and is ignored
 function load_log(filename::String; path="", debug=false)
@@ -41,7 +42,8 @@ function load_log(filename::String; path="", debug=false)
                    :var_15=>Arrow.getmetadata(table.var_15)["name"],
                    :var_16=>Arrow.getmetadata(table.var_16)["name"],
     )
-    # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
+    metadata = Dict{String, String}(something(Arrow.getmetadata(table),
+                                              Pair{String, String}[]))
     if debug
         return table
     end
@@ -247,5 +249,5 @@ function load_log(filename::String; path="", debug=false)
                                        table.var_05, table.var_06, table.var_07, table.var_08, table.var_09, 
                                        table.var_10, table.var_11, table.var_12, table.var_13, table.var_14, 
                                        table.var_15, table.var_16))
-    return SysLog{P}(basename(fullname[1:end-6]), colmeta, syslog)
+    return SysLog{P}(basename(fullname[1:end-6]), colmeta, syslog, metadata)
 end

@@ -238,6 +238,7 @@ HEADER = """
 \"\"\"
     save_log(logger::Logger, name="sim_log", compress=true;
                 path="",
+                metadata = Dict{String, String}(),
                 colmeta = Dict(:var_01 => ["name" => "var_01"],
                                :var_02 => ["name" => "var_02"],
                                :var_03 => ["name" => "var_03"],
@@ -257,10 +258,16 @@ HEADER = """
             ))
 
 Save a flight log from a logger as .arrow file. By default lz4 compression is used, 
-if you use **false** as second parameter no compression is used.
+if you use **false** as second parameter no compression is used. `metadata` is written
+as the table metadata of the file and read back by [`load_log`](@ref); KiteUtils puts
+nothing in it and never reads what is in it.
+
+arrow-js does not implement IPC body decompression, so a log written with the default
+`compress=true` cannot be read in a browser; pass `compress=false` for one that can.
 \"\"\"
 function save_log(logger::Logger, name="sim_log", compress=true;
     path="",
+    metadata = Dict{String, String}(),
     colmeta = Dict(:var_01 => ["name" => "var_01"],
                    :var_02 => ["name" => "var_02"],
                    :var_03 => ["name" => "var_03"],
@@ -288,7 +295,7 @@ open(outputfile7,"w") do io
     end
 
     println(io, "    flight_log = (sys_log(logger, name; colmeta))")
-    println(io, "    save_log(flight_log, compress; path)")
+    println(io, "    save_log(flight_log, compress; path, metadata)")
     println(io, "end")
 end
 

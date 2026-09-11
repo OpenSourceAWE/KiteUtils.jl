@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+### Added
+- `metadata`, a keyword of both `save_log` methods taking a `Dict{String, String}`
+  that is written as the table metadata of the .arrow file and read back into the new
+  `SysLog.metadata` field by `load_log`. KiteUtils writes nothing into it and never
+  reads what is in it, so a caller can attach a document of its own to a log.
+
 ## KiteUtils v0.12.2
 ### Added
 - the loads a step produces, so a log can be replayed with force vectors drawn:
