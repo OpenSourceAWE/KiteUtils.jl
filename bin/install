@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# SPDX-FileCopyrightText: 2026 Uwe Fechner
+# SPDX-License-Identifier: MIT
+
+set -eu
+
+cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.."
+
+usage() {
+    cat <<'USAGE'
+Usage: bin/install [-y] [--update] [-h]
+
+Install the package environment of this repository for the Julia version that is
+on the machine: the tracked Manifest-v<version>.toml.default is copied over the
+live Manifest-v<version>.toml, instantiated and precompiled. Nothing else.
+
+  -y        do not ask before overwriting the live manifest
+  --update  resolve instead of install: Pkg.update against the live manifest,
+            leaving the tracked default alone
+  -h        show this message
+USAGE
+}
+
+assume_yes=false
+update=false
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -y) assume_yes=true ;;
+        --update) update=true ;;
+        -h|--help) usage; exit 0 ;;
+        *) echo "bin/install: unknown option $1" >&2; usage >&2; exit 1 ;;
+    esac
+    shift
+done
+
+export JULIA_PKG_SERVER_REGISTRY_PREFERENCE=eager
+
+if $update; then
+    julia --startup-file=no --project -e 'using Pkg; Pkg.update()'
+    exit 0
+fi
+
+version=$(julia --startup-file=no -e 'print("v", VERSION.major, ".", VERSION.minor)')
+manifest="Manifest-$version.toml"
+if [ ! -f "$manifest.default" ]; then
+    echo "bin/install: no $manifest.default; this repo does not pin Julia $version." >&2
+    exit 1
+fi
+
+if ! $assume_yes; then
+    read -r -p "Overwrite $manifest with $manifest.default and instantiate? [y/N] " reply
+    case "$reply" in
+        [yY]*) ;;
+        *) echo "bin/install: nothing installed."; exit 1 ;;
+    esac
+fi
+
+cp "$manifest.default" "$manifest"
+julia --startup-file=no --project -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
