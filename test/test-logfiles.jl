@@ -192,9 +192,9 @@ end
     logger = Logger(3, 1)
     log!(logger, SysState(3))
     save_log(logger, "per_body_split")
-    split = KiteUtils.Arrow.Table(joinpath(tempdir(), "per_body_split.arrow"))
-    columns = Dict{Symbol, Any}(name => collect(getproperty(split, name))
-                                for name in propertynames(split))
+    split_table = KiteUtils.Arrow.Table(joinpath(tempdir(), "per_body_split.arrow"))
+    columns = Dict{Symbol, Any}(name => collect(getproperty(split_table, name))
+                                for name in propertynames(split_table))
     for base in ("aero_force", "aero_moment", "tether_induced_force",
                  "tether_induced_moment"), axis in ("x", "y", "z")
         delete!(columns, Symbol(base, "_b_", axis))
