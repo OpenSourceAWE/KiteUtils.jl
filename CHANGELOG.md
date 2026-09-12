@@ -6,6 +6,11 @@
   of a `Logger` in memory, so reading a log back no longer has to go through a
   file.
 ### Changed
+- BREAKING: assigning the wind representation that `use_wind_vec` makes the derived
+  one now throws an `ArgumentError` instead of being discarded by `sync_wind!` on the
+  same line. That is `set.wind_vec` while `use_wind_vec` is `false`, and `set.v_wind`,
+  `set.upwind_dir` or `set.upwind_elevation` while it is `true`. Reading either
+  representation is unchanged, and so is loading a `.yaml` that carries both.
 - `syslog(logger)` and `sys_log(logger, ...)` return the steps that were logged,
   not every step the logger has room for. A `Logger(P, steps)` that logged fewer
   than `steps` states no longer yields a log padded with zero rows.

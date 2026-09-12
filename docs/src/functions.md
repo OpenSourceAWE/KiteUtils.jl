@@ -15,6 +15,7 @@ copy_examples
 se
 se_dict
 sync_wind!
+check_wind_input
 wc_settings
 fpc_settings
 fpp_settings
