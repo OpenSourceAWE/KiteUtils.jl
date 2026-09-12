@@ -9,6 +9,12 @@
 - `Logger.created`, the date and time the logger was constructed, as an ISO 8601 string
   in local time. Every log saved from a logger carries it as the `created` table
   metadata key; a `created` of the caller's own in `metadata` wins.
+### Changed
+- BREAKING: assigning the wind representation that `use_wind_vec` makes the derived
+  one now throws an `ArgumentError` instead of being discarded by `sync_wind!` on the
+  same line. That is `set.wind_vec` while `use_wind_vec` is `false`, and `set.v_wind`,
+  `set.upwind_dir` or `set.upwind_elevation` while it is `true`. Reading either
+  representation is unchanged, and so is loading a `.yaml` that carries both.
 
 ## KiteUtils v0.12.2
 ### Added
