@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+### Added
+- `sys_log(logger, name="sim_log"; colmeta)` is exported. It builds the `SysLog`
+  of a `Logger` in memory, so reading a log back no longer has to go through a
+  file.
+### Changed
+- `syslog(logger)` and `sys_log(logger, ...)` return the steps that were logged,
+  not every step the logger has room for. A `Logger(P, steps)` that logged fewer
+  than `steps` states no longer yields a log padded with zero rows.
+- `save_log(logger, ...)` leaves the logger alone. It used to resize every column
+  of the logger down to the number of logged steps, which ended the logger's
+  preallocation and silently dropped everything logged afterwards.
+
 ## KiteUtils v0.12.2
 ### Added
 - the loads a step produces, so a log can be replayed with force vectors drawn:
