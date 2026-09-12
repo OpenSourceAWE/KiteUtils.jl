@@ -177,3 +177,17 @@ end
     @test set.upwind_dir ≈ 0.0  atol=1e-10
     @test set.upwind_elevation ≈ 15.0  atol=1e-10
 end
+
+@testset "assigning the derived wind representation errors" begin
+    set = Settings("system.yaml")
+    @test set.use_wind_vec == false
+    @test_throws ArgumentError set.wind_vec = [10.0, 1.0, 0.0]
+    @test norm(set.wind_vec) ≈ set.v_wind  atol=1e-10
+
+    set.use_wind_vec = true
+    @test_throws ArgumentError set.v_wind = 12.0
+    @test_throws ArgumentError set.upwind_dir = 0.0
+    @test_throws ArgumentError set.upwind_elevation = 15.0
+    set.wind_vec = [10.0, 1.0, 0.0]
+    @test set.v_wind ≈ norm([10.0, 1.0, 0.0])  atol=1e-10
+end
