@@ -36,12 +36,12 @@ sysstate:
     alpha4: "MyFloat"                   # angle of attack at particle D [rad]
     CL2: "MyFloat"                      # lift coefficient
     CD2: "MyFloat"                      # drag coefficient
-    aero_force_b_x: "MVector{O, MyFloat}"  # aerodynamic force along body x, one per body [N]
-    aero_force_b_y: "MVector{O, MyFloat}"  # aerodynamic force along body y, one per body [N]
-    aero_force_b_z: "MVector{O, MyFloat}"  # aerodynamic force along body z, one per body [N]
-    aero_moment_b_x: "MVector{O, MyFloat}" # aerodynamic moment around body x, one per body [Nm]
-    aero_moment_b_y: "MVector{O, MyFloat}" # aerodynamic moment around body y, one per body [Nm]
-    aero_moment_b_z: "MVector{O, MyFloat}" # aerodynamic moment around body z, one per body [Nm]
+    aero_force_KA_x: "MVector{O, MyFloat}"  # aerodynamic force along KA x, one per body [N]
+    aero_force_KA_y: "MVector{O, MyFloat}"  # aerodynamic force along KA y, one per body [N]
+    aero_force_KA_z: "MVector{O, MyFloat}"  # aerodynamic force along KA z, one per body [N]
+    aero_moment_KA_x: "MVector{O, MyFloat}" # aerodynamic moment around KA x, one per body [Nm]
+    aero_moment_KA_y: "MVector{O, MyFloat}" # aerodynamic moment around KA y, one per body [Nm]
+    aero_moment_KA_z: "MVector{O, MyFloat}" # aerodynamic moment around KA z, one per body [Nm]
     twist_angles: "MVector{D, MyFloat}" # twist angle, one per twist_surface [rad]
     vel_kite: "MVector{3, MyFloat}"     # velocity vector of the kite [m/s]
     acc: "MyFloat"                      # acceleration [m/s²]
@@ -69,9 +69,9 @@ sysstate:
     set_torque: "MVector{W, MyFloat}"   # torque setting, one per winch [Nm]
     set_speed: "MVector{W, MyFloat}"    # speed setting, one per winch [m/s]
     set_force: "MVector{W, MyFloat}"    # force setting, one per winch [N]
-    set_ext_force_enu_x: "MVector{P, MyFloat}" # external force applied to each point in x, ENU reference frame [N]
-    set_ext_force_enu_y: "MVector{P, MyFloat}" # external force applied to each point in y, ENU reference frame [N]
-    set_ext_force_enu_z: "MVector{P, MyFloat}" # external force applied to each point in z, ENU reference frame [N]
+    set_ext_force_x: "MVector{P, MyFloat}" # external force applied to each point in x, ENU reference frame [N]
+    set_ext_force_y: "MVector{P, MyFloat}" # external force applied to each point in y, ENU reference frame [N]
+    set_ext_force_z: "MVector{P, MyFloat}" # external force applied to each point in z, ENU reference frame [N]
     var_01: "MyFloat"                   # generic variable 01
     var_02: "MyFloat"                   # generic variable 02
     var_03: "MyFloat"                   # generic variable 03

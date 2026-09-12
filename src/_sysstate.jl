@@ -17,10 +17,10 @@ non-integer field. No field is a fixed length: a model with five winches or ten
 twist surfaces logs all of them. The quaternion components `Qw/Qx/Qy/Qz` each
 hold O values; frame 1 is the kite, aliased by the `orient` property.
 
-A field named `_b` is per body and holds O values, one per oriented frame:
-`aero_force_b_x[k]` is a component of body k's force in the frame that
-`Qw/Qx/Qy/Qz[k]` rotates into ENU. A field named `_enu` is in the ENU world
-frame.
+A field named `_KA` is per body and holds O values, one per oriented frame:
+`aero_force_KA_x[k]` is a component of body k's force in the frame that
+`Qw/Qx/Qy/Qz[k]` rotates into ENU. The turn rates are `KA` too, and every other
+vector is ENU.
 
 Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `twist_angles`, `twist_vel`, `pulley_len`, `pulley_vel`, `l_tether` and
@@ -104,18 +104,18 @@ $(TYPEDFIELDS)
     CL2::F = 0
     "drag coefficient"
     CD2::F = 0
-    "aerodynamic force along body x, one per body [N]"
-    aero_force_b_x::MVector{O, F} = zeros(F, O)
-    "aerodynamic force along body y, one per body [N]"
-    aero_force_b_y::MVector{O, F} = zeros(F, O)
-    "aerodynamic force along body z, one per body [N]"
-    aero_force_b_z::MVector{O, F} = zeros(F, O)
-    "aerodynamic moment around body x, one per body [Nm]"
-    aero_moment_b_x::MVector{O, F} = zeros(F, O)
-    "aerodynamic moment around body y, one per body [Nm]"
-    aero_moment_b_y::MVector{O, F} = zeros(F, O)
-    "aerodynamic moment around body z, one per body [Nm]"
-    aero_moment_b_z::MVector{O, F} = zeros(F, O)
+    "aerodynamic force along KA x, one per body [N]"
+    aero_force_KA_x::MVector{O, F} = zeros(F, O)
+    "aerodynamic force along KA y, one per body [N]"
+    aero_force_KA_y::MVector{O, F} = zeros(F, O)
+    "aerodynamic force along KA z, one per body [N]"
+    aero_force_KA_z::MVector{O, F} = zeros(F, O)
+    "aerodynamic moment around KA x, one per body [Nm]"
+    aero_moment_KA_x::MVector{O, F} = zeros(F, O)
+    "aerodynamic moment around KA y, one per body [Nm]"
+    aero_moment_KA_y::MVector{O, F} = zeros(F, O)
+    "aerodynamic moment around KA z, one per body [Nm]"
+    aero_moment_KA_z::MVector{O, F} = zeros(F, O)
     "twist angle, one per twist_surface [rad]"
     twist_angles::MVector{D, F} = zeros(F, D)
     "velocity vector of the kite [m/s]"
@@ -171,11 +171,11 @@ $(TYPEDFIELDS)
     "force setting, one per winch [N]"
     set_force::MVector{W, F} = zeros(F, W)
     "external force applied to each point in x, ENU reference frame [N]"
-    set_ext_force_enu_x::MVector{P, F} = zeros(F, P)
+    set_ext_force_x::MVector{P, F} = zeros(F, P)
     "external force applied to each point in y, ENU reference frame [N]"
-    set_ext_force_enu_y::MVector{P, F} = zeros(F, P)
+    set_ext_force_y::MVector{P, F} = zeros(F, P)
     "external force applied to each point in z, ENU reference frame [N]"
-    set_ext_force_enu_z::MVector{P, F} = zeros(F, P)
+    set_ext_force_z::MVector{P, F} = zeros(F, P)
     "generic variable 01"
     var_01::F = 0
     "generic variable 02"

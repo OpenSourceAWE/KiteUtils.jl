@@ -50,10 +50,10 @@ non-integer field. No field is a fixed length: a model with five winches or ten
 twist surfaces logs all of them. The quaternion components `Qw/Qx/Qy/Qz` each
 hold O values; frame 1 is the kite, aliased by the `orient` property.
 
-A field named `_b` is per body and holds O values, one per oriented frame:
-`aero_force_b_x[k]` is a component of body k's force in the frame that
-`Qw/Qx/Qy/Qz[k]` rotates into ENU. A field named `_enu` is in the ENU world
-frame.
+A field named `_KA` is per body and holds O values, one per oriented frame:
+`aero_force_KA_x[k]` is a component of body k's force in the frame that
+`Qw/Qx/Qy/Qz[k]` rotates into ENU. The turn rates are `KA` too, and every other
+vector is ENU.
 
 Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `twist_angles`, `twist_vel`, `pulley_len`, `pulley_vel`, `l_tether` and

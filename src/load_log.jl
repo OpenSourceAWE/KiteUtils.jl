@@ -150,26 +150,28 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
         column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
     # A log predating the per-body split holds one 3-vector per body load, and it
     # was the kite's, so its components read back as frame 1.
-    function body_load(legacy)
+    function body_load(base, legacy)
         map(1:3) do component
-            name = Symbol(legacy, :_, "xyz"[component])
+            name = Symbol(base, :_, "xyz"[component])
             haskey(table, name) && return getproperty(table, name)
             haskey(table, legacy) || return zero_col(O)
             return [(v = zeros(MVector{O, F}); v[1] = load[component]; v)
                     for load in getproperty(table, legacy)]
         end
     end
-    aero_force_b_x, aero_force_b_y, aero_force_b_z = body_load(:aero_force_b)
-    aero_moment_b_x, aero_moment_b_y, aero_moment_b_z = body_load(:aero_moment_b)
+    aero_force_KA_x, aero_force_KA_y, aero_force_KA_z =
+        body_load(:aero_force_KA, :aero_force_b)
+    aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z =
+        body_load(:aero_moment_KA, :aero_moment_b)
     S = haskey(table, :spring_force) ? entries(table.spring_force) : 0
     N = haskey(table, :gamma_distribution) ? entries(table.gamma_distribution) : 0
     aero_force_x, aero_force_y, aero_force_z =
         column(:aero_force_x, P), column(:aero_force_y, P), column(:aero_force_z, P)
     drag_force_x, drag_force_y, drag_force_z =
         column(:drag_force_x, P), column(:drag_force_y, P), column(:drag_force_z, P)
-    set_ext_force_enu_x, set_ext_force_enu_y, set_ext_force_enu_z =
-        column(:set_ext_force_enu_x, P), column(:set_ext_force_enu_y, P),
-        column(:set_ext_force_enu_z, P)
+    set_ext_force_x, set_ext_force_y, set_ext_force_z =
+        column(:set_ext_force_x, P), column(:set_ext_force_y, P),
+        column(:set_ext_force_z, P)
     spring_force, gamma_distribution =
         column(:spring_force, S), column(:gamma_distribution, N)
     syslog = StructArray{SysState{P, O, D, L, W, T, S, N, F}}((
@@ -178,14 +180,15 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
         winch_force, table.depower, table.steering, kcu_steering, set_steering,
         table.heading, heading_rate, table.course, bearing, attractor, table.v_app,
         v_wind_gnd, v_wind_200m, v_wind_kite, AoA, side_slip, alpha3, alpha4, CL2, CD2,
-        aero_force_b_x, aero_force_b_y, aero_force_b_z, aero_moment_b_x, aero_moment_b_y,
-        aero_moment_b_z, twist_angles, vel_kite, acc, table.X, table.Y, table.Z,
-        flap_angle, VX, VY, VZ, aero_force_x, aero_force_y, aero_force_z, drag_force_x,
-        drag_force_y, drag_force_z, spring_force, gamma_distribution, turn_rate_x,
-        turn_rate_y, turn_rate_z, twist_vel, pulley_len, pulley_vel, set_torque, set_speed,
-        set_force, set_ext_force_enu_x, set_ext_force_enu_y, set_ext_force_enu_z,
-        table.var_01, table.var_02, table.var_03, table.var_04, table.var_05, table.var_06,
-        table.var_07, table.var_08, table.var_09, table.var_10, table.var_11, table.var_12,
-        table.var_13, table.var_14, table.var_15, table.var_16))
+        aero_force_KA_x, aero_force_KA_y, aero_force_KA_z, aero_moment_KA_x,
+        aero_moment_KA_y, aero_moment_KA_z, twist_angles, vel_kite, acc, table.X, table.Y,
+        table.Z, flap_angle, VX, VY, VZ, aero_force_x, aero_force_y, aero_force_z,
+        drag_force_x, drag_force_y, drag_force_z, spring_force, gamma_distribution,
+        turn_rate_x, turn_rate_y, turn_rate_z, twist_vel, pulley_len, pulley_vel,
+        set_torque, set_speed, set_force, set_ext_force_x, set_ext_force_y,
+        set_ext_force_z, table.var_01, table.var_02, table.var_03, table.var_04,
+        table.var_05, table.var_06, table.var_07, table.var_08, table.var_09,
+        table.var_10, table.var_11, table.var_12, table.var_13, table.var_14,
+        table.var_15, table.var_16))
     return SysLog{P}(basename(fullname[1:end-6]), colmeta, syslog)
 end

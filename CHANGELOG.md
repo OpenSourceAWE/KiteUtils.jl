@@ -17,9 +17,9 @@
 - `gamma_distribution`, one circulation per aerodynamic panel, sized by the new
   type parameter `N` and by the `panels` keyword of both constructors:
   `SysState(P; ..., panels)` and `Logger(P, steps; ..., panels)`.
-- `set_ext_force_enu_x`, `set_ext_force_enu_y` and `set_ext_force_enu_z`, the
-  external force applied to each point in the ENU reference frame. It was settable
-  but unlogged, so a run driven by one could not be replayed from its log.
+- `set_ext_force_x`, `set_ext_force_y` and `set_ext_force_z`, the external force
+  applied to each point, ENU. It was settable but unlogged, so a run driven by one
+  could not be replayed from its log.
 ### Changed
 - BREAKING: `SysState` is `SysState{P, O, D, L, W, T, S, N, F}` and `Logger` is
   `Logger{P, O, D, L, W, T, S, N, F, Q}`, N being the number of aerodynamic panels.
@@ -28,9 +28,10 @@
   `SysState{7, 1, 0, 0, 1, 1, 0, 0, Float32}`.
 - BREAKING: the two per-body aerodynamic loads are one field per component, each
   holding one entry per oriented frame, so a system with a second wing can log both.
-  `aero_force_b` becomes `aero_force_b_x`/`aero_force_b_y`/`aero_force_b_z` and
-  `aero_moment_b` becomes `aero_moment_b_x`/`aero_moment_b_y`/`aero_moment_b_z`. Write
-  `ss.aero_force_b_y[1]` where you wrote `ss.aero_force_b[2]`, the 1 being the
+  They name the frame they are in, which is `KA`: `aero_force_b` becomes
+  `aero_force_KA_x`/`aero_force_KA_y`/`aero_force_KA_z` and `aero_moment_b` becomes
+  `aero_moment_KA_x`/`aero_moment_KA_y`/`aero_moment_KA_z`. Write
+  `ss.aero_force_KA_y[1]` where you wrote `ss.aero_force_b[2]`, the 1 being the
   kite; `load_log` reads a pre-split log's 3-vector back as body 1.
 - BREAKING: `SysState` drops `tether_induced_force` and `tether_induced_moment`.
   Nothing filled them: both models copy a rigid body's `tether_force`/`tether_moment`
