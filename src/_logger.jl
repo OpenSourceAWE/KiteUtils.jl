@@ -75,12 +75,6 @@ $(TYPEDFIELDS)
     aero_moment_b_x_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
     aero_moment_b_y_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
     aero_moment_b_z_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    tether_induced_force_b_x_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    tether_induced_force_b_y_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    tether_induced_force_b_z_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    tether_induced_moment_b_x_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    tether_induced_moment_b_y_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    tether_induced_moment_b_z_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
     twist_angles_vec::Vector{MVector{D, F}} = [zero(MVector{D, F}) for _ in 1:Q]
     vel_kite_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
     acc_vec::Vector{F} = zeros(F, Q)

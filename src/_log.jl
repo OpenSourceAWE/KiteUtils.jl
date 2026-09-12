@@ -58,12 +58,6 @@ function log!(logger::Logger, state::SysState)
     logger.aero_moment_b_x_vec[i] .= state.aero_moment_b_x
     logger.aero_moment_b_y_vec[i] .= state.aero_moment_b_y
     logger.aero_moment_b_z_vec[i] .= state.aero_moment_b_z
-    logger.tether_induced_force_b_x_vec[i] .= state.tether_induced_force_b_x
-    logger.tether_induced_force_b_y_vec[i] .= state.tether_induced_force_b_y
-    logger.tether_induced_force_b_z_vec[i] .= state.tether_induced_force_b_z
-    logger.tether_induced_moment_b_x_vec[i] .= state.tether_induced_moment_b_x
-    logger.tether_induced_moment_b_y_vec[i] .= state.tether_induced_moment_b_y
-    logger.tether_induced_moment_b_z_vec[i] .= state.tether_induced_moment_b_z
     logger.twist_angles_vec[i] .= state.twist_angles
     logger.vel_kite_vec[i] .= state.vel_kite
     logger.acc_vec[i] = state.acc

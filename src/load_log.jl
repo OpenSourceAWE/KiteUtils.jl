@@ -150,23 +150,17 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
         column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
     # A log predating the per-body split holds one 3-vector per body load, and it
     # was the kite's, so its components read back as frame 1.
-    function body_load(base, legacy)
+    function body_load(legacy)
         map(1:3) do component
-            name = Symbol(base, :_b_, "xyz"[component])
+            name = Symbol(legacy, :_, "xyz"[component])
             haskey(table, name) && return getproperty(table, name)
             haskey(table, legacy) || return zero_col(O)
             return [(v = zeros(MVector{O, F}); v[1] = load[component]; v)
                     for load in getproperty(table, legacy)]
         end
     end
-    aero_force_b_x, aero_force_b_y, aero_force_b_z =
-        body_load(:aero_force, :aero_force_b)
-    aero_moment_b_x, aero_moment_b_y, aero_moment_b_z =
-        body_load(:aero_moment, :aero_moment_b)
-    tether_induced_force_b_x, tether_induced_force_b_y, tether_induced_force_b_z =
-        body_load(:tether_induced_force, :tether_induced_force)
-    tether_induced_moment_b_x, tether_induced_moment_b_y, tether_induced_moment_b_z =
-        body_load(:tether_induced_moment, :tether_induced_moment)
+    aero_force_b_x, aero_force_b_y, aero_force_b_z = body_load(:aero_force_b)
+    aero_moment_b_x, aero_moment_b_y, aero_moment_b_z = body_load(:aero_moment_b)
     S = haskey(table, :spring_force) ? entries(table.spring_force) : 0
     N = haskey(table, :gamma_distribution) ? entries(table.gamma_distribution) : 0
     aero_force_x, aero_force_y, aero_force_z =
@@ -185,9 +179,7 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
         table.heading, heading_rate, table.course, bearing, attractor, table.v_app,
         v_wind_gnd, v_wind_200m, v_wind_kite, AoA, side_slip, alpha3, alpha4, CL2, CD2,
         aero_force_b_x, aero_force_b_y, aero_force_b_z, aero_moment_b_x, aero_moment_b_y,
-        aero_moment_b_z, tether_induced_force_b_x, tether_induced_force_b_y,
-        tether_induced_force_b_z, tether_induced_moment_b_x, tether_induced_moment_b_y,
-        tether_induced_moment_b_z, twist_angles, vel_kite, acc, table.X, table.Y, table.Z,
+        aero_moment_b_z, twist_angles, vel_kite, acc, table.X, table.Y, table.Z,
         flap_angle, VX, VY, VZ, aero_force_x, aero_force_y, aero_force_z, drag_force_x,
         drag_force_y, drag_force_z, spring_force, gamma_distribution, turn_rate_x,
         turn_rate_y, turn_rate_z, twist_vel, pulley_len, pulley_vel, set_torque, set_speed,

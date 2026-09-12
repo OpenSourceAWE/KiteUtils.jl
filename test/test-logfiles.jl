@@ -8,7 +8,7 @@ using KiteUtils, Test, StructArrays
     @test typeof(state) == SysState{7, 1, 0, 0, 1, 1, 0, 0, Float32}
     @test state.X[end] == 10.0
     @test all(state.pos[end] .≈ [10, 0, 6.0])
-    @test repr(state) == "time [s]:          0.0\nt_sim [s]:         0.012\nsys_state [-]:     0\ncycle [-]:         0\nfig_8 [-]:         0\ne_mech [Wh]:       0.0\norient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]\nturn_rates [rad/s]:Float32[0.0, 0.0, 0.0]\nelevation [rad]:   0.5404195\nazimuth [rad]:     0.0\nazimuth_rate [rad/s]:0.0\nl_tether [m]:      Float32[0.0]\nv_reelout [m/s]:   Float32[0.0]\nwinch_force [N]:   Float32[0.0]\ndepower [0..1]:    0.0\nsteering [-1..1]:  0.0\nkcu_steering [-1..1]:0.0\nset_steering [-1..1]:0.0\nheading [rad]:     0.0\nheading_rate [rad/s]:0.0\ncourse [rad]:      0.0\nbearing [rad]:     0.0\nattractor [rad]:   Float32[0.0, 0.0]\nv_app [m/s]:       0.0\nv_wind_gnd [m/s]:  Float32[10.4855, 0.0, -3.08324]\nv_wind_200m [m/s]: Float32[10.4855, 0.0, -3.08324]\nv_wind_kite [m/s]: Float32[10.4855, 0.0, -3.08324]\nAoA [rad]:         0.0\nside_slip [rad]:   0.0\nalpha3 [rad]:      0.0\nalpha4 [rad]:      0.0\nCL2 [-]:           0.0\nCD2 [-]:           0.0\naero_force_b_x [N]:Float32[0.0]\naero_force_b_y [N]:Float32[0.0]\naero_force_b_z [N]:Float32[0.0]\naero_moment_b_x [Nm]:Float32[0.0]\naero_moment_b_y [Nm]:Float32[0.0]\naero_moment_b_z [Nm]:Float32[0.0]\ntether_induced_force_b_x [N]:Float32[0.0]\ntether_induced_force_b_y [N]:Float32[0.0]\ntether_induced_force_b_z [N]:Float32[0.0]\ntether_induced_moment_b_x [Nm]:Float32[0.0]\ntether_induced_moment_b_y [Nm]:Float32[0.0]\ntether_induced_moment_b_z [Nm]:Float32[0.0]\ntwist_angles [rad]:Float32[]\nvel_kite [m/s]:    Float32[0.0, 0.0, 0.0]\nacc [m/s²]:        0.0\nX [m]:             Float32[0.0, 1.6666666, 3.3333333, 5.0, 6.6666665, 8.333333, 10.0]\nY [m]:             Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nZ [m]:             Float32[0.0, 0.15380114, 0.6194867, 1.4100224, 2.5474184, 4.063342, 6.0000005]\nflap_angle [rad]:  Float32[]\nVX [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVY [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVZ [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nspring_force [N]:  Float32[]\ngamma_distribution [m²/s]:Float32[]\nturn_rate_x [rad/s]:Float32[0.0]\nturn_rate_y [rad/s]:Float32[0.0]\nturn_rate_z [rad/s]:Float32[0.0]\ntwist_vel [rad/s]: Float32[]\npulley_len [m]:    Float32[]\npulley_vel [m/s]:  Float32[]\nset_torque [Nm]:   Float32[0.0]\nset_speed [m/s]:   Float32[0.0]\nset_force [N]:     Float32[0.0]\nset_ext_force_enu_x [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nset_ext_force_enu_y [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nset_ext_force_enu_z [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nvar_01 [-]:        0.0\nvar_02 [-]:        0.0\nvar_03 [-]:        0.0\nvar_04 [-]:        0.0\nvar_05 [-]:        0.0\nvar_06 [-]:        0.0\nvar_07 [-]:        0.0\nvar_08 [-]:        0.0\nvar_09 [-]:        0.0\nvar_10 [-]:        0.0\nvar_11 [-]:        0.0\nvar_12 [-]:        0.0\nvar_13 [-]:        0.0\nvar_14 [-]:        0.0\nvar_15 [-]:        0.0\nvar_16 [-]:        0.0\n"
+    @test repr(state) == "time [s]:          0.0\nt_sim [s]:         0.012\nsys_state [-]:     0\ncycle [-]:         0\nfig_8 [-]:         0\ne_mech [Wh]:       0.0\norient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]\nturn_rates [rad/s]:Float32[0.0, 0.0, 0.0]\nelevation [rad]:   0.5404195\nazimuth [rad]:     0.0\nazimuth_rate [rad/s]:0.0\nl_tether [m]:      Float32[0.0]\nv_reelout [m/s]:   Float32[0.0]\nwinch_force [N]:   Float32[0.0]\ndepower [0..1]:    0.0\nsteering [-1..1]:  0.0\nkcu_steering [-1..1]:0.0\nset_steering [-1..1]:0.0\nheading [rad]:     0.0\nheading_rate [rad/s]:0.0\ncourse [rad]:      0.0\nbearing [rad]:     0.0\nattractor [rad]:   Float32[0.0, 0.0]\nv_app [m/s]:       0.0\nv_wind_gnd [m/s]:  Float32[10.4855, 0.0, -3.08324]\nv_wind_200m [m/s]: Float32[10.4855, 0.0, -3.08324]\nv_wind_kite [m/s]: Float32[10.4855, 0.0, -3.08324]\nAoA [rad]:         0.0\nside_slip [rad]:   0.0\nalpha3 [rad]:      0.0\nalpha4 [rad]:      0.0\nCL2 [-]:           0.0\nCD2 [-]:           0.0\naero_force_b_x [N]:Float32[0.0]\naero_force_b_y [N]:Float32[0.0]\naero_force_b_z [N]:Float32[0.0]\naero_moment_b_x [Nm]:Float32[0.0]\naero_moment_b_y [Nm]:Float32[0.0]\naero_moment_b_z [Nm]:Float32[0.0]\ntwist_angles [rad]:Float32[]\nvel_kite [m/s]:    Float32[0.0, 0.0, 0.0]\nacc [m/s²]:        0.0\nX [m]:             Float32[0.0, 1.6666666, 3.3333333, 5.0, 6.6666665, 8.333333, 10.0]\nY [m]:             Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nZ [m]:             Float32[0.0, 0.15380114, 0.6194867, 1.4100224, 2.5474184, 4.063342, 6.0000005]\nflap_angle [rad]:  Float32[]\nVX [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVY [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVZ [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nspring_force [N]:  Float32[]\ngamma_distribution [m²/s]:Float32[]\nturn_rate_x [rad/s]:Float32[0.0]\nturn_rate_y [rad/s]:Float32[0.0]\nturn_rate_z [rad/s]:Float32[0.0]\ntwist_vel [rad/s]: Float32[]\npulley_len [m]:    Float32[]\npulley_vel [m/s]:  Float32[]\nset_torque [Nm]:   Float32[0.0]\nset_speed [m/s]:   Float32[0.0]\nset_force [N]:     Float32[0.0]\nset_ext_force_enu_x [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nset_ext_force_enu_y [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nset_ext_force_enu_z [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nvar_01 [-]:        0.0\nvar_02 [-]:        0.0\nvar_03 [-]:        0.0\nvar_04 [-]:        0.0\nvar_05 [-]:        0.0\nvar_06 [-]:        0.0\nvar_07 [-]:        0.0\nvar_08 [-]:        0.0\nvar_09 [-]:        0.0\nvar_10 [-]:        0.0\nvar_11 [-]:        0.0\nvar_12 [-]:        0.0\nvar_13 [-]:        0.0\nvar_14 [-]:        0.0\nvar_15 [-]:        0.0\nvar_16 [-]:        0.0\n"
     state = KiteUtils.demo_state_4p(7)
     @test typeof(state) == SysState{11, 1, 0, 0, 1, 1, 0, 0, Float32}
     @test state.X[end] ≈ 13.62487f0
@@ -175,19 +175,16 @@ end
     written.aero_force_b_y .= [21, 22]
     written.aero_force_b_z .= [31, 32]
     written.aero_moment_b_z .= [41, 42]
-    written.tether_induced_force_b_y .= [51, 52]
-    written.tether_induced_moment_b_x .= [61, 62]
     log!(logger, written)
     save_log(logger, "per_body_test")
     row = load_log("per_body_test").syslog[1]
-    for field in (:aero_force_b_x, :aero_force_b_y, :aero_force_b_z, :aero_moment_b_z,
-                  :tether_induced_force_b_y, :tether_induced_moment_b_x)
+    for field in (:aero_force_b_x, :aero_force_b_y, :aero_force_b_z, :aero_moment_b_z)
         @test getproperty(row, field) == getproperty(written, field)
     end
     @test all(iszero, row.aero_moment_b_x)
 end
 
-@testset "a pre-split log's aero_force_b is read as the first body" begin
+@testset "a log predating the split: aero_force_b is body 1, tether loads dropped" begin
     set_data_path(tempdir())
     logger = Logger(3, 1)
     log!(logger, SysState(3))
@@ -195,11 +192,11 @@ end
     split_table = KiteUtils.Arrow.Table(joinpath(tempdir(), "per_body_split.arrow"))
     columns = Dict{Symbol, Any}(name => collect(getproperty(split_table, name))
                                 for name in propertynames(split_table))
-    for base in ("aero_force", "aero_moment", "tether_induced_force",
-                 "tether_induced_moment"), axis in ("x", "y", "z")
-        delete!(columns, Symbol(base, "_b_", axis))
+    for base in ("aero_force_b", "aero_moment_b"), axis in ("x", "y", "z")
+        delete!(columns, Symbol(base, "_", axis))
     end
     columns[:aero_force_b] = [Float32[7, 8, 9]]
+    columns[:tether_induced_force] = [Float32[1, 2, 3]]
     colmeta = Dict(Symbol("var_", lpad(i, 2, '0')) =>
                    ["name" => "var_" * lpad(i, 2, '0')] for i in 1:16)
     KiteUtils.Arrow.write(joinpath(tempdir(), "legacy_body_load.arrow"),

@@ -116,18 +116,6 @@ $(TYPEDFIELDS)
     aero_moment_b_y::MVector{O, F} = zeros(F, O)
     "aerodynamic moment around body z, one per body [Nm]"
     aero_moment_b_z::MVector{O, F} = zeros(F, O)
-    "tether force on the body along body x, one per body [N]"
-    tether_induced_force_b_x::MVector{O, F} = zeros(F, O)
-    "tether force on the body along body y, one per body [N]"
-    tether_induced_force_b_y::MVector{O, F} = zeros(F, O)
-    "tether force on the body along body z, one per body [N]"
-    tether_induced_force_b_z::MVector{O, F} = zeros(F, O)
-    "tether moment on the body around body x, one per body [Nm]"
-    tether_induced_moment_b_x::MVector{O, F} = zeros(F, O)
-    "tether moment on the body around body y, one per body [Nm]"
-    tether_induced_moment_b_y::MVector{O, F} = zeros(F, O)
-    "tether moment on the body around body z, one per body [Nm]"
-    tether_induced_moment_b_z::MVector{O, F} = zeros(F, O)
     "twist angle, one per twist_surface [rad]"
     twist_angles::MVector{D, F} = zeros(F, D)
     "velocity vector of the kite [m/s]"
