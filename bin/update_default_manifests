@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# SPDX-FileCopyrightText: 2026 Uwe Fechner
+# SPDX-License-Identifier: MIT
+
+set -eu
+
+cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.."
+
+usage() {
+    cat <<'USAGE'
+Usage: bin/update_default_manifests [-y] [-h]
+
+Update every package and write the resolved manifests to the tracked
+Manifest-v<version>.toml.default files of this repository. Each one is resolved
+under the Julia it pins, so every one of those Julia versions has to be on the
+machine; none is written unless all of them are.
+
+  -y   do not ask before overwriting the tracked defaults
+  -h   show this message
+USAGE
+}
+
+assume_yes=false
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -y) assume_yes=true ;;
+        -h|--help) usage; exit 0 ;;
+        *) echo "update_default_manifests: unknown option $1" >&2; usage >&2; exit 1 ;;
+    esac
+    shift
+done
+
+versions=()
+for default in Manifest-v*.toml.default; do
+    [ -f "$default" ] || continue
+    version=${default#Manifest-v}
+    versions+=("${version%.toml.default}")
+done
+if [ ${#versions[@]} -eq 0 ]; then
+    echo "update_default_manifests: no Manifest-v<version>.toml.default here." >&2
+    exit 1
+fi
+
+missing=()
+for version in "${versions[@]}"; do
+    on_machine=$(julia "+$version" --startup-file=no \
+        -e 'print(VERSION.major, ".", VERSION.minor)' 2>/dev/null) || on_machine=""
+    [ "$on_machine" = "$version" ] || missing+=("$version")
+done
+if [ ${#missing[@]} -gt 0 ]; then
+    echo "update_default_manifests: no Julia ${missing[*]} on this machine;" \
+         "juliaup add what is missing." >&2
+    exit 1
+fi
+
+if ! $assume_yes; then
+    read -r -p "Update every package and rewrite the defaults of ${versions[*]}? [y/N] " \
+        reply
+    case "$reply" in
+        [yY]*) ;;
+        *) echo "update_default_manifests: nothing updated."; exit 1 ;;
+    esac
+fi
+
+export JULIA_PKG_SERVER_REGISTRY_PREFERENCE=eager
+
+for version in "${versions[@]}"; do
+    manifest="Manifest-v$version.toml"
+    # Pkg resolves into Manifest.toml unless the versioned name is already a file
+    : > "$manifest"
+    julia "+$version" --startup-file=no --project -e 'using Pkg; Pkg.update()'
+    cp "$manifest" "$manifest.default"
+done
