@@ -173,6 +173,8 @@ Fields:
     tethers::Int64 = T
     segments::Int64 = S
     index::Int64 = 1
+    "date and time the logger was created, ISO 8601 with the UTC offset"
+    created::String = Libc.strftime("%Y-%m-%dT%H:%M:%S%z", time())
 """
 open(outputfile4,"w") do io
     print(io, COMMENT)
@@ -259,8 +261,8 @@ HEADER = """
 
 Save a flight log from a logger as .arrow file. By default lz4 compression is used, 
 if you use **false** as second parameter no compression is used. `metadata` is written
-as the table metadata of the file and read back by [`load_log`](@ref); KiteUtils puts
-nothing in it and never reads what is in it.
+as the table metadata of the file, beside the creation time of the logger under the
+key `created`, and read back by [`load_log`](@ref).
 
 arrow-js does not implement IPC body decompression, so a log written with the default
 `compress=true` cannot be read in a browser; pass `compress=false` for one that can.
@@ -294,8 +296,8 @@ open(outputfile7,"w") do io
         println(io, "    resize!(logger." * key * "_vec, nl)")
     end
 
-    println(io, "    flight_log = (sys_log(logger, name; colmeta))")
-    println(io, "    save_log(flight_log, compress; path, metadata)")
+    println(io, "    flight_log = (sys_log(logger, name; colmeta, metadata))")
+    println(io, "    save_log(flight_log, compress; path)")
     println(io, "end")
 end
 

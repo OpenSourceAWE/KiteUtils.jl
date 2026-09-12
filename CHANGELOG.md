@@ -2,10 +2,13 @@
 
 ## Unreleased
 ### Added
-- `metadata`, a keyword of both `save_log` methods taking a `Dict{String, String}`
-  that is written as the table metadata of the .arrow file and read back into the new
-  `SysLog.metadata` field by `load_log`. KiteUtils writes nothing into it and never
-  reads what is in it, so a caller can attach a document of its own to a log.
+- `metadata`, a keyword of both `save_log` methods and of `sys_log`, taking a
+  `Dict{String, String}` that is written as the table metadata of the .arrow file and
+  read back into the new `SysLog.metadata` field by `load_log`, so a caller can attach
+  a document of its own to a log.
+- `Logger.created`, the date and time the logger was constructed, as an ISO 8601 string
+  with the UTC offset. Every log saved from a logger carries it as the `created` table
+  metadata key; a `created` of the caller's own in `metadata` wins.
 
 ## KiteUtils v0.12.2
 ### Added

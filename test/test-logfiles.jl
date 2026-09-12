@@ -177,13 +177,31 @@ end
     document = "{\"sections\": [1, 2], \"note\": \"ünïcode and a newline\n\"}"
 
     save_log(logger, "metadata_test"; metadata = Dict("document" => document))
-    @test load_log("metadata_test").metadata == Dict("document" => document)
+    @test load_log("metadata_test").metadata ==
+          Dict("document" => document, "created" => logger.created)
 
     save_log(logger, "no_metadata_test")
-    @test load_log("no_metadata_test").metadata == Dict{String, String}()
+    @test load_log("no_metadata_test").metadata == Dict("created" => logger.created)
 
     carried = KiteUtils.sys_log(logger, "metadata_carried")
     carried.metadata["document"] = document
     save_log(carried, false)
-    @test load_log("metadata_carried").metadata == Dict("document" => document)
+    @test load_log("metadata_carried").metadata ==
+          Dict("document" => document, "created" => logger.created)
+end
+
+@testset "KiteUtils.jl: logger creation time" begin
+    set_data_path(tempdir())
+    logger = Logger(7, 1)
+    log!(logger, KiteUtils.demo_state(7))
+
+    @test occursin(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{4}$", logger.created)
+
+    # The stamp is the moment the Logger was built, not the moment of saving.
+    logger.created = "1970-01-01T00:00:00+0000"
+    save_log(logger, "created_test")
+    @test load_log("created_test").metadata["created"] == "1970-01-01T00:00:00+0000"
+
+    save_log(logger, "created_override"; metadata = Dict("created" => "mine"))
+    @test load_log("created_override").metadata["created"] == "mine"
 end
