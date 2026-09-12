@@ -6,6 +6,12 @@
   that is written as the table metadata of the .arrow file and read back into the new
   `SysLog.metadata` field by `load_log`. KiteUtils writes nothing into it and never
   reads what is in it, so a caller can attach a document of its own to a log.
+### Changed
+- BREAKING: assigning the wind representation that `use_wind_vec` makes the derived
+  one now throws an `ArgumentError` instead of being discarded by `sync_wind!` on the
+  same line. That is `set.wind_vec` while `use_wind_vec` is `false`, and `set.v_wind`,
+  `set.upwind_dir` or `set.upwind_elevation` while it is `true`. Reading either
+  representation is unchanged, and so is loading a `.yaml` that carries both.
 
 ## KiteUtils v0.12.2
 ### Added
