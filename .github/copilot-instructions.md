@@ -27,9 +27,9 @@ KiteUtils.jl is used by downstream packages: KiteModels.jl, KitePodModels.jl, Wi
 - **trafo.jl**: Additional rotation and transformation utilities
 - **yaml_utils.jl**: YAML file reading/writing utilities
 - **_sysstate.jl**: `SysState` type for representing the state of the kite power system
-- **_log.jl, _logger.jl, _save_log.jl, _load_log.jl**: Internal logging implementation
+- **_log.jl, _logger.jl, _syslog.jl, _load_log.jl**: Internal logging implementation
 
-All source files that start with an underscore (`_`) are auto-generated from `data/sysstate.yaml` using the script 
+All source files that start with an underscore (`_`) are auto-generated from `src/sysstate.yaml` using the script 
 **build.jl** and must not be edited directly.
 
 ### Key Data Structures
