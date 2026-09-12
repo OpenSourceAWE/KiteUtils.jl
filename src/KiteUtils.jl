@@ -338,24 +338,7 @@ include("_demo_syslog.jl")
 Create an artificial SysLog struct for demonstration purposes. P is the number of tether
 particles.
 """
-function demo_log(P, name="Test_flight"; duration=10,
-    colmeta = Dict(:var_01 => ["name" => "var_01"],
-                   :var_02 => ["name" => "var_02"],
-                   :var_03 => ["name" => "var_03"],
-                   :var_04 => ["name" => "var_04"],
-                   :var_05 => ["name" => "var_05"],
-                   :var_06 => ["name" => "var_06"],
-                   :var_07 => ["name" => "var_07"],
-                   :var_08 => ["name" => "var_08"],
-                   :var_09 => ["name" => "var_09"],
-                   :var_10 => ["name" => "var_10"],
-                   :var_11 => ["name" => "var_11"],
-                   :var_12 => ["name" => "var_12"],
-                   :var_13 => ["name" => "var_13"],
-                   :var_14 => ["name" => "var_14"],
-                   :var_15 => ["name" => "var_15"],
-                   :var_16 => ["name" => "var_16"]
-                   ))
+function demo_log(P, name="Test_flight"; duration=10, colmeta=default_colmeta())
     syslog = demo_syslog(P, duration=duration)
     return SysLog{P}(name, colmeta, syslog)
 end
