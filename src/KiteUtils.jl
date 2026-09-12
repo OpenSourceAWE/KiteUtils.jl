@@ -51,7 +51,8 @@ export Logger, MyFloat, Settings, SysLog, SysState
 import Base.length
 import ReferenceFrameRotations as RFR
 
-export demo_log, demo_state, demo_syslog, export_log, import_log, load_log, save_log # functions for logging
+export default_colmeta, demo_log, demo_state, demo_syslog, export_log,   # functions for logging
+    import_log, load_log, save_log, sys_log
 export euler2rot, length, log!, menu, syslog
 export demo_state_4p, initial_kite_ref_frame                                         # functions for four point kite model
 export asin2, azimuth_east, azimuth_north, calc_elevation, ground_dist, rot, rot3d

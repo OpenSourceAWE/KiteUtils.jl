@@ -30,50 +30,26 @@ end
 include("_syslog.jl")
 
 """
-    sys_log(logger::Logger, name="sim_log";
-                colmeta = Dict(:var_01 => ["name" => "var_01"],
-                               :var_02 => ["name" => "var_02"],
-                               :var_03 => ["name" => "var_03"],
-                               :var_04 => ["name" => "var_04"],
-                               :var_05 => ["name" => "var_05"],
-                               :var_06 => ["name" => "var_06"],
-                               :var_07 => ["name" => "var_07"],
-                               :var_08 => ["name" => "var_08"],
-                               :var_09 => ["name" => "var_09"],
-                               :var_10 => ["name" => "var_10"],
-                               :var_11 => ["name" => "var_11"],
-                               :var_12 => ["name" => "var_12"],
-                               :var_13 => ["name" => "var_13"],
-                               :var_14 => ["name" => "var_14"],
-                               :var_15 => ["name" => "var_15"],
-                               :var_16 => ["name" => "var_16"]
-            ))
+    sys_log(logger::Logger, name="sim_log"; colmeta=default_colmeta())
 
-Converts the data of a Logger object into a SysLog object, containing a StructArray, a name
-and the column meta data.
+Convert the data of a `Logger` into a `SysLog`, holding the rows that were
+logged, the name of the log and the column meta data.
 """
-function sys_log(logger::Logger, name="sim_log"; 
-    colmeta = Dict(:var_01 => ["name" => "var_01"],
-                   :var_02 => ["name" => "var_02"],
-                   :var_03 => ["name" => "var_03"],
-                   :var_04 => ["name" => "var_04"],
-                   :var_05 => ["name" => "var_05"],
-                   :var_06 => ["name" => "var_06"],
-                   :var_07 => ["name" => "var_07"],
-                   :var_08 => ["name" => "var_08"],
-                   :var_09 => ["name" => "var_09"],
-                   :var_10 => ["name" => "var_10"],
-                   :var_11 => ["name" => "var_11"],
-                   :var_12 => ["name" => "var_12"],
-                   :var_13 => ["name" => "var_13"],
-                   :var_14 => ["name" => "var_14"],
-                   :var_15 => ["name" => "var_15"],
-                   :var_16 => ["name" => "var_16"]
-    ))
+function sys_log(logger::Logger, name="sim_log"; colmeta=default_colmeta())
     SysLog{logger.points}(name, colmeta, syslog(logger))
 end
 
-include("_save_log.jl")
+"""
+    save_log(logger::Logger, name="sim_log", compress=true; path="",
+             colmeta=default_colmeta())
+
+Save the rows that were logged as .arrow file. By default lz4 compression is
+used, if you use **false** as second parameter no compression is used.
+"""
+function save_log(logger::Logger, name="sim_log", compress=true; path="",
+                  colmeta=default_colmeta())
+    save_log(sys_log(logger, name; colmeta), compress; path)
+end
 
 function parse_vector(str)
     m = match(r"\[(.*)\]", str)

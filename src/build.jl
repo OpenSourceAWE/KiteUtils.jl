@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 # Script to create the files _sysstate.jl, _show.jl, _demo_syslog.jl, _logger.jl, _log.jl, 
-# _syslog.jl, _save_log.jl and _load_log.jl from the file sysstate.yaml.  
+# _syslog.jl and _load_log.jl from the file sysstate.yaml.  
 using YAML, OrderedCollections
 
 include("yaml_utils.jl")
@@ -68,8 +68,7 @@ outputfile3 = joinpath("src", "_demo_syslog.jl")
 outputfile4 = joinpath("src", "_logger.jl")
 outputfile5 = joinpath("src", "_log.jl")
 outputfile6 = joinpath("src", "_syslog.jl")
-outputfile7 = joinpath("src", "_save_log.jl")
-outputfile8 = joinpath("src", "_load_log.jl")
+outputfile7 = joinpath("src", "_load_log.jl")
 
 # read the file sysstate.yaml
 sysstate = YAML.load_file(inputfile, dicttype=OrderedDict{String,Any})["sysstate"]
@@ -214,84 +213,47 @@ open(outputfile5,"w") do io
     println(io, "    return i")
     println(io, "end")
 end
-HEADER = """
+COLMETA_HEADER = """
+\"\"\"
+    default_colmeta()
+
+The column metadata of a log whose caller named none: each of the free columns
+`var_01` to `var_16` displayed under its own name.
+\"\"\"
+default_colmeta() = Dict("""
+SYSLOG_HEADER = """
+
+\"\"\"
+    syslog(logger::Logger)
+
+The rows that were logged, as a `StructArray` of `SysState`. It is a view on the
+columns of `logger`, so the steps it has room for but never logged are left out
+and the logger stays usable.
+\"\"\"
 function syslog(logger::Logger{P, O, D, L, W, T, S, F, Q}) where {P, O, D, L, W, T, S, F, Q}
     l = logger
-    StructArray{SysState{P, O, D, L, W, T, S, F}}(("""
+    preallocated = StructArray{SysState{P, O, D, L, W, T, S, F}}((
+        """
 open(outputfile6,"w") do io
     print(io, COMMENT)
-    print(io, HEADER)
+    print(io, COLMETA_HEADER)
+    var_keys = [key for key in keys(sysstate) if startswith(key, "var_")]
+    for (i, key) in pairs(var_keys)
+        print(io, ":" * key * " => [\"name\" => \"" * key * "\"]")
+        println(io, i == length(var_keys) ? ")" : ",")
+        i == length(var_keys) || print(io, " " ^ 25)
+    end
+    print(io, SYSLOG_HEADER)
     for (i, key) in pairs(collect(keys(sysstate)))
-        if i == length(keys(sysstate))
-            print(io, "l." * key * "_vec")
-        else
-            print(io, "l." * key * "_vec, ")
-        end
-        if i % 5 == 0
-            print(io, "\n" * " " ^ 37)   
+        print(io, "l." * key * "_vec")
+        if i < length(keys(sysstate))
+            print(io, i % 3 == 0 ? ",\n" * " " ^ 8 : ", ")
         end
     end
     println(io, "))")
+    println(io, "    view(preallocated, 1:length(logger))")
     println(io, "end")
 end
-HEADER = """
-\"\"\"
-    save_log(logger::Logger, name="sim_log", compress=true;
-                path="",
-                colmeta = Dict(:var_01 => ["name" => "var_01"],
-                               :var_02 => ["name" => "var_02"],
-                               :var_03 => ["name" => "var_03"],
-                               :var_04 => ["name" => "var_04"],
-                               :var_05 => ["name" => "var_05"],
-                               :var_06 => ["name" => "var_06"],
-                               :var_07 => ["name" => "var_07"],
-                               :var_08 => ["name" => "var_08"],
-                               :var_09 => ["name" => "var_09"],
-                               :var_10 => ["name" => "var_10"],
-                               :var_11 => ["name" => "var_11"],
-                               :var_12 => ["name" => "var_12"],
-                               :var_13 => ["name" => "var_13"],
-                               :var_14 => ["name" => "var_14"],
-                               :var_15 => ["name" => "var_15"],
-                               :var_16 => ["name" => "var_16"]
-            ))
-
-Save a flight log from a logger as .arrow file. By default lz4 compression is used, 
-if you use **false** as second parameter no compression is used.
-\"\"\"
-function save_log(logger::Logger, name="sim_log", compress=true;
-    path="",
-    colmeta = Dict(:var_01 => ["name" => "var_01"],
-                   :var_02 => ["name" => "var_02"],
-                   :var_03 => ["name" => "var_03"],
-                   :var_04 => ["name" => "var_04"],
-                   :var_05 => ["name" => "var_05"],
-                   :var_06 => ["name" => "var_06"],
-                   :var_07 => ["name" => "var_07"],
-                   :var_08 => ["name" => "var_08"],
-                   :var_09 => ["name" => "var_09"],
-                   :var_10 => ["name" => "var_10"],
-                   :var_11 => ["name" => "var_11"],
-                   :var_12 => ["name" => "var_12"],
-                   :var_13 => ["name" => "var_13"],
-                   :var_14 => ["name" => "var_14"],
-                   :var_15 => ["name" => "var_15"],
-                   :var_16 => ["name" => "var_16"]
-                  ))
-    nl = length(logger)
-"""
-open(outputfile7,"w") do io
-    print(io, COMMENT)
-    print(io, HEADER)
-    for key in keys(sysstate)
-        println(io, "    resize!(logger." * key * "_vec, nl)")
-    end
-
-    println(io, "    flight_log = (sys_log(logger, name; colmeta))")
-    println(io, "    save_log(flight_log, compress; path)")
-    println(io, "end")
-end
-
 HEADER = """
 \"\"\"
     load_log(filename::String; path="")
@@ -336,7 +298,7 @@ function load_log(filename::String; path="")
     )
     # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
     syslog = StructArray{SysState{P, O, D, L, W, T, S, F}}(("""
-open(outputfile8,"w") do io
+open(outputfile7,"w") do io
     print(io, COMMENT)
     print(io, HEADER)
     for (i, key) in pairs(collect(keys(sysstate)))
