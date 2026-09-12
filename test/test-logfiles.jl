@@ -191,11 +191,10 @@ end
     set_data_path(tempdir())
     logger = Logger(3, 1)
     log!(logger, SysState(3))
-    save_log(logger, "legacy_body_load")
-    fullname = joinpath(tempdir(), "legacy_body_load.arrow")
-    table = KiteUtils.Arrow.Table(fullname)
-    columns = Dict{Symbol, Any}(name => getproperty(table, name)
-                                for name in propertynames(table))
+    save_log(logger, "per_body_split")
+    split = KiteUtils.Arrow.Table(joinpath(tempdir(), "per_body_split.arrow"))
+    columns = Dict{Symbol, Any}(name => collect(getproperty(split, name))
+                                for name in propertynames(split))
     for base in ("aero_force", "aero_moment", "tether_induced_force",
                  "tether_induced_moment"), axis in ("x", "y", "z")
         delete!(columns, Symbol(base, "_b_", axis))
@@ -203,7 +202,8 @@ end
     columns[:aero_force_b] = [Float32[7, 8, 9]]
     colmeta = Dict(Symbol("var_", lpad(i, 2, '0')) =>
                    ["name" => "var_" * lpad(i, 2, '0')] for i in 1:16)
-    KiteUtils.Arrow.write(fullname, NamedTuple(columns); colmetadata=colmeta,
+    KiteUtils.Arrow.write(joinpath(tempdir(), "legacy_body_load.arrow"),
+                          NamedTuple(columns); colmetadata=colmeta,
                           metadata=KiteUtils.log_metadata())
     row = load_log("legacy_body_load").syslog[1]
     @test row.aero_force_b_x == Float32[7]
