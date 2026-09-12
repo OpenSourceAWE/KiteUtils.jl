@@ -7,7 +7,7 @@
   read back into the new `SysLog.metadata` field by `load_log`, so a caller can attach
   a document of its own to a log.
 - `Logger.created`, the date and time the logger was constructed, as an ISO 8601 string
-  with the UTC offset. Every log saved from a logger carries it as the `created` table
+  in local time. Every log saved from a logger carries it as the `created` table
   metadata key; a `created` of the caller's own in `metadata` wins.
 
 ## KiteUtils v0.12.2

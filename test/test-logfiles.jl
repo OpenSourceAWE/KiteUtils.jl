@@ -195,12 +195,12 @@ end
     logger = Logger(7, 1)
     log!(logger, KiteUtils.demo_state(7))
 
-    @test occursin(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{4}$", logger.created)
+    @test occursin(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$", logger.created)
 
     # The stamp is the moment the Logger was built, not the moment of saving.
-    logger.created = "1970-01-01T00:00:00+0000"
+    logger.created = "1970-01-01T00:00:00"
     save_log(logger, "created_test")
-    @test load_log("created_test").metadata["created"] == "1970-01-01T00:00:00+0000"
+    @test load_log("created_test").metadata["created"] == "1970-01-01T00:00:00"
 
     save_log(logger, "created_override"; metadata = Dict("created" => "mine"))
     @test load_log("created_override").metadata["created"] == "mine"
