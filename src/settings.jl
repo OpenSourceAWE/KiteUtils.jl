@@ -358,6 +358,7 @@ function Base.setproperty!(set::Settings, sym::Symbol, val)
     elseif sym == :steering
         (getproperty(set, :steerings))[1] = val
     else
+        check_wind_input(set, sym)
         if val isa Int && (getproperty(set, sym)) isa Float64
             setfield!(set, sym, Float64(val))
         elseif sym == :wind_vec && !(val isa SVec3) &&
@@ -460,6 +461,26 @@ Re-read the settings from a previously loaded project. Returns the new settings.
 """
 function update_settings()
     load_settings(PROJECT)
+end
+
+"""
+    check_wind_input(set::Settings, sym::Symbol)
+
+Throw an `ArgumentError` if `sym` is a wind field that [`sync_wind!`](@ref)
+derives rather than reads, so that writing it would be lost. `use_wind_vec`
+decides which fields those are; every other `sym` is accepted.
+"""
+function check_wind_input(set::Settings, sym::Symbol)
+    if set.use_wind_vec && sym in (:v_wind, :upwind_dir, :upwind_elevation)
+        throw(ArgumentError("$sym is derived from wind_vec while use_wind_vec is " *
+                            "true; assign wind_vec instead, or set use_wind_vec " *
+                            "= false first"))
+    elseif !set.use_wind_vec && sym === :wind_vec
+        throw(ArgumentError("wind_vec is derived from v_wind, upwind_dir and " *
+                            "upwind_elevation while use_wind_vec is false; assign " *
+                            "those instead, or set use_wind_vec = true first"))
+    end
+    nothing
 end
 
 """
