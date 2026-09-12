@@ -14,7 +14,26 @@
 - `.arrow` logs carry table-level metadata naming the frame convention and the
   KiteUtils version that wrote them (`log_metadata`); `log_convention` reads it
   back. Nothing was stored there before, so its absence identifies an older log.
+- `gamma_distribution`, one circulation per aerodynamic panel, sized by the new
+  type parameter `N` and by the `panels` keyword of both constructors:
+  `SysState(P; ..., panels)` and `Logger(P, steps; ..., panels)`.
+- `set_ext_force_enu_x`, `set_ext_force_enu_y` and `set_ext_force_enu_z`, the
+  external force applied to each point in the ENU reference frame. It was settable
+  but unlogged, so a run driven by one could not be replayed from its log.
 ### Changed
+- BREAKING: `SysState` is `SysState{P, O, D, L, W, T, S, N, F}` and `Logger` is
+  `Logger{P, O, D, L, W, T, S, N, F, Q}`, N being the number of aerodynamic panels.
+  An annotated signature gains one parameter before the float type:
+  `SysState{7, 1, 0, 0, 1, 1, 0, Float32}` is now
+  `SysState{7, 1, 0, 0, 1, 1, 0, 0, Float32}`.
+- BREAKING: the four per-body loads are one field per component, each holding one
+  entry per oriented frame, so a system with a second wing can log both.
+  `aero_force_b` becomes `aero_force_b_x`/`aero_force_b_y`/`aero_force_b_z`,
+  `aero_moment_b` becomes `aero_moment_b_x`/`aero_moment_b_y`/`aero_moment_b_z`,
+  `tether_induced_force` becomes `tether_induced_force_b_x`/`_b_y`/`_b_z` and
+  `tether_induced_moment` becomes `tether_induced_moment_b_x`/`_b_y`/`_b_z`. Write
+  `ss.aero_force_b_y[1]` where you wrote `ss.aero_force_b[2]`, the 1 being the
+  kite; `load_log` reads a pre-split log's 3-vector back as body 1.
 - BREAKING: quaternions in `SysState` are `KA`, and it holds no other convention.
 - BREAKING: `SysState` drops `roll`, `pitch` and `yaw`. They were the same
   orientation in another form, and keeping them meant keeping a second convention

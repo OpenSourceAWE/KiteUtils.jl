@@ -39,27 +39,32 @@ end
 
 HEADER = """
 \"\"\"
-    SysState{P, O, D, L, W, T, S, F}
+    SysState{P, O, D, L, W, T, S, N, F}
 
 Basic system state. One of these is saved per time step. P is the number
 of tether particles, O is the number of oriented frames (kite + extra
 wings/rigid bodies), D is the number of twist surfaces, L is the number
 of pulleys, W is the number of winches, T the number of tethers, S the number of
-segments and F the float type of every non-integer field. No field is a fixed
-length: a model with five winches or ten twist surfaces logs all of them. The
-quaternion components `Qw/Qx/Qy/Qz` each hold O values; frame 1 is the kite,
-aliased by the `orient` property.
+segments, N the number of aerodynamic panels and F the float type of every
+non-integer field. No field is a fixed length: a model with five winches or ten
+twist surfaces logs all of them. The quaternion components `Qw/Qx/Qy/Qz` each
+hold O values; frame 1 is the kite, aliased by the `orient` property.
+
+A field named `_b` is per body and holds O values, one per oriented frame:
+`aero_force_b_x[k]` is a component of body k's force in the frame that
+`Qw/Qx/Qy/Qz[k]` rotates into ENU. A field named `_enu` is in the ENU world
+frame.
 
 Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `twist_angles`, `twist_vel`, `pulley_len`, `pulley_vel`, `l_tether` and
 `v_reelout` hold a complete differential state, so a single row can be
 used to restart a simulation. `flap_angle` is a derived deflection, not
-part of that state, and neither are the `aero_force_*`, `drag_force_*` and
-`spring_force` loads, which are logged for inspection.
+part of that state, and neither are the `aero_force_*`, `drag_force_*`,
+`spring_force` and `gamma_distribution` loads, which are logged for inspection.
 
 \$(TYPEDFIELDS)
 \"\"\"
-@with_kw_noshow mutable struct SysState{P, O, D, L, W, T, S, F}"""
+@with_kw_noshow mutable struct SysState{P, O, D, L, W, T, S, N, F}"""
 FOOTER = "end"
 inputfile = joinpath("src", "sysstate.yaml")
 outputfile = joinpath("src", "_sysstate.jl")
@@ -108,14 +113,15 @@ open(outputfile2,"w") do io
 end
 HEADER = """
 \"\"\"
-    demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0; duration=10)
+    demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
 
 Create a demo flight log  with given duration [s] as StructArray. P is the number of tether
 particles, O the number of oriented frames (demo data fills only frame 1), D the
 number of aero segments (demo data has no flaps, so D=0), L the number of
-pulleys (demo data has none, so L=0) and S the number of segments (likewise 0).
+pulleys (demo data has none, so L=0), S the number of segments (likewise 0) and
+N the number of aerodynamic panels (likewise 0).
 \"\"\"
-function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0; duration=10)
+function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
     max_height = 6.03
     steps   = Int(duration * se().sample_freq) + 1
 """
@@ -132,7 +138,7 @@ open(outputfile3,"w") do io
         println(io, "        " * key * "_vec[i+1] = state." * key)
     end
     println(io, "    end")
-    print(io, "    StructArray{SysState{P, O, D, L, W, T, S, MyFloat}}((")
+    print(io, "    StructArray{SysState{P, O, D, L, W, T, S, N, MyFloat}}((")
     for (i, key) in pairs(collect(keys(sysstate)))
         if i == length(keys(sysstate))
             print(io, key * "_vec")
@@ -148,23 +154,24 @@ open(outputfile3,"w") do io
 end
 HEADER = """
 \"\"\"
-    mutable struct Logger{P, O, D, L, W, T, S, F, Q}
+    mutable struct Logger{P, O, D, L, W, T, S, N, F, Q}
 
 Struct to store a simulation log. P is number of points of the tether, segments+1,
 O is the number of oriented frames, D is the number of twist surfaces, L is the
 number of pulleys, W is the number of winches, T is the number of tethers, S is
-the number of segments, F is the float type of the logged
-columns and Q is the number of time steps that will be pre-allocated.
+the number of segments, N is the number of aerodynamic panels, F is the float
+type of the logged columns and Q is the number of time steps that will be
+pre-allocated.
 
 Constructor:
 - Logger(P, steps; orients, deflections, pulleys, winches, tethers, segments,
-  precision)
+  panels, precision)
 
 Fields:
 
 \$(TYPEDFIELDS)
 \"\"\"
-@with_kw mutable struct Logger{P, O, D, L, W, T, S, F, Q}
+@with_kw mutable struct Logger{P, O, D, L, W, T, S, N, F, Q}
     points::Int64 = P
     orients::Int64 = O
     deflections::Int64 = D
@@ -172,6 +179,7 @@ Fields:
     winches::Int64 = W
     tethers::Int64 = T
     segments::Int64 = S
+    panels::Int64 = N
     index::Int64 = 1
 """
 open(outputfile4,"w") do io
@@ -215,9 +223,9 @@ open(outputfile5,"w") do io
     println(io, "end")
 end
 HEADER = """
-function syslog(logger::Logger{P, O, D, L, W, T, S, F, Q}) where {P, O, D, L, W, T, S, F, Q}
+function syslog(logger::Logger{P, O, D, L, W, T, S, N, F, Q}) where {P, O, D, L, W, T, S, N, F, Q}
     l = logger
-    StructArray{SysState{P, O, D, L, W, T, S, F}}(("""
+    StructArray{SysState{P, O, D, L, W, T, S, N, F}}(("""
 open(outputfile6,"w") do io
     print(io, COMMENT)
     print(io, HEADER)
@@ -335,7 +343,7 @@ function load_log(filename::String; path="")
                    :var_16=>Arrow.getmetadata(table.var_16)["name"],
     )
     # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
-    syslog = StructArray{SysState{P, O, D, L, W, T, S, F}}(("""
+    syslog = StructArray{SysState{P, O, D, L, W, T, S, N, F}}(("""
 open(outputfile8,"w") do io
     print(io, COMMENT)
     print(io, HEADER)

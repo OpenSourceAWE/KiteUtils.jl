@@ -36,10 +36,18 @@ sysstate:
     alpha4: "MyFloat"                   # angle of attack at particle D [rad]
     CL2: "MyFloat"                      # lift coefficient
     CD2: "MyFloat"                      # drag coefficient
-    aero_force_b: "MVector{3, MyFloat}" # aerodynamic force in the KA body frame [N]
-    aero_moment_b: "MVector{3, MyFloat}" # aerodynamic moment in the KA body frame [Nm]
-    tether_induced_force: "MVector{3, MyFloat}"  # net tether force vector acting on kite [N]
-    tether_induced_moment: "MVector{3, MyFloat}" # net tether moment acting on kite [Nm]
+    aero_force_b_x: "MVector{O, MyFloat}"  # aerodynamic force along body x, one per body [N]
+    aero_force_b_y: "MVector{O, MyFloat}"  # aerodynamic force along body y, one per body [N]
+    aero_force_b_z: "MVector{O, MyFloat}"  # aerodynamic force along body z, one per body [N]
+    aero_moment_b_x: "MVector{O, MyFloat}" # aerodynamic moment around body x, one per body [Nm]
+    aero_moment_b_y: "MVector{O, MyFloat}" # aerodynamic moment around body y, one per body [Nm]
+    aero_moment_b_z: "MVector{O, MyFloat}" # aerodynamic moment around body z, one per body [Nm]
+    tether_induced_force_b_x: "MVector{O, MyFloat}"  # tether force on the body along body x, one per body [N]
+    tether_induced_force_b_y: "MVector{O, MyFloat}"  # tether force on the body along body y, one per body [N]
+    tether_induced_force_b_z: "MVector{O, MyFloat}"  # tether force on the body along body z, one per body [N]
+    tether_induced_moment_b_x: "MVector{O, MyFloat}" # tether moment on the body around body x, one per body [Nm]
+    tether_induced_moment_b_y: "MVector{O, MyFloat}" # tether moment on the body around body y, one per body [Nm]
+    tether_induced_moment_b_z: "MVector{O, MyFloat}" # tether moment on the body around body z, one per body [Nm]
     twist_angles: "MVector{D, MyFloat}" # twist angle, one per twist_surface [rad]
     vel_kite: "MVector{3, MyFloat}"     # velocity vector of the kite [m/s]
     acc: "MyFloat"                      # acceleration [m/s²]
@@ -57,6 +65,7 @@ sysstate:
     drag_force_y: "MVector{P, MyFloat}" # drag force on each point in y, ENU reference frame [N]
     drag_force_z: "MVector{P, MyFloat}" # drag force on each point in z, ENU reference frame [N]
     spring_force: "MVector{S, MyFloat}" # spring force, one per segment [N]
+    gamma_distribution: "MVector{N, MyFloat}" # circulation, one per aerodynamic panel [m²/s]
     turn_rate_x: "MVector{O, MyFloat}"  # KA turn rate around x, one per oriented frame [rad/s]
     turn_rate_y: "MVector{O, MyFloat}"  # KA turn rate around y, one per oriented frame [rad/s]
     turn_rate_z: "MVector{O, MyFloat}"  # KA turn rate around z, one per oriented frame [rad/s]
@@ -66,6 +75,9 @@ sysstate:
     set_torque: "MVector{W, MyFloat}"   # torque setting, one per winch [Nm]
     set_speed: "MVector{W, MyFloat}"    # speed setting, one per winch [m/s]
     set_force: "MVector{W, MyFloat}"    # force setting, one per winch [N]
+    set_ext_force_enu_x: "MVector{P, MyFloat}" # external force applied to each point in x, ENU reference frame [N]
+    set_ext_force_enu_y: "MVector{P, MyFloat}" # external force applied to each point in y, ENU reference frame [N]
+    set_ext_force_enu_z: "MVector{P, MyFloat}" # external force applied to each point in z, ENU reference frame [N]
     var_01: "MyFloat"                   # generic variable 01
     var_02: "MyFloat"                   # generic variable 02
     var_03: "MyFloat"                   # generic variable 03

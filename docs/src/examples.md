@@ -139,14 +139,14 @@ sys_state [-]:     0
 cycle [-]:         0
 fig_8 [-]:         0
 e_mech [Wh]:       0.0
-orient [-]:        Float32[0.5, 0.5, -0.5, -0.5]
+orient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]
 turn_rates [rad/s]:Float32[0.0, 0.0, 0.0]
 elevation [rad]:   0.5404195
 azimuth [rad]:     0.0
 azimuth_rate [rad/s]:0.0
-l_tether [m]:      Float32[0.0, 0.0, 0.0, 0.0]
-v_reelout [m/s]:   Float32[0.0, 0.0, 0.0, 0.0]
-winch_force [N]:   Float32[0.0, 0.0, 0.0, 0.0]
+l_tether [m]:      Float32[0.0]
+v_reelout [m/s]:   Float32[0.0]
+winch_force [N]:   Float32[0.0]
 depower [0..1]:    0.0
 steering [-1..1]:  0.0
 kcu_steering [-1..1]:0.0
@@ -166,22 +166,48 @@ alpha3 [rad]:      0.0
 alpha4 [rad]:      0.0
 CL2 [-]:           0.0
 CD2 [-]:           0.0
-aero_force_b [N]:  Float32[0.0, 0.0, 0.0]
-aero_moment_b [Nm]:Float32[0.0, 0.0, 0.0]
-tether_induced_force [N]:Float32[0.0, 0.0, 0.0]
-tether_induced_moment [Nm]:Float32[0.0, 0.0, 0.0]
-twist_angles [rad]:Float32[0.0, 0.0, 0.0, 0.0]
+aero_force_b_x [N]:Float32[0.0]
+aero_force_b_y [N]:Float32[0.0]
+aero_force_b_z [N]:Float32[0.0]
+aero_moment_b_x [Nm]:Float32[0.0]
+aero_moment_b_y [Nm]:Float32[0.0]
+aero_moment_b_z [Nm]:Float32[0.0]
+tether_induced_force_b_x [N]:Float32[0.0]
+tether_induced_force_b_y [N]:Float32[0.0]
+tether_induced_force_b_z [N]:Float32[0.0]
+tether_induced_moment_b_x [Nm]:Float32[0.0]
+tether_induced_moment_b_y [Nm]:Float32[0.0]
+tether_induced_moment_b_z [Nm]:Float32[0.0]
+twist_angles [rad]:Float32[]
 vel_kite [m/s]:    Float32[0.0, 0.0, 0.0]
 acc [m/s²]:        0.0
 X [m]:             Float32[0.0, 1.6666666, 3.3333333, 5.0, 6.6666665, 8.333333, 10.0]
 Y [m]:             Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 Z [m]:             Float32[0.0, 0.15380114, 0.6194867, 1.4100224, 2.5474184, 4.063342, 6.0000005]
-set_torque [Nm]:   Float32[0.0, 0.0, 0.0, 0.0]
-set_speed [m/s]:   Float32[0.0, 0.0, 0.0, 0.0]
-set_force [N]:     Float32[0.0, 0.0, 0.0, 0.0]
-roll [rad]:        0.0
-pitch [rad]:       0.0
-yaw [rad]:         0.0
+flap_angle [rad]:  Float32[]
+VX [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+VY [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+VZ [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+aero_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+aero_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+aero_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+drag_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+drag_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+drag_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+spring_force [N]:  Float32[]
+gamma_distribution [m²/s]:Float32[]
+turn_rate_x [rad/s]:Float32[0.0]
+turn_rate_y [rad/s]:Float32[0.0]
+turn_rate_z [rad/s]:Float32[0.0]
+twist_vel [rad/s]: Float32[]
+pulley_len [m]:    Float32[]
+pulley_vel [m/s]:  Float32[]
+set_torque [Nm]:   Float32[0.0]
+set_speed [m/s]:   Float32[0.0]
+set_force [N]:     Float32[0.0]
+set_ext_force_enu_x [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+set_ext_force_enu_y [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+set_ext_force_enu_z [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 var_01 [-]:        0.0
 var_02 [-]:        0.0
 var_03 [-]:        0.0
