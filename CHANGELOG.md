@@ -25,6 +25,7 @@
   applied to each point, ENU. It was settable but unlogged, so a run driven by one
   could not be replayed from its log.
 ### Changed
+- BREAKING: quaternions in `SysState` are `KA`, and it holds no other convention.
 - BREAKING: `SysState` is `SysState{P, O, D, L, W, T, S, N, F}` and `Logger` is
   `Logger{P, O, D, L, W, T, S, N, F, Q}`, N being the number of aerodynamic panels.
   An annotated signature gains one parameter before the float type:
@@ -44,7 +45,6 @@
   into the state and neither updates those during a step, so every logged column was
   constant. The net tether load on a body is the sum of the `spring_force` entries of
   the segments attached to it. `load_log` ignores the two columns in an older log.
-- BREAKING: quaternions in `SysState` are `KA`, and it holds no other convention.
 - BREAKING: `SysState` drops `roll`, `pitch` and `yaw`. They were the same
   orientation in another form, and keeping them meant keeping a second convention
   in the state: measured against NED, because that is what the Xsens IMU and flight
@@ -57,11 +57,11 @@
   `aero_force_KA_x`/`_y`/`_z`, `aero_moment_KA_x`/`_y`/`_z` and
   `turn_rate_x`/`_y`/`_z`, so the state that comes out of a load never mixes the two.
   Only logs from 0.13 onwards declare a convention; an older log is `KS`, that being
-  what the format specified, and is
-  converted with a warning saying so. `load_log(name; frame=KA)` is the escape hatch
-  for a log that did not honour the specification, SymbolicAWEModels having written
-  `KA` into the field unconverted. A log declaring a convention this version does not
-  know is refused rather than guessed at.
+  what the format specified, and is converted with a warning saying so.
+  `load_log(name; frame=KA)` is the escape hatch for a log that did not honour the
+  specification, SymbolicAWEModels having written `KA` into the field unconverted. A
+  log declaring a convention this version does not know is refused rather than
+  guessed at.
 - BREAKING: `calc_heading`, `calc_heading_w` and `quat2viewer`
   take an attitude in the `KA` convention, as a quaternion or rotation matrix. A
   `KS` orientation is converted by the caller: `quat2viewer(fromKS2KA(q))`. Roll, pitch
