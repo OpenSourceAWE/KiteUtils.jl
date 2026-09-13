@@ -28,7 +28,7 @@
   what the format specified, and is converted on load with a warning saying so.
   `load_log(name; frame=KA)` is the escape hatch for a log that did not honour the
   specification, SymbolicAWEModels having written `KA` into the field unconverted.
-- BREAKING: `calc_heading`, `calc_heading_w`, `calc_clock_angle` and `quat2viewer`
+- BREAKING: `calc_heading`, `calc_heading_w` and `quat2viewer`
   take an attitude in the `KA` convention, as a quaternion or rotation matrix. A
   `KS` orientation is converted by the caller: `quat2viewer(fromKS2KA(q))`. Roll, pitch
   and yaw passed as a 3-element vector still work and are still `KS`, so existing
@@ -47,6 +47,11 @@
   matching the `fromX2Y` naming the other frame transformations already use.
 - `euler2rot` returns an `SMatrix`, and `fromNED2ENU` calls `fromENU2NED`, the two being
   the same involution.
+- BREAKING: assigning the wind representation that `use_wind_vec` makes the derived
+  one now throws an `ArgumentError` instead of being discarded by `sync_wind!` on the
+  same line. That is `set.wind_vec` while `use_wind_vec` is `false`, and `set.v_wind`,
+  `set.upwind_dir` or `set.upwind_elevation` while it is `true`. Reading either
+  representation is unchanged, and so is loading a `.yaml` that carries both.
 
 ## KiteUtils v0.12.2
 ### Added

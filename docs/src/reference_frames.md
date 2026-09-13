@@ -116,6 +116,8 @@ Default: `-90`, wind from west.
 The `upwind_elevation` (degrees) is the angle between the upwind direction and the east-north plane (ENU frame).
 Default: `0`, horizontal wind.
 
+The same wind is also available as the vector `wind_vec` (m/s, ENU frame), and `use_wind_vec` says which of the two is the input. With `false`, the default, the input is `v_wind`, `upwind_dir` and `upwind_elevation` and `wind_vec` is derived from them; with `true` it is the other way round. Assigning to the derived side throws an `ArgumentError`, so `set.wind_vec = [10, 1, 0]` needs `set.use_wind_vec = true` in front of it.
+
 ## Elevation and azimuth
 The position of the kite can be described with two angles, the azimuth angle φ and the elevation angle β .The elevation angle is zero when the height of the kite is zero, and 90° when it is at Zenith.
 Three azimuth angles are used, the azimuth angle in the wind reference frame and $\mathrm{azimuth\_east}$ and $\mathrm{azimuth\_north}$. The azimuth angles in wind reference frame and $\mathrm{azimuth\_north}$ are defined positive anti-clockwise when seen from above, $\mathrm{azimuth\_east}$ is defined positive clockwise when seen from above. In the log file and the system state $\mathrm{azimuth}$ in wind reference frame is used (for KiteUtils 0.8.2 and higher).
