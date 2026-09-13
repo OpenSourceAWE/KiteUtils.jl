@@ -87,13 +87,12 @@ the world frame only.
 
 ### The neighbouring packages
 
-| package                 | body frame            | established by                       |
-|:------------------------|:----------------------|:-------------------------------------|
-| SymbolicAWEModels.jl    | `KA`                  | computed from both shipped kites     |
-| ASKITE                  | `KA`-shaped geometry  | CAD identical to V3Kite.jl's         |
-| KiteModels.jl           | `KS`                  | `kite_ref_frame`, z down the tether  |
-| EKF-AWE                 | `KS`                  | roll, pitch, yaw against NED         |
-| AWETrim                 | undocumented          | unknown                              |
+| package                 | body frame  | established by                       |
+|:------------------------|:------------|:-------------------------------------|
+| SymbolicAWEModels.jl    | `KA`        | computed from both shipped kites     |
+| ASKITE                  | `KA`        | CAD identical to V3Kite.jl's         |
+| KiteModels.jl           | `KS`        | `kite_ref_frame`, z down the tether  |
+| EKF-AWE                 | `KS`        | roll, pitch, yaw against NED         |
 
 ## SE frame
 
