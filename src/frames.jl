@@ -57,6 +57,23 @@ conversion is an involution, so this is [`fromKS2KA`](@ref).
 fromKA2KS(orientation) = fromKS2KA(orientation)
 
 """
+    fromKS2KA_body(v::AbstractVector)
+
+Convert a vector resolved in the body frame — a force, a moment, a turn rate — from `KS`
+components to `KA` components. Only the body frame turns, so this rotates on one side
+where an orientation rotates on both and takes [`fromKS2KA`](@ref), and a world vector
+turns with the world frame and takes [`fromENU2NED`](@ref). The rotation is a half turn
+about the shared spanwise axis, so y survives and x and z change sign.
+
+The conversion is an involution, so it also converts `KA` components to `KS` ones.
+"""
+function fromKS2KA_body(v::AbstractVector)
+    length(v) == 3 || throw(ArgumentError("fromKS2KA_body converts a body vector, but " *
+        "got a $(length(v))-element vector."))
+    BODY_FLIP * SVector{3}(v)
+end
+
+"""
     orient_matrix(attitude)
 
 Rotation matrix of the kite in the `KA` convention, whatever form `attitude` arrives

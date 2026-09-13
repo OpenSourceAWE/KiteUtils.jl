@@ -104,12 +104,17 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         @test isnothing(log_convention(KiteUtils.Arrow.Table(
             joinpath(get_data_path(), "old_style.arrow"))))
 
-        loaded = load_log("old_style")                      # warns, assumes KS
+        # Nothing declared and nothing asked, so it is read as KS and says so.
+        loaded = @test_logs (:warn, r"declares no frame convention") load_log("old_style")
         @test all(collect(loaded.syslog.orient[1]) .≈ q_KA)
         @test all(rad2deg.(euler_KS(loaded.syslog.orient[1])) .≈ (0, 0, 0))
 
+        # frame= answers the question the warning asks, so it does not ask again.
+        confirmed = @test_logs load_log("old_style"; frame=KS)
+        @test all(collect(confirmed.syslog.orient[1]) .≈ q_KA)
+
         # A SAM-written log of the same era was already KA; frame=KA leaves it alone.
-        untouched = load_log("old_style"; frame=KA)
+        untouched = @test_logs load_log("old_style"; frame=KA)
         @test all(collect(untouched.syslog.orient[1]) .≈ q_KS)
 
         # A declared log is taken at its word and never converted.
@@ -123,6 +128,51 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
             joinpath(get_data_path(), "declared.arrow"))) == KA
         kept = @test_logs load_log("declared")
         @test all(collect(kept.syslog.orient[1]) .≈ q_KA)
+        set_data_path(data_path)
+    end
+    @testset "a KS log's body columns are converted, not just its orientation" begin
+        data_path = get_data_path()
+        log = demo_log(7, "body_columns")
+        for step in eachindex(log.syslog)
+            log.syslog.turn_rates[step] .= [1, 2, 3]
+            log.syslog.aero_force_KA[step] .= [10, 20, 30]
+            log.syslog.aero_moment_KA[step] .= [40, 50, 60]
+            log.syslog.turn_rate_x[step] .= 7
+            log.syslog.turn_rate_y[step] .= 8
+            log.syslog.turn_rate_z[step] .= 9
+        end
+        set_data_path(mktempdir())
+        # Written without the stamp, exactly as a pre-0.13 KiteUtils would have.
+        KiteUtils.Arrow.write(joinpath(get_data_path(), "body_columns.arrow"), log.syslog,
+                              colmetadata=log.colmeta)
+        row = load_log("body_columns"; frame=KS).syslog[1]
+        # A half turn about the spanwise axis: y survives, x and z change sign.
+        @test collect(row.turn_rates) ≈ [-1, 2, -3]
+        @test collect(row.aero_force_KA) ≈ [-10, 20, -30]
+        @test collect(row.aero_moment_KA) ≈ [-40, 50, -60]
+        @test all(row.turn_rate_x .≈ -7)
+        @test all(row.turn_rate_y .≈ 8)
+        @test all(row.turn_rate_z .≈ -9)
+        # A log that declares KA is left exactly as written.
+        save_log(log)
+        kept = (@test_logs load_log("body_columns")).syslog[1]
+        @test collect(kept.turn_rates) ≈ [1, 2, 3]
+        @test collect(kept.aero_force_KA) ≈ [10, 20, 30]
+        @test all(kept.turn_rate_x .≈ 7)
+        set_data_path(data_path)
+    end
+    @testset "a log declaring an unknown convention is refused" begin
+        data_path = get_data_path()
+        log = demo_log(7, "from_the_future")
+        set_data_path(mktempdir())
+        KiteUtils.Arrow.write(joinpath(get_data_path(), "from_the_future.arrow"),
+                              log.syslog, colmetadata=log.colmeta,
+                              metadata=Dict("frame_convention" => "KZ"))
+        # Reading it under either convention would mirror every orientation, and
+        # nothing downstream could tell. Missing metadata stays a warning; a
+        # declaration this version cannot read is an error.
+        @test_throws ArgumentError load_log("from_the_future")
+        @test_throws ArgumentError load_log("from_the_future"; frame=KA)
         set_data_path(data_path)
     end
     @testset "quat2viewer matches the KS reference implementation" begin

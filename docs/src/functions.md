@@ -58,11 +58,13 @@ Base.getproperty
 The function ```set_data_path(data_path)``` can be used to set the directory for the log files. 
 
 ## Frame conventions
-Convert an orientation between the two body-frame conventions, `KS` and `KA`. A world
-vector is not an orientation and takes `fromENU2NED` or `fromNED2ENU` instead.
+Convert an orientation between the two body-frame conventions, `KS` and `KA`. A vector
+resolved in the body frame is not an orientation and takes `fromKS2KA_body`; a world
+vector takes `fromENU2NED` or `fromNED2ENU`.
 ```@docs
 fromKS2KA
 fromKA2KS
+fromKS2KA_body
 orient_matrix
 euler_KS
 log_metadata

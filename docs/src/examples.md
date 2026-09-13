@@ -166,10 +166,8 @@ alpha3 [rad]:      0.0
 alpha4 [rad]:      0.0
 CL2 [-]:           0.0
 CD2 [-]:           0.0
-aero_force_b [N]:  Float32[0.0, 0.0, 0.0]
-aero_moment_b [Nm]:Float32[0.0, 0.0, 0.0]
-tether_induced_force [N]:Float32[0.0, 0.0, 0.0]
-tether_induced_moment [Nm]:Float32[0.0, 0.0, 0.0]
+aero_force_KA [N]: Float32[0.0, 0.0, 0.0]
+aero_moment_KA [Nm]:Float32[0.0, 0.0, 0.0]
 twist_angles [rad]:Float32[0.0, 0.0, 0.0, 0.0]
 vel_kite [m/s]:    Float32[0.0, 0.0, 0.0]
 acc [m/s²]:        0.0

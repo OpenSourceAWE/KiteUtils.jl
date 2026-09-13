@@ -90,15 +90,22 @@ function import_log_(filename::String; path="")
 end
 
 """
-    import_log(filename)
+    import_log(filename; frame=KA)
 
-Read a .csv file with a flight log and return a SysLog object.
+Read a .csv file with a flight log and return a SysLog object, with the orientations
+in `KA`.
+
+A .csv carries no metadata, so unlike an .arrow it cannot say which convention it was
+written in and nothing can be inferred from its age. `frame` states it: a .csv that
+[`export_log`](@ref) wrote from a loaded log holds `KA` and is the default; one
+exported before KiteUtils 0.13 holds `KS` and needs `frame=KS`.
+
 The columns `var_01` to `var_05` must exists, the rest are optional.
 
 Parameters:
 - filename: name of the file without extension.
 """
-function import_log(filename)
+function import_log(filename; frame::FrameConvention=KA)
     lg = import_log_(filename)
     X = parse_vector(lg[1].X)
     P = length(X)
@@ -111,6 +118,7 @@ function import_log(filename)
         Z = parse_vector(row.Z)
 
         orient = parse_vector(row.orient)
+        frame === KA || (orient = fromKS2KA(orient))
         vel_kite = parse_vector(row.vel_kite)
         ss = SysState(P)
         ss.time = row.time

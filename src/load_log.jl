@@ -5,20 +5,24 @@
 load_log(_, filename::String; kwargs...) = load_log(filename; kwargs...)
 
 """
-    load_log(filename::String; path="", frame=KS)
+    load_log(filename::String; path="", frame=nothing)
 
-Read a log file that was saved as .arrow file. Orientations are returned in `KA`.
+Read a log file that was saved as .arrow file. Everything the returned `SysLog` holds
+is `KA`: the orientations and every body-resolved column alike.
 
-Logs written by KiteUtils 0.13 and later declare their convention. An older log
-declares nothing and is `KS`: that is what the format specified, so that is how it
-is read.
+Logs written by KiteUtils 0.13 and later declare their convention and are read by it.
+An older log declares nothing and is `KS`, that being what the format specified, so
+that is how it is read, with a warning saying so.
 
-`frame` is an escape hatch for a log that did not honour the specification.
-SymbolicAWEModels wrote `Q_b_to_w` into the field unconverted, so its logs of that
-era hold `KA` already and need `load_log(name; frame=KA)`, or their orientations
-come back upside down.
+`frame` states what an undeclared log actually holds and silences that warning. It is
+the escape hatch for a log that did not honour the specification: SymbolicAWEModels
+wrote `Q_b_to_w` into the field unconverted, so its logs of that era hold `KA` already
+and need `load_log(name; frame=KA)`, or their orientations come back upside down.
+Passing `frame=KS` confirms the specified convention for a log known to honour it. A
+log that declares a convention is taken at its word and `frame` is not consulted.
 """
-function load_log(filename::String; path="", debug=false, frame::FrameConvention=KS)
+function load_log(filename::String; path="", debug=false,
+                  frame::Union{Nothing, FrameConvention}=nothing)
     if path == ""
         path = DATA_PATH[1]
     end
@@ -76,10 +80,8 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
     alpha4 = zeros(F, n)
     CL2 = zeros(F, n)
     CD2 = zeros(F, n)
-    aero_force_b = zero_col(3)
-    aero_moment_b = zero_col(3)
-    tether_induced_force = zero_col(3)
-    tether_induced_moment = zero_col(3)
+    aero_force_KA = zero_col(3)
+    aero_moment_KA = zero_col(3)
     twist_angles = zero_col(0)
     acc = zeros(F, n)
     set_torque = zero_col(0)
@@ -90,8 +92,7 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
     for name in [:cycle, :fig_8, :turn_rates, :azimuth_rate, :kcu_steering,
                  :set_steering, :heading_rate, :bearing, :attractor, :v_wind_gnd,
                  :v_wind_200m, :v_wind_kite, :AoA, :side_slip, :alpha3, :alpha4, :CL2, :CD2,
-                 :aero_force_b, :aero_moment_b, :tether_induced_force, :tether_induced_moment,
-                 :twist_angles, :acc, :set_torque, :set_speed,
+                 :aero_force_KA, :aero_moment_KA, :twist_angles, :acc, :set_torque, :set_speed,
                  :set_force, :force, :winch_force]
         if haskey(table, name)
             if name == :cycle
@@ -130,14 +131,10 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
                 CL2 = table.CL2
             elseif name == :CD2
                 CD2 = table.CD2
-            elseif name == :aero_force_b 
-                aero_force_b = table.aero_force_b 
-            elseif name == :aero_moment_b 
-                aero_moment_b = table.aero_moment_b 
-            elseif name == :tether_induced_force 
-                tether_induced_force = table.tether_induced_force 
-            elseif name == :tether_induced_moment 
-                tether_induced_moment = table.tether_induced_moment 
+            elseif name == :aero_force_KA
+                aero_force_KA = table.aero_force_KA
+            elseif name == :aero_moment_KA
+                aero_moment_KA = table.aero_moment_KA
             elseif name == :twist_angles 
                 twist_angles = table.twist_angles
             elseif name == :acc
@@ -192,9 +189,15 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
     turn_rates, attractor = fit(turn_rates, 3), fit(attractor, 2)
     v_wind_gnd, v_wind_200m = fit(v_wind_gnd, 3), fit(v_wind_200m, 3)
     v_wind_kite = fit(v_wind_kite, 3)
-    aero_force_b, aero_moment_b = fit(aero_force_b, 3), fit(aero_moment_b, 3)
-    tether_induced_force = fit(tether_induced_force, 3)
-    tether_induced_moment = fit(tether_induced_moment, 3)
+    # Before 0.13 these were aero_force_b and aero_moment_b, the b standing for a body
+    # frame the format never named. Same quantity, so an older log's column is read.
+    if !haskey(table, :aero_force_KA) && haskey(table, :aero_force_b)
+        aero_force_KA = table.aero_force_b
+    end
+    if !haskey(table, :aero_moment_KA) && haskey(table, :aero_moment_b)
+        aero_moment_KA = table.aero_moment_b
+    end
+    aero_force_KA, aero_moment_KA = fit(aero_force_KA, 3), fit(aero_moment_KA, 3)
     # Differential-state back-compat: logs written before these columns existed
     # restart from rest, so every one of them defaults to zero.
     L = haskey(table, :pulley_len) ? length(table.pulley_len[1]) : 0
@@ -222,22 +225,33 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
         Qz = [zeros(MVector{1, F}) for _ in 1:n]
     end
     declared = log_convention(table)
-    convention = isnothing(declared) ? frame : declared
-    if isnothing(declared)
+    convention = something(declared, frame, KS)
+    if isnothing(declared) && isnothing(frame)
         @warn "Log $(basename(fullname)) declares no frame convention, so it predates " *
-              "KiteUtils 0.13 and is specified to be KS. Reading its orientations as " *
-              "$convention. A log SymbolicAWEModels wrote in that era holds KA in " *
-              "breach of that, and needs load_log(...; frame=KA)."
+              "KiteUtils 0.13 and is specified to be KS. Reading it as KS. A log " *
+              "SymbolicAWEModels wrote in that era holds KA in breach of that and " *
+              "needs load_log(...; frame=KA); load_log(...; frame=KS) confirms the " *
+              "specified convention. Either silences this."
     end
+    turn_rate_x, turn_rate_y, turn_rate_z =
+        column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
     if convention !== KA
+        # Loading is the boundary, so everything body-resolved is converted here and
+        # the state that comes out holds KA alone. Missing one leaves a mixed-frame
+        # SysState, which nothing downstream can tell apart from a correct one.
         Qw = [MVector{O, F}(q) for q in Qw]
         Qx = [MVector{O, F}(q) for q in Qx]
         Qy = [MVector{O, F}(q) for q in Qy]
         Qz = [MVector{O, F}(q) for q in Qz]
         fromKS2KA_columns!(Qw, Qx, Qy, Qz)
+        turn_rates = [MVector{3, F}(fromKS2KA_body(v)) for v in turn_rates]
+        aero_force_KA = [MVector{3, F}(fromKS2KA_body(v)) for v in aero_force_KA]
+        aero_moment_KA = [MVector{3, F}(fromKS2KA_body(v)) for v in aero_moment_KA]
+        # The same half turn on a body vector kept one component per column: y
+        # survives, x and z change sign.
+        turn_rate_x = [MVector{O, F}(-v) for v in turn_rate_x]
+        turn_rate_z = [MVector{O, F}(-v) for v in turn_rate_z]
     end
-    turn_rate_x, turn_rate_y, turn_rate_z =
-        column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
     S = haskey(table, :spring_force) ? length(table.spring_force[1]) : 0
     aero_force_x, aero_force_y, aero_force_z =
         column(:aero_force_x, P), column(:aero_force_y, P), column(:aero_force_z, P)
@@ -250,8 +264,7 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
                                        kcu_steering, set_steering, table.heading, heading_rate, table.course, 
                                        bearing, attractor, table.v_app, v_wind_gnd, v_wind_200m, 
                                        v_wind_kite, AoA, side_slip, alpha3, alpha4, 
-                                       CL2, CD2, aero_force_b, aero_moment_b, tether_induced_force,
-                                       tether_induced_moment, twist_angles, 
+                                       CL2, CD2, aero_force_KA, aero_moment_KA, twist_angles, 
                                        vel_kite, acc, table.X, table.Y, table.Z,
                                        flap_angle, VX, VY, VZ,
                                        aero_force_x, aero_force_y, aero_force_z,

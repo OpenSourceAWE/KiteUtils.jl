@@ -100,13 +100,9 @@ $(TYPEDFIELDS)
     "drag coefficient"
     CD2::F = 0
     "aerodynamic force in the KA body frame [N]"
-    aero_force_b::MVector{3, F} = zeros(F, 3)
+    aero_force_KA::MVector{3, F} = zeros(F, 3)
     "aerodynamic moment in the KA body frame [Nm]"
-    aero_moment_b::MVector{3, F} = zeros(F, 3)
-    "net tether force vector acting on kite [N]"
-    tether_induced_force::MVector{3, F} = zeros(F, 3)
-    "net tether moment acting on kite [Nm]"
-    tether_induced_moment::MVector{3, F} = zeros(F, 3)
+    aero_moment_KA::MVector{3, F} = zeros(F, 3)
     "twist angle, one per twist_surface [rad]"
     twist_angles::MVector{D, F} = zeros(F, D)
     "velocity vector of the kite [m/s]"
