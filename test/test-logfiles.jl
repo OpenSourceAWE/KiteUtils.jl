@@ -17,7 +17,8 @@ using KiteUtils, Test, StructArrays
     @test demo_state_4p(7).t_sim == 0.014
     set_data_path(joinpath(@__DIR__, "..", "data"))
     filename="transition"
-    log = import_log(filename)
+    # An archived .csv, exported long before the convention was recorded.
+    log = import_log(filename; frame=KS)
     @test log isa SysLog{11}
     @test log.name == "transition"
     @test length(log.syslog) == 8180
@@ -38,10 +39,12 @@ using KiteUtils, Test, StructArrays
     dst = joinpath(tempdir(), dotted_name * ".arrow")
     cp(src, dst; force=true)
     set_data_path(tempdir())
-    log2 = load_log(dotted_name)           # without extension
+    # The logs in data/ predate the frame declaration and hold KS, so every load
+    # of one says so; without that they warn, and the suite drowns in it.
+    log2 = load_log(dotted_name; frame=KS)           # without extension
     @test log2 isa SysLog
     @test length(log2.syslog) == 8180
-    log3 = load_log(dotted_name * ".arrow") # with extension
+    log3 = load_log(dotted_name * ".arrow"; frame=KS) # with extension
     @test log3 isa SysLog
     @test length(log3.syslog) == 8180
     # verify azimuth_rate round-trips through save_log / load_log
@@ -58,7 +61,7 @@ using KiteUtils, Test, StructArrays
     @test rt.syslog.azimuth_rate ≈ Float32[0.1, 0.2, 0.3]
     # verify import_log gracefully skips azimuth_rate when column is absent (old CSV format)
     set_data_path("data")
-    log_csv = import_log("transition")
+    log_csv = import_log("transition"; frame=KS)
     @test log_csv isa SysLog
     @test all(log_csv.syslog.azimuth_rate .== 0.0f0)  # absent column → default 0
 end
@@ -67,7 +70,7 @@ end
     # Back-compat: an .arrow written before the flap_angle column existed must
     # still load, with flap_angle zeroed at the file's own twist-surface count.
     set_data_path(joinpath(@__DIR__, "..", "data"))
-    old = load_log("Test_flight")
+    old = load_log("Test_flight"; frame=KS)
     @test old isa SysLog
     @test length(old.syslog[1].flap_angle) ==
           length(old.syslog[1].twist_angles)
@@ -94,7 +97,7 @@ end
     # a row — `load_log` alone returned a SysLog that looked fine.
     set_data_path(joinpath(@__DIR__, "..", "data"))
     for name in ("Test_flight", "transition", "sim_log", "failure_low_right")
-        log = load_log(name)
+        log = load_log(name; frame=KS)
         # Single-winch logs store l_tether/v_reelout/winch_force as scalars
         # rather than one entry per winch. Materialising threw before they were
         # fitted onto the file's own winch count.
@@ -111,7 +114,7 @@ end
         @test isfinite(row.heading_rate)
     end
     # A log with no twist_angles column defaults it to zero rather than garbage.
-    old = load_log("sim_log")
+    old = load_log("sim_log"; frame=KS)
     @test all(iszero, old.syslog[1].twist_angles)
 end
 
@@ -121,7 +124,7 @@ end
     # float type stays whatever the file was written with.
     set_data_path(joinpath(@__DIR__, "..", "data"))
     for name in ("Test_flight", "transition", "sim_log", "failure_low_right")
-        old = load_log(name)
+        old = load_log(name; frame=KS)
         @test old isa SysLog
         @test eltype(old.syslog[1].X) == Float32
         @test all(iszero, old.syslog[1].VX)
@@ -184,7 +187,7 @@ end
     @test all(iszero, row.aero_moment_KA_x)
 end
 
-@testset "a log predating the split: aero_force_b is body 1, tether loads dropped" begin
+@testset "a pre-split log: the two body loads are body 1, tether loads dropped" begin
     set_data_path(tempdir())
     logger = Logger(3, 1)
     log!(logger, SysState(3))
@@ -192,10 +195,13 @@ end
     split_table = KiteUtils.Arrow.Table(joinpath(tempdir(), "per_body_split.arrow"))
     columns = Dict{Symbol, Any}(name => collect(getproperty(split_table, name))
                                 for name in propertynames(split_table))
-    for base in ("aero_force_KA", "aero_moment_KA"), axis in ("x", "y", "z")
-        delete!(columns, Symbol(base, "_", axis))
+    for load in ("aero_force_KA", "aero_moment_KA"), axis in ("x", "y", "z")
+        delete!(columns, Symbol(load, "_", axis))
     end
+    # Before 0.13 the two loads were one 3-vector each under aero_force_b and
+    # aero_moment_b, and tether_induced_force is a column SysState no longer has.
     columns[:aero_force_b] = [Float32[7, 8, 9]]
+    columns[:aero_moment_b] = [Float32[4, 5, 6]]
     columns[:tether_induced_force] = [Float32[1, 2, 3]]
     colmeta = Dict(Symbol("var_", lpad(i, 2, '0')) =>
                    ["name" => "var_" * lpad(i, 2, '0')] for i in 1:16)
@@ -206,7 +212,9 @@ end
     @test row.aero_force_KA_x == Float32[7]
     @test row.aero_force_KA_y == Float32[8]
     @test row.aero_force_KA_z == Float32[9]
-    @test all(iszero, row.aero_moment_KA_x)
+    @test row.aero_moment_KA_x == Float32[4]
+    @test row.aero_moment_KA_y == Float32[5]
+    @test row.aero_moment_KA_z == Float32[6]
 end
 
 @testset "a model without pulleys, panels or surfaces logs zero-length columns" begin

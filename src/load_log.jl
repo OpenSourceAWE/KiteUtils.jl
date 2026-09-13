@@ -5,20 +5,24 @@
 load_log(_, filename::String; kwargs...) = load_log(filename; kwargs...)
 
 """
-    load_log(filename::String; path="", frame=KS)
+    load_log(filename::String; path="", frame=nothing)
 
-Read a log file that was saved as .arrow file. Orientations are returned in `KA`.
+Read a log file that was saved as .arrow file. Everything the returned `SysLog` holds
+is `KA`: the orientations and every body-resolved column alike.
 
-Logs written by KiteUtils 0.13 and later declare their convention. An older log
-declares nothing and is `KS`: that is what the format specified, so that is how it
-is read.
+Logs written by KiteUtils 0.13 and later declare their convention and are read by it.
+An older log declares nothing and is `KS`, that being what the format specified, so
+that is how it is read, with a warning saying so.
 
-`frame` is an escape hatch for a log that did not honour the specification.
-SymbolicAWEModels wrote `Q_b_to_w` into the field unconverted, so its logs of that
-era hold `KA` already and need `load_log(name; frame=KA)`, or their orientations
-come back upside down.
+`frame` states what an undeclared log actually holds and silences that warning. It is
+the escape hatch for a log that did not honour the specification: SymbolicAWEModels
+wrote `Q_b_to_w` into the field unconverted, so its logs of that era hold `KA` already
+and need `load_log(name; frame=KA)`, or their orientations come back upside down.
+Passing `frame=KS` confirms the specified convention for a log known to honour it. A
+log that declares a convention is taken at its word and `frame` is not consulted.
 """
-function load_log(filename::String; path="", debug=false, frame::FrameConvention=KS)
+function load_log(filename::String; path="", debug=false,
+                  frame::Union{Nothing, FrameConvention}=nothing)
     if path == ""
         path = DATA_PATH[1]
     end
@@ -132,37 +136,52 @@ function load_log(filename::String; path="", debug=false, frame::FrameConvention
         Qz = [zeros(MVector{1, F}) for _ in 1:n]
     end
     declared = log_convention(table)
-    convention = isnothing(declared) ? frame : declared
-    if isnothing(declared)
+    convention = something(declared, frame, KS)
+    if isnothing(declared) && isnothing(frame)
         @warn "Log $(basename(fullname)) declares no frame convention, so it predates " *
-              "KiteUtils 0.13 and is specified to be KS. Reading its orientations as " *
-              "$convention. A log SymbolicAWEModels wrote in that era holds KA in " *
-              "breach of that, and needs load_log(...; frame=KA)."
+              "KiteUtils 0.13 and is specified to be KS. Reading it as KS. A log " *
+              "SymbolicAWEModels wrote in that era holds KA in breach of that and " *
+              "needs load_log(...; frame=KA); load_log(...; frame=KS) confirms the " *
+              "specified convention. Either silences this."
     end
-    if convention !== KA
-        Qw = [MVector{O, F}(q) for q in Qw]
-        Qx = [MVector{O, F}(q) for q in Qx]
-        Qy = [MVector{O, F}(q) for q in Qy]
-        Qz = [MVector{O, F}(q) for q in Qz]
-        fromKS2KA_columns!(Qw, Qx, Qy, Qz)
-    end
-    turn_rate_x, turn_rate_y, turn_rate_z =
-        column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
-    # A log predating the per-body split holds one 3-vector per body load, and it
-    # was the kite's, so its components read back as frame 1.
-    function body_load(base, legacy)
+    # A log predating the per-body split holds one 3-vector per body load, and it was
+    # the kite's, so its components read back as frame 1. `aero_force_b` was that
+    # column's name before the frame reached it.
+    function body_load(name, legacy)
+        three_vector = haskey(table, name) ? name : legacy
         map(1:3) do component
-            name = Symbol(base, :_, "xyz"[component])
-            haskey(table, name) && return getproperty(table, name)
-            haskey(table, legacy) || return zero_col(O)
+            per_body = Symbol(name, :_, "xyz"[component])
+            haskey(table, per_body) && return getproperty(table, per_body)
+            haskey(table, three_vector) || return zero_col(O)
             return [(v = zeros(MVector{O, F}); v[1] = load[component]; v)
-                    for load in getproperty(table, legacy)]
+                    for load in getproperty(table, three_vector)]
         end
     end
     aero_force_KA_x, aero_force_KA_y, aero_force_KA_z =
         body_load(:aero_force_KA, :aero_force_b)
     aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z =
         body_load(:aero_moment_KA, :aero_moment_b)
+    turn_rate_x, turn_rate_y, turn_rate_z =
+        column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
+    if convention !== KA
+        # Loading is the boundary, so everything body-resolved is converted here and
+        # the state that comes out holds KA alone. Missing one leaves a mixed-frame
+        # SysState, which nothing downstream can tell apart from a correct one.
+        Qw = [MVector{O, F}(q) for q in Qw]
+        Qx = [MVector{O, F}(q) for q in Qx]
+        Qy = [MVector{O, F}(q) for q in Qy]
+        Qz = [MVector{O, F}(q) for q in Qz]
+        fromKS2KA_columns!(Qw, Qx, Qy, Qz)
+        turn_rates = [MVector{3, F}(fromKS2KA_body(v)) for v in turn_rates]
+        # The same half turn on a per-body column keeps one component each: y
+        # survives, x and z change sign.
+        negate(col) = [MVector{O, F}(-v) for v in col]
+        turn_rate_x, turn_rate_z = negate(turn_rate_x), negate(turn_rate_z)
+        aero_force_KA_x, aero_force_KA_z =
+            negate(aero_force_KA_x), negate(aero_force_KA_z)
+        aero_moment_KA_x, aero_moment_KA_z =
+            negate(aero_moment_KA_x), negate(aero_moment_KA_z)
+    end
     S = haskey(table, :spring_force) ? entries(table.spring_force) : 0
     N = haskey(table, :gamma_distribution) ? entries(table.gamma_distribution) : 0
     aero_force_x, aero_force_y, aero_force_z =
