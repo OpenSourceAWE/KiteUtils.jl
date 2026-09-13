@@ -37,8 +37,8 @@ the body axes expressed in the world frame.
 Both the world frame and the body frame change, so converting an orientation rotates
 each of them, where a world vector needs only the world frame rotated and takes
 [`fromENU2NED`](@ref) instead. The orientation may be given as a `QuatRotation`, as a
-rotation matrix or as a 4-element vector `[w, i, j, k]`; the result has the same type
-as the argument.
+rotation matrix or as a 4-element vector `[w, i, j, k]`, and comes back in the same
+form: a `QuatRotation`, an `SMatrix{3, 3}` or an `SVector{4}`.
 """
 fromKS2KA(rot::AbstractMatrix) = WORLD_FLIP * rot * BODY_FLIP
 fromKS2KA(q::QuatRotation) = QuatRotation(fromKS2KA(RotMatrix{3}(q)))

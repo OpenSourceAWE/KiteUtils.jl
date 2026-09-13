@@ -3,7 +3,9 @@ CurrentModule = KiteUtils
 ```
 # Reference frames
 
-Positions, velocities and forces in space are ENU. Orientations in `SysState` are `KA`.
+Positions, velocities and forces in space are ENU. Everything in `SysState` that is
+resolved in a body frame — the orientation, the turn rates, the aerodynamic loads —
+is `KA`. `KS` appears at the edges only, and is converted on the way in.
 
 ## Kinds of frame
 
@@ -17,8 +19,10 @@ rates, angle of attack and side slip are expressed in one.
 An **orientation** is the rotation from a body frame to a world frame; its columns are the
 body axes written in world coordinates. Converting one rotates the world frame and the
 body frame, which is what [`fromKS2KA`](@ref) and [`fromKA2KS`](@ref) do. Converting a
+body vector rotates the body frame only, by [`fromKS2KA_body`](@ref), and converting a
 world vector rotates the world frame only, by [`fromENU2NED`](@ref) or
-[`fromNED2ENU`](@ref).
+[`fromNED2ENU`](@ref). Three kinds of quantity, three rules: using the wrong one is a
+bug that no type catches.
 
 ## World frames
 
@@ -81,9 +85,16 @@ by the location where the sensor is mounted. In the simulation this is equal to 
 - in [`euler_KS`](@ref), which reports roll, pitch and yaw against NED.
 
 Converting an orientation between the two conventions is [`fromKS2KA`](@ref) or
-[`fromKA2KS`](@ref), which rotate the world frame and the body frame. A world vector is
-not an orientation and takes [`fromENU2NED`](@ref) or [`fromNED2ENU`](@ref), which rotate
-the world frame only.
+[`fromKA2KS`](@ref), which rotate the world frame and the body frame. A body vector takes
+[`fromKS2KA_body`](@ref), which rotates the body frame only: the half turn about the
+shared spanwise axis leaves y alone and changes the sign of x and z. A world vector is
+neither and takes [`fromENU2NED`](@ref) or [`fromNED2ENU`](@ref), which rotate the world
+frame only.
+
+The `SysState` fields resolved in the body frame, and therefore `KA`, are `turn_rates`,
+`aero_force_KA`, `aero_moment_KA` and `turn_rate_x`/`_y`/`_z`, alongside the orientation
+itself. `load_log` converts all of them when it reads a `KS` log, so a state that comes
+out of a load never mixes the two.
 
 ### The neighbouring packages
 
