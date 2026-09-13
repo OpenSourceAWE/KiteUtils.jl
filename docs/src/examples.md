@@ -71,7 +71,7 @@ julia> using KiteUtils
 
 julia> st = demo_state(7)
 time      [s]:       0.0
-orient    [w,x,y,z]: Float32[0.5, 0.5, -0.5, -0.5]
+orient    [w,x,y,z]: Float32[0.70710677, -0.70710677, 0.0, 0.0]
 elevation [rad]:     0.5404195
 azimuth   [rad]:     0.0
 l_tether  [m]:       0.0
@@ -109,10 +109,10 @@ Example:
 julia> using Rotations
 
 julia> q = QuatRotation(st.orient)
-3×3 QuatRotation{Float32} with indices SOneTo(3)×SOneTo(3)(Quaternion{Float32}(0.5, 0.5, -0.5, -0.5, true)):
-  0.0  0.0  -1.0
- -1.0  0.0   0.0
-  0.0  1.0   0.0
+3×3 QuatRotation{Float32} with indices SOneTo(3)×SOneTo(3)(QuaternionF32(0.707107, -0.707107, 0.0, 0.0)):
+  1.0  -0.0  0.0
+  0.0   0.0  1.0
+ -0.0  -1.0  0.0
 ```
 The components X, Y and Z are vectors of the x, y and z positions of the tether particles. The last element of these vectors
 represents the kite position.
@@ -304,7 +304,10 @@ You can import a .csv file using the following code:
 set_data_path("data")
 filename="transition"
 
-log = import_log(filename)
+log = import_log(filename; frame=KS)
 save_log(log)
 ```
 This will import the file `transition.csv` and save it as `transition.arrow` file.
+The `frame` keyword states which convention the .csv holds, a .csv carrying no
+metadata to say so itself. `transition.csv` was exported before KiteUtils 0.13 and
+holds `KS`; a .csv exported since holds `KA`, which is the default.
