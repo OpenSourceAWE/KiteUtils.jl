@@ -100,14 +100,20 @@ log_metadata() = Dict("frame_convention" => string(KA),
 Frame convention an Arrow log declares, or `nothing` when it declares none. Only
 logs written by KiteUtils 0.13 and later carry a declaration, so `nothing` means
 the log is older and its convention has to be assumed.
+
+A declaration this version does not recognise is an error rather than a `nothing`:
+assuming a convention for it would silently mirror every orientation in the log.
 """
 function log_convention(table)
     meta = Arrow.getmetadata(table)
     isnothing(meta) && return nothing
     name = get(meta, "frame_convention", nothing)
+    isnothing(name) && return nothing
     name == string(KA) && return KA
     name == string(KS) && return KS
-    nothing
+    throw(ArgumentError("Log declares frame convention \"$name\", which this version " *
+        "of KiteUtils does not know. Guessing one would mirror every orientation in " *
+        "the log, so the log is refused; upgrade KiteUtils to read it."))
 end
 
 """

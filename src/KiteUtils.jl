@@ -506,11 +506,12 @@ end
         # all calls in this block will be precompiled, regardless of whether
         # they belong to your package or not (on Julia 1.8 and higher)
         Base.invokelatest(se)
-        try
-            load_log(7, "Test_flight.arrow")
-        catch
-            test(true)
-            load_log(7, "Test_flight.arrow")
+        # Round-trip a log this version wrote. The logs in data/ predate 0.13 and
+        # declare no frame convention, so loading one here would warn on every
+        # precompile; they stay where they belong, in the tests.
+        mktempdir() do path
+            save_log(demo_log(7, "precompile"); path)
+            load_log(7, "precompile.arrow"; path)
         end
     end
 end
