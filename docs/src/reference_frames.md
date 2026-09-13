@@ -19,7 +19,8 @@ rates, angle of attack and side slip are expressed in one.
 An **orientation** is the rotation from a body frame to a world frame; its columns are the
 body axes written in world coordinates. Converting one rotates the world frame and the
 body frame, which is what [`fromKS2KA`](@ref) and [`fromKA2KS`](@ref) do. Converting a
-body vector rotates the body frame only, by [`fromKS2KA_body`](@ref), and converting a
+body vector rotates the body frame only, by [`fromKS2KA_body`](@ref) or
+[`fromKA2KS_body`](@ref), and converting a
 world vector rotates the world frame only, by [`fromENU2NED`](@ref) or
 [`fromNED2ENU`](@ref). Three kinds of quantity, three rules: using the wrong one is a
 bug that no type catches.

@@ -11,9 +11,10 @@
   one. `fromKS2KA_columns!` converts a log's quaternion columns in place.
 - `euler_KS` reports roll, pitch and yaw from a `KA` attitude, and `orient_matrix`
   accepts an attitude in any form.
-- `fromKS2KA_body` converts a vector resolved in the body frame — a force, a moment,
-  a turn rate — between the two conventions. Only the body frame turns for one of
-  those, where an orientation turns both and a world vector turns the world frame.
+- `fromKS2KA_body` and `fromKA2KS_body` convert a vector resolved in the body frame —
+  a force, a moment, a turn rate — between the two conventions. Only the body frame
+  turns for one of those, where an orientation turns both and a world vector turns the
+  world frame: three kinds of quantity, three rules, and no type catches the wrong one.
 - `.arrow` logs carry table-level metadata naming the frame convention and the
   KiteUtils version that wrote them (`log_metadata`); `log_convention` reads it
   back. Nothing was stored there before, so its absence identifies an older log.

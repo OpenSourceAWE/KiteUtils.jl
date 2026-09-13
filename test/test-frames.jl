@@ -26,6 +26,21 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         @test fromENU2NED(vec) == SVector(2.0, 1.0, -3.0)
         @test fromNED2ENU(fromENU2NED(vec)) == vec
         @test_throws ArgumentError fromKS2KA(vec)
+        @test fromKS2KA_body(vec) == SVector(-1.0, 2.0, -3.0)
+        @test fromKA2KS_body(fromKS2KA_body(vec)) == vec
+        @test_throws ArgumentError fromKS2KA_body(SVector(1.0, 2.0, 3.0, 4.0))
+    end
+    @testset "the body rule agrees with the orientation rule" begin
+        # The point of the whole vector: a body vector resolved to the world is the
+        # same arrow whichever convention it was carried in. Pick either rule wrongly
+        # and this is what breaks, silently.
+        v_KS = SVector(0.3, -1.2, 4.0)
+        for (roll, pitch, yaw) in attitudes
+            rot_KS = euler2rot(roll, pitch, yaw)
+            world_NED = rot_KS * v_KS
+            world_ENU = fromKS2KA(rot_KS) * fromKS2KA_body(v_KS)
+            @test world_ENU ≈ fromNED2ENU(world_NED)
+        end
     end
     @testset "orientation needs a rotation on both sides" begin
         # Kite at zenith, nose north. KS is then the identity against NED; the same

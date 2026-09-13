@@ -65,6 +65,7 @@ vector takes `fromENU2NED` or `fromNED2ENU`.
 fromKS2KA
 fromKA2KS
 fromKS2KA_body
+fromKA2KS_body
 orient_matrix
 euler_KS
 log_metadata

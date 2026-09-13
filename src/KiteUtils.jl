@@ -60,8 +60,8 @@ export fromEG2W, fromENU2EG, fromEX2EG, fromKS2EX, fromW2SE              # refer
 export azn2azw, calc_course, calc_heading, calc_heading_w             # geometric functions
 export calc_orient_rot, fromENU2NED, is_right_handed_orthonormal, fromNED2ENU
 export FrameConvention, KS, KA                                           # frame conventions
-export fromKS2KA, fromKA2KS, fromKS2KA_body, fromKS2KA_columns!, euler_KS,
-    orient_matrix, log_metadata, log_convention
+export fromKS2KA, fromKA2KS, fromKS2KA_body, fromKA2KS_body, fromKS2KA_columns!,
+    euler_KS, orient_matrix, log_metadata, log_convention
 export angles_from_wind_vec, wind_vec_from_angles
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
 export aero_geometry_file, fpc_settings, fpp_settings, se, se_dict,
@@ -465,7 +465,9 @@ function test(save=false)
         log_to_save=demo_log(7)
         save_log(log_to_save)
     end
-    # A pre-0.13 log, so it is read as what the format specified back then.
+    # data/Test_flight.arrow predates the frame declaration, so it is read as what
+    # the format specified then; a log just written above declares KA and is read
+    # by that, the keyword being consulted only for a log that declares nothing.
     return(load_log(7, "Test_flight.arrow"; frame=KS))
 end
 

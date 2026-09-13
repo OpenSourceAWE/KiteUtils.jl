@@ -35,16 +35,18 @@ orientation is the rotation from the body frame to the world frame: its columns 
 the body axes expressed in the world frame.
 
 Both the world frame and the body frame change, so converting an orientation rotates
-each of them, where a world vector needs only the world frame rotated and takes
-[`fromENU2NED`](@ref) instead. The orientation may be given as a `QuatRotation`, as a
-rotation matrix or as a 4-element vector `[w, i, j, k]`, and comes back in the same
-form: a `QuatRotation`, an `SMatrix{3, 3}` or an `SVector{4}`.
+each of them, where a body vector needs only the body frame rotated and takes
+[`fromKS2KA_body`](@ref), and a world vector only the world frame and takes
+[`fromENU2NED`](@ref). The orientation may be given as a `QuatRotation`, as a rotation
+matrix or as a 4-element vector `[w, i, j, k]`, and comes back in the same form: a
+`QuatRotation`, an `SMatrix{3, 3}` or an `SVector{4}`.
 """
 fromKS2KA(rot::AbstractMatrix) = WORLD_FLIP * rot * BODY_FLIP
 fromKS2KA(q::QuatRotation) = QuatRotation(fromKS2KA(RotMatrix{3}(q)))
 function fromKS2KA(q::AbstractVector)
     length(q) == 4 || throw(ArgumentError("fromKS2KA converts an orientation, but got a " *
-        "$(length(q))-element vector; a world or body vector is not an orientation."))
+        "$(length(q))-element vector; a body vector is not an orientation and takes " *
+        "fromKS2KA_body, a world vector fromENU2NED."))
     SVector{4}(Rotations.params(fromKS2KA(QuatRotation(q))))
 end
 
@@ -65,13 +67,21 @@ where an orientation rotates on both and takes [`fromKS2KA`](@ref), and a world 
 turns with the world frame and takes [`fromENU2NED`](@ref). The rotation is a half turn
 about the shared spanwise axis, so y survives and x and z change sign.
 
-The conversion is an involution, so it also converts `KA` components to `KS` ones.
+The conversion is an involution, so [`fromKA2KS_body`](@ref) is this function.
 """
 function fromKS2KA_body(v::AbstractVector)
     length(v) == 3 || throw(ArgumentError("fromKS2KA_body converts a body vector, but " *
-        "got a $(length(v))-element vector."))
+        "got a $(length(v))-element vector; an orientation takes fromKS2KA."))
     BODY_FLIP * SVector{3}(v)
 end
+
+"""
+    fromKA2KS_body(v::AbstractVector)
+
+Convert a vector resolved in the body frame from `KA` components to `KS` components.
+The conversion is an involution, so this is [`fromKS2KA_body`](@ref).
+"""
+fromKA2KS_body(v::AbstractVector) = fromKS2KA_body(v)
 
 """
     orient_matrix(attitude)
@@ -105,8 +115,8 @@ euler_KS(attitude) = quat2euler(QuatRotation(fromKA2KS(orient_matrix(attitude)))
     log_metadata()
 
 Table-level metadata written into every `.arrow` log, recording the frame convention
-its quaternions are in. Without it a log cannot be told apart from one written before
-KiteUtils 0.13, whose quaternions are `KS`.
+its orientations and body-resolved columns are in. Without it a log cannot be told
+apart from one written before KiteUtils 0.13, which is `KS`.
 """
 log_metadata() = Dict("frame_convention" => string(KA),
                       "kiteutils_version" => string(pkgversion(@__MODULE__)))
