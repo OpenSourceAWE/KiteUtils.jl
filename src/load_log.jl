@@ -39,8 +39,11 @@ function load_log(filename::String; path="", debug=false,
     if debug
         return table
     end
-    colmeta = Dict(var => ["name" => Arrow.getmetadata(getproperty(table, var))["name"]]
-                   for var in (Symbol("var_", lpad(i, 2, '0')) for i in 1:16))
+    colmeta = Dict{Symbol, Vector{Pair{String, String}}}()
+    for i in 1:16
+        var = Symbol("var_", lpad(i, 2, '0'))
+        colmeta[var] = ["name" => Arrow.getmetadata(getproperty(table, var))["name"]]
+    end
     declared = log_convention(table)
     if isnothing(declared) && isnothing(frame)
         @warn "Log $(basename(fullname)) declares no frame convention, so it predates " *
