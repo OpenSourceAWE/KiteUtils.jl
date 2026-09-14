@@ -45,6 +45,9 @@
   for a log that did not honour the specification, SymbolicAWEModels having written
   `KA` into the field unconverted. A log declaring a convention this version does not
   know is refused rather than guessed at.
+- `import_log` takes the same `frame` keyword. A .csv carries no metadata and cannot
+  be dated, so its convention has to be stated; it defaults to `KA`, which is what
+  `export_log` writes from a loaded log.
 - BREAKING: `calc_heading`, `calc_heading_w` and `quat2viewer`
   take an attitude in the `KA` convention, as a quaternion or rotation matrix. A
   `KS` orientation is converted by the caller: `quat2viewer(fromKS2KA(q))`. Roll, pitch
@@ -57,9 +60,9 @@
 - `demo_state_4p` stored a viewer-frame quaternion rather than the documented
   one; both demo states now store `KA`.
 - `fromKS2EX` and `fromEX2EG` are sensor ingest only. Nothing downstream of the
-  sensor uses them: heading and clock angle are computed in ENU from the `KA`
-  attitude, which `test-frames.jl` shows equals the old chain exactly over a
-  sweep of attitudes and kite positions.
+  sensor uses them: the heading is computed in ENU from the `KA` attitude, which
+  `test-frames.jl` shows equals the old chain exactly over a sweep of attitudes
+  and kite positions.
 - BREAKING: `enu2ned` and `ned2enu` are renamed `fromENU2NED` and `fromNED2ENU`,
   matching the `fromX2Y` naming the other frame transformations already use.
 - `euler2rot` returns an `SMatrix`, and `fromNED2ENU` calls `fromENU2NED`, the two being
