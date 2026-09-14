@@ -4,10 +4,9 @@
 ### Added
 - `metadata`, a keyword of both `save_log` methods taking a `Dict{String, String}`
   that is written as the table metadata of the .arrow file and read back into the new
-  `SysLog.metadata` field by `load_log`. KiteUtils writes nothing into it and never
-  reads what is in it, so a caller can attach a document of its own to a log. The keys
-  `log_metadata` writes are merged over it, so a log always declares its own frame
-  convention.
+  `SysLog.metadata` field by `load_log`. It is opaque to KiteUtils, so a caller can
+  attach a document of its own to a log; the keys `log_metadata` writes are merged over
+  it, so a log always declares its own frame convention.
 
 ## KiteUtils v0.13.0 2026-09-14
 ### Added

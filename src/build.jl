@@ -259,9 +259,9 @@ HEADER = """
 
 Save a flight log from a logger as .arrow file. By default lz4 compression is used, 
 if you use **false** as second parameter no compression is used. `metadata` is written
-as the table metadata of the file and read back by [`load_log`](@ref); KiteUtils puts
-nothing in it and never reads what is in it, but [`log_metadata`](@ref) is merged over
-it, so a log always declares the frame convention it is in.
+as the table metadata of the file and read back by [`load_log`](@ref); it is opaque to
+KiteUtils, which reads nothing in it. The keys [`log_metadata`](@ref) writes are merged
+over it, so a log always declares the frame convention it is in.
 
 arrow-js does not implement IPC body decompression, so a log written with the default
 `compress=true` cannot be read in a browser; pass `compress=false` for one that can.
