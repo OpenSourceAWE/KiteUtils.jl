@@ -25,6 +25,6 @@ using KiteUtils, Test
     @test length(logger.time_vec) == 100
     save_log(logger) == joinpath(tempdir(), "sim_log.arrow")
     @test length(logger.time_vec) == 2
-    log = load_log("transition.arrow2"; path=joinpath(@__DIR__, "..", "data"))
+    log = load_log("transition.arrow2"; path=joinpath(@__DIR__, "..", "data"), frame=KS)
     length(log.syslog.time) == 8180
 end
