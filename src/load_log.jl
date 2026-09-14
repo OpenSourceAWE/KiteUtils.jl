@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-# The ignored first argument is the system struct older callers passed.
+# The ignored first argument is the tether particle count older callers passed.
 load_log(::Any, filename::String; kwargs...) = load_log(filename; kwargs...)
 
 """
