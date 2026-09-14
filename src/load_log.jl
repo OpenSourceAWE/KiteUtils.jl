@@ -36,9 +36,9 @@ function load_log(filename::String; path="", debug=false,
         end
     end
     table   = Arrow.Table(fullname)
-    P =  length(table.Z[1])
-    # Float type is whatever the file was written with, so Float32 logs stay Float32.
-    F =  eltype(table.Z[1])
+    if debug
+        return table
+    end
     colmeta = Dict(:var_01=>Arrow.getmetadata(table.var_01)["name"],
                    :var_02=>Arrow.getmetadata(table.var_02)["name"],
                    :var_03=>Arrow.getmetadata(table.var_03)["name"],
@@ -56,31 +56,46 @@ function load_log(filename::String; path="", debug=false,
                    :var_15=>Arrow.getmetadata(table.var_15)["name"],
                    :var_16=>Arrow.getmetadata(table.var_16)["name"],
     )
-    # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
-    if debug
-        return table
+    declared = log_convention(table)
+    if isnothing(declared) && isnothing(frame)
+        @warn "Log $(basename(fullname)) declares no frame convention, so it predates " *
+              "KiteUtils 0.13 and is specified to be KS. Reading it as KS. A log " *
+              "SymbolicAWEModels wrote in that era holds KA in breach of that and " *
+              "needs load_log(...; frame=KA); load_log(...; frame=KS) confirms the " *
+              "specified convention. Either silences this."
     end
-    n = length(table.time)
-    zero_col(len) = [zeros(MVector{len, F}) for _ in 1:n]
-    # A log written before a column existed reads back as zeros rather than throwing.
-    column(name, len) = haskey(table, name) ? getproperty(table, name) : zero_col(len)
-    scalar(name, T=F) = haskey(table, name) ? getproperty(table, name) : zeros(T, n)
+    syslog_from_table(table, basename(fullname[1:end-6]), colmeta,
+                      something(declared, frame, KS))
+end
 
-    cycle, fig_8 = scalar(:cycle, Int16), scalar(:fig_8, Int16)
-    azimuth_rate, heading_rate = scalar(:azimuth_rate), scalar(:heading_rate)
-    kcu_steering, set_steering = scalar(:kcu_steering), scalar(:set_steering)
-    bearing, acc = scalar(:bearing), scalar(:acc)
-    AoA, side_slip = scalar(:AoA), scalar(:side_slip)
-    alpha3, alpha4 = scalar(:alpha3), scalar(:alpha4)
-    CL2, CD2 = scalar(:CL2), scalar(:CD2)
+# The reader both log formats share: an `Arrow.Table` and a `CsvTable` are addressed
+# alike, so back-compat and the conversion out of `convention` happen in one place.
+function syslog_from_table(table, log_name, colmeta, convention::FrameConvention)
+    P =  length(table.Z[1])
+    # Float type is whatever the file was written with, so Float32 logs stay Float32.
+    F =  eltype(table.Z[1])
+    n = length(table.time)
+    # A column the table does not have is zero-filled: a log written before that
+    # column existed restarts from rest rather than from whatever was in memory.
+    zero_col(len) = [zeros(MVector{len, F}) for _ in 1:n]
+    column(name, len) = haskey(table, name) ? getproperty(table, name) : zero_col(len)
+    scalar(name) = haskey(table, name) ? getproperty(table, name) : zeros(F, n)
+    counter(name) = haskey(table, name) ? getproperty(table, name) : zeros(Int16, n)
+
+    cycle, fig_8 = counter(:cycle), counter(:fig_8)
     turn_rates, attractor = column(:turn_rates, 3), column(:attractor, 2)
     v_wind_gnd, v_wind_200m = column(:v_wind_gnd, 3), column(:v_wind_200m, 3)
     v_wind_kite, twist_angles = column(:v_wind_kite, 3), column(:twist_angles, 0)
     set_torque, set_speed = column(:set_torque, 0), column(:set_speed, 0)
     set_force = column(:set_force, 0)
-    # `force` was this column's name before `winch_force`.
+    # Before the winch count, the force at the winch was logged as `force`.
     winch_force = haskey(table, :winch_force) ? table.winch_force : column(:force, 0)
-
+    azimuth_rate, kcu_steering = scalar(:azimuth_rate), scalar(:kcu_steering)
+    set_steering, heading_rate = scalar(:set_steering), scalar(:heading_rate)
+    bearing, acc = scalar(:bearing), scalar(:acc)
+    AoA, side_slip = scalar(:AoA), scalar(:side_slip)
+    alpha3, alpha4 = scalar(:alpha3), scalar(:alpha4)
+    CL2, CD2 = scalar(:CL2), scalar(:CD2)
     # Single-winch logs store l_tether, v_reelout and winch_force as scalars
     # rather than one entry per winch, and older multi-winch logs are fixed at
     # four slots; `fit` maps either onto this file's own count.
@@ -134,15 +149,6 @@ function load_log(filename::String; path="", debug=false,
         Qx = [zeros(MVector{1, F}) for _ in 1:n]
         Qy = [zeros(MVector{1, F}) for _ in 1:n]
         Qz = [zeros(MVector{1, F}) for _ in 1:n]
-    end
-    declared = log_convention(table)
-    convention = something(declared, frame, KS)
-    if isnothing(declared) && isnothing(frame)
-        @warn "Log $(basename(fullname)) declares no frame convention, so it predates " *
-              "KiteUtils 0.13 and is specified to be KS. Reading it as KS. A log " *
-              "SymbolicAWEModels wrote in that era holds KA in breach of that and " *
-              "needs load_log(...; frame=KA); load_log(...; frame=KS) confirms the " *
-              "specified convention. Either silences this."
     end
     # A log predating the per-body split holds one 3-vector per body load, and it was
     # the kite's, so its components read back as frame 1. `aero_force_b` was that
@@ -205,9 +211,9 @@ function load_log(filename::String; path="", debug=false,
         drag_force_x, drag_force_y, drag_force_z, spring_force, gamma_distribution,
         turn_rate_x, turn_rate_y, turn_rate_z, twist_vel, pulley_len, pulley_vel,
         set_torque, set_speed, set_force, set_ext_force_x, set_ext_force_y,
-        set_ext_force_z, table.var_01, table.var_02, table.var_03, table.var_04,
-        table.var_05, table.var_06, table.var_07, table.var_08, table.var_09,
-        table.var_10, table.var_11, table.var_12, table.var_13, table.var_14,
-        table.var_15, table.var_16))
-    return SysLog{P}(basename(fullname[1:end-6]), colmeta, syslog)
+        set_ext_force_z, scalar(:var_01), scalar(:var_02), scalar(:var_03), scalar(:var_04),
+        scalar(:var_05), scalar(:var_06), scalar(:var_07), scalar(:var_08), scalar(:var_09),
+        scalar(:var_10), scalar(:var_11), scalar(:var_12), scalar(:var_13), scalar(:var_14),
+        scalar(:var_15), scalar(:var_16)))
+    return SysLog{P}(log_name, colmeta, syslog)
 end
