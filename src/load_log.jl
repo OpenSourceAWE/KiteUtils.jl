@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-# The first argument was P and is ignored.
-load_log(_, filename::String; kwargs...) = load_log(filename; kwargs...)
+# The ignored first argument is the system struct older callers passed.
+load_log(::Any, filename::String; kwargs...) = load_log(filename; kwargs...)
 
 """
     load_log(filename::String; path="", frame=nothing)
