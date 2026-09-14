@@ -8,20 +8,10 @@ if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate("examples")
 end
 
-const PLOT_3D = false  # set to true to visualize the kite flight in 3D (requires KiteViewers.jl)
-
-if PLOT_3D
-    using KiteViewers
-else
-    Viewer3D = nothing  # dummy placeholder to avoid warnings when PLOT_3D is false
-    update_system = nothing
-    play_circle_flight_video = nothing
-end
 using ControlPlots
 using KiteUtils
-using LinearAlgebra: cross, dot, norm, normalize
+using LinearAlgebra: cross, dot, normalize
 using Rotations
-using StaticArrays
 
 """
     calc_circle_basis(x, z)
@@ -142,26 +132,6 @@ function calc_orientation(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     roll, pitch, yaw = quat2euler(q)
 
     return (roll, pitch, yaw)
-end
-
-"""
-    calc_orient_quat(turn_angle; x=100.0, z=0.0, r=20.0)
-
-Calculate the orientation quaternion of the kite directly from the rotation matrix,
-avoiding the Euler angle round-trip that causes discontinuities at ±180° yaw.
-
-Returns a `QuatRotation`.
-"""
-function calc_orient_quat(turn_angle; x = 100.0, z = 0.0, r = 20.0)
-    center = [x, 0.0, z]
-    e1, e2 = calc_circle_basis(x, z)
-    pos = center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
-    z_kite = -normalize(pos)
-    tangent = normalize(-sin(turn_angle) * e1 + cos(turn_angle) * e2)
-    x_kite = normalize(tangent - dot(tangent, z_kite) * z_kite)
-    y_kite = cross(z_kite, x_kite)
-    rotation = calc_orient_rot(x_kite, y_kite, z_kite)
-    return QuatRotation(rotation)
 end
 
 """
@@ -381,53 +351,6 @@ function plot_heading_and_position(
     plt.show(block = false)
 end
 
-if PLOT_3D
-    function play_circle_flight_video(θ)
-        viewer = Viewer3D(true)
-        segments = viewer.set.segments  # default: 6
-        N = segments + 1                # number of tether particles (including ground and kite)
-        t = 0.0
-        dt = 0.05
-        prev_heading = calc_kite_heading(deg2rad(turn_angles[1]))
-        for _ = 1:3  # repeat the circle flight a few times
-            for ta in turn_angles
-                r = tether_length * sin(deg2rad(θ))
-                x = r / tan(deg2rad(θ))
-                pos = calc_kite_pos(deg2rad(ta); x = x, z = 0.0, r = r)
-                el, az = calc_elevation_azimuth(deg2rad(ta))
-                heading = calc_kite_heading(deg2rad(ta); x = x, z = 0.0, r = r)
-                heading_rate = (heading - prev_heading) / dt
-                prev_heading = heading
-                # Build quaternion directly from rotation matrix to avoid Euler angle
-                # wrapping glitches. calc_orient_rot builds it against NED, so it is KS
-                # and the state wants KA.
-                q = fromKS2KA(calc_orient_quat(deg2rad(ta); x = x, z = 0.0, r = r))
-                # Interpolate tether particle positions from origin to kite position
-                xs = MVector{N,Float64}([pos[1] * i / segments for i = 0:segments])
-                ys = MVector{N,Float64}([pos[2] * i / segments for i = 0:segments])
-                zs = MVector{N,Float64}([pos[3] * i / segments for i = 0:segments])
-                state = SysState(N)
-                state.time = t
-                state.l_tether[1] = norm(pos)
-                state.orient = MVector{4,Float32}(Rotations.params(q))
-                state.elevation = el
-                state.azimuth = az
-                state.heading = heading
-                state.course = heading_rate
-                state.heading_rate = heading_rate
-                state.X .= xs
-                state.Y .= ys
-                state.Z .= zs
-                t += 0.05
-                # No ned= any more: the state carries KA and says so, which is what
-                # the keyword used to stand in for.
-                update_system(viewer, state; scale = 0.25, kite_scale = 0.25)
-                sleep(dt)
-            end
-        end
-    end
-end#= if PLOT_3D =#
-
 plot_heading_and_position(
     turn_angles,
     THETA,
@@ -442,6 +365,3 @@ plot_heading_and_position(
     clock_angle_labels,
     car_labels,
 )
-if PLOT_3D
-    play_circle_flight_video(30)
-end

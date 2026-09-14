@@ -74,8 +74,8 @@
   same line. That is `set.wind_vec` while `use_wind_vec` is `false`, and `set.v_wind`,
   `set.upwind_dir` or `set.upwind_elevation` while it is `true`. Reading either
   representation is unchanged, and so is loading a `.yaml` that carries both.
-- `examples` is not a `[workspace]` project any more: the examples environment
-  resolves on its own and needs its own `Pkg.instantiate()`.
+- `examples/test_heading.jl` drops its optional 3D view, and KiteViewers is no longer
+  a dependency of the examples environment.
 
 ## KiteUtils v0.12.2
 ### Added

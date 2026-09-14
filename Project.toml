@@ -4,7 +4,7 @@ authors = ["Uwe Fechner <uwe.fechner.msc@gmail.com> and contributors"]
 version = "0.13.0"
 
 [workspace]
-projects = ["test", "docs"]
+projects = ["examples", "test", "docs"]
 
 [deps]
 Arrow = "69666777-d1a9-59fb-9406-91d4454c9d45"
