@@ -176,6 +176,40 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         @test all(kept.turn_rate_x .≈ 7)
         set_data_path(data_path)
     end
+    @testset "a KS .csv's body columns are converted, as an .arrow's are" begin
+        data_path = get_data_path()
+        set_data_path(mktempdir())
+        q_KS = Rotations.params(QuatRotation(calc_orient_rot([0, 1, 0], [1, 0, 0],
+                                                             [0, 0, -1])))
+        logger = Logger(7, 1)
+        state = demo_state(7)
+        state.orient = q_KS
+        state.turn_rates .= [1, 2, 3]
+        state.aero_force_KA .= [10, 20, 30]
+        state.aero_moment_KA .= [40, 50, 60]
+        state.turn_rate_x .= 7
+        state.turn_rate_y .= 8
+        state.turn_rate_z .= 9
+        log!(logger, state)
+        export_log(KiteUtils.sys_log(logger, "ks_csv"))
+
+        row = import_log("ks_csv"; frame=KS).syslog[1]
+        @test all(collect(row.orient) .≈ fromKS2KA(q_KS))
+        # A half turn about the spanwise axis: y survives, x and z change sign.
+        @test collect(row.turn_rates) ≈ [-1, 2, -3]
+        @test collect(row.aero_force_KA) ≈ [-10, 20, -30]
+        @test collect(row.aero_moment_KA) ≈ [-40, 50, -60]
+        @test all(row.turn_rate_x .≈ -7)
+        @test all(row.turn_rate_y .≈ 8)
+        @test all(row.turn_rate_z .≈ -9)
+
+        # A .csv that export_log wrote from a loaded log is KA, which is the default.
+        kept = import_log("ks_csv").syslog[1]
+        @test all(collect(kept.orient) .≈ q_KS)
+        @test collect(kept.turn_rates) ≈ [1, 2, 3]
+        @test all(kept.turn_rate_x .≈ 7)
+        set_data_path(data_path)
+    end
     @testset "a log declaring an unknown convention is refused" begin
         data_path = get_data_path()
         log = demo_log(7, "from_the_future")

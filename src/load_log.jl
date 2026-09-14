@@ -36,9 +36,9 @@ function load_log(filename::String; path="", debug=false,
         end
     end
     table   = Arrow.Table(fullname)
-    P =  length(table.Z[1])
-    # Float type is whatever the file was written with, so Float32 logs stay Float32.
-    F =  eltype(table.Z[1])
+    if debug
+        return table
+    end
     colmeta = Dict(:var_01=>Arrow.getmetadata(table.var_01)["name"],
                    :var_02=>Arrow.getmetadata(table.var_02)["name"],
                    :var_03=>Arrow.getmetadata(table.var_03)["name"],
@@ -56,106 +56,48 @@ function load_log(filename::String; path="", debug=false,
                    :var_15=>Arrow.getmetadata(table.var_15)["name"],
                    :var_16=>Arrow.getmetadata(table.var_16)["name"],
     )
-    # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
-    if debug
-        return table
+    declared = log_convention(table)
+    if isnothing(declared) && isnothing(frame)
+        @warn "Log $(basename(fullname)) declares no frame convention, so it predates " *
+              "KiteUtils 0.13 and is specified to be KS. Reading it as KS. A log " *
+              "SymbolicAWEModels wrote in that era holds KA in breach of that and " *
+              "needs load_log(...; frame=KA); load_log(...; frame=KS) confirms the " *
+              "specified convention. Either silences this."
     end
-    n = length(table.time)
-    zero_col(len) = [zeros(MVector{len, F}) for _ in 1:n]
-    cycle = zeros(Int16, n)
-    fig_8 = zeros(Int16, n)
-    turn_rates = zero_col(3)
-    azimuth_rate = zeros(F, n)
-    kcu_steering = zeros(F, n)
-    set_steering = zeros(F, n)
-    heading_rate = zeros(F, n)
-    bearing = zeros(F, n)
-    attractor = zero_col(2)
-    v_wind_gnd = zero_col(3)
-    v_wind_200m = zero_col(3)
-    v_wind_kite = zero_col(3)
-    AoA = zeros(F, n)
-    side_slip = zeros(F, n)
-    alpha3 = zeros(F, n)
-    alpha4 = zeros(F, n)
-    CL2 = zeros(F, n)
-    CD2 = zeros(F, n)
-    aero_force_KA = zero_col(3)
-    aero_moment_KA = zero_col(3)
-    twist_angles = zero_col(0)
-    acc = zeros(F, n)
-    set_torque = zero_col(0)
-    set_speed = zero_col(0)
-    set_force = zero_col(0)
-    winch_force = zero_col(0)
+    syslog_from_table(table, basename(fullname[1:end-6]), colmeta,
+                      something(declared, frame, KS))
+end
 
-    for name in [:cycle, :fig_8, :turn_rates, :azimuth_rate, :kcu_steering,
-                 :set_steering, :heading_rate, :bearing, :attractor, :v_wind_gnd,
-                 :v_wind_200m, :v_wind_kite, :AoA, :side_slip, :alpha3, :alpha4, :CL2, :CD2,
-                 :aero_force_KA, :aero_moment_KA, :twist_angles, :acc, :set_torque, :set_speed,
-                 :set_force, :force, :winch_force]
-        if haskey(table, name)
-            if name == :cycle
-                cycle = table.cycle
-            elseif name == :fig_8
-                fig_8 = table.fig_8
-            elseif name == :turn_rates
-                turn_rates = table.turn_rates
-            elseif name == :azimuth_rate
-                azimuth_rate = table.azimuth_rate
-            elseif name == :kcu_steering
-                kcu_steering = table.kcu_steering
-            elseif name == :set_steering
-                set_steering = table.set_steering
-            elseif name == :heading_rate
-                heading_rate = table.heading_rate
-            elseif name == :bearing
-                bearing = table.bearing
-            elseif name == :attractor
-                attractor = table.attractor
-            elseif name == :v_wind_gnd
-                v_wind_gnd = table.v_wind_gnd
-            elseif name == :v_wind_200m
-                v_wind_200m = table.v_wind_200m
-            elseif name == :v_wind_kite
-                v_wind_kite = table.v_wind_kite
-            elseif name == :AoA
-                AoA = table.AoA
-            elseif name == :side_slip
-                side_slip = table.side_slip
-            elseif name == :alpha3
-                alpha3 = table.alpha3
-            elseif name == :alpha4
-                alpha4 = table.alpha4
-            elseif name == :CL2
-                CL2 = table.CL2
-            elseif name == :CD2
-                CD2 = table.CD2
-            elseif name == :aero_force_KA
-                aero_force_KA = table.aero_force_KA
-            elseif name == :aero_moment_KA
-                aero_moment_KA = table.aero_moment_KA
-            elseif name == :twist_angles 
-                twist_angles = table.twist_angles
-            elseif name == :acc
-                acc = table.acc
-            elseif name == :set_torque
-                set_torque = table.set_torque
-            elseif name == :set_speed
-                set_speed = table.set_speed
-            elseif name == :set_force
-                set_force = table.set_force
-            elseif name == :force
-                winch_force = table.force
-            elseif name == :winch_force
-                winch_force = table.winch_force
-            else
-                error("Unknown field: $name")
-            end
- 
-        end
-        
-    end
+# The reader both log formats share: an `Arrow.Table` and a `CsvTable` are addressed
+# alike, so back-compat and the conversion out of `convention` happen in one place.
+function syslog_from_table(table, log_name, colmeta, convention::FrameConvention)
+    P =  length(table.Z[1])
+    # Float type is whatever the file was written with, so Float32 logs stay Float32.
+    F =  eltype(table.Z[1])
+    n = length(table.time)
+    # A column the table does not have is zero-filled: a log written before that
+    # column existed restarts from rest rather than from whatever was in memory.
+    column(name, len) = haskey(table, name) ? getproperty(table, name) :
+        [zeros(MVector{len, F}) for _ in 1:n]
+    scalar(name) = haskey(table, name) ? getproperty(table, name) : zeros(F, n)
+    counter(name) = haskey(table, name) ? getproperty(table, name) : zeros(Int16, n)
+
+    cycle, fig_8 = counter(:cycle), counter(:fig_8)
+    turn_rates, attractor = column(:turn_rates, 3), column(:attractor, 2)
+    v_wind_gnd, v_wind_200m = column(:v_wind_gnd, 3), column(:v_wind_200m, 3)
+    v_wind_kite, twist_angles = column(:v_wind_kite, 3), column(:twist_angles, 0)
+    aero_force_KA = column(:aero_force_KA, 3)
+    aero_moment_KA = column(:aero_moment_KA, 3)
+    set_torque, set_speed = column(:set_torque, 0), column(:set_speed, 0)
+    set_force = column(:set_force, 0)
+    # Before the winch count, the force at the winch was logged as `force`.
+    winch_force = haskey(table, :winch_force) ? table.winch_force : column(:force, 0)
+    azimuth_rate, kcu_steering = scalar(:azimuth_rate), scalar(:kcu_steering)
+    set_steering, heading_rate = scalar(:set_steering), scalar(:heading_rate)
+    bearing, acc = scalar(:bearing), scalar(:acc)
+    AoA, side_slip = scalar(:AoA), scalar(:side_slip)
+    alpha3, alpha4 = scalar(:alpha3), scalar(:alpha4)
+    CL2, CD2 = scalar(:CL2), scalar(:CD2)
     # Single-winch logs store l_tether, v_reelout and winch_force as scalars
     # rather than one entry per winch, and older multi-winch logs are fixed at
     # four slots; `fit` maps either onto this file's own count.
@@ -198,11 +140,7 @@ function load_log(filename::String; path="", debug=false,
         aero_moment_KA = table.aero_moment_b
     end
     aero_force_KA, aero_moment_KA = fit(aero_force_KA, 3), fit(aero_moment_KA, 3)
-    # Differential-state back-compat: logs written before these columns existed
-    # restart from rest, so every one of them defaults to zero.
     L = haskey(table, :pulley_len) ? length(table.pulley_len[1]) : 0
-    column(name, len) = haskey(table, name) ? getproperty(table, name) :
-        [zeros(MVector{len, F}) for _ in 1:n]
     VX, VY, VZ = column(:VX, P), column(:VY, P), column(:VZ, P)
     twist_vel = column(:twist_vel, D)
     pulley_len, pulley_vel = column(:pulley_len, L), column(:pulley_vel, L)
@@ -223,15 +161,6 @@ function load_log(filename::String; path="", debug=false,
         Qx = [zeros(MVector{1, F}) for _ in 1:n]
         Qy = [zeros(MVector{1, F}) for _ in 1:n]
         Qz = [zeros(MVector{1, F}) for _ in 1:n]
-    end
-    declared = log_convention(table)
-    convention = something(declared, frame, KS)
-    if isnothing(declared) && isnothing(frame)
-        @warn "Log $(basename(fullname)) declares no frame convention, so it predates " *
-              "KiteUtils 0.13 and is specified to be KS. Reading it as KS. A log " *
-              "SymbolicAWEModels wrote in that era holds KA in breach of that and " *
-              "needs load_log(...; frame=KA); load_log(...; frame=KS) confirms the " *
-              "specified convention. Either silences this."
     end
     turn_rate_x, turn_rate_y, turn_rate_z =
         column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
@@ -273,9 +202,11 @@ function load_log(filename::String; path="", debug=false,
                                        turn_rate_x, turn_rate_y, turn_rate_z,
                                        twist_vel, pulley_len, pulley_vel,
                                        set_torque, set_speed, set_force,
-                                       table.var_01, table.var_02, table.var_03, table.var_04, 
-                                       table.var_05, table.var_06, table.var_07, table.var_08, table.var_09, 
-                                       table.var_10, table.var_11, table.var_12, table.var_13, table.var_14, 
-                                       table.var_15, table.var_16))
-    return SysLog{P}(basename(fullname[1:end-6]), colmeta, syslog)
+                                       scalar(:var_01), scalar(:var_02), scalar(:var_03),
+                                       scalar(:var_04), scalar(:var_05), scalar(:var_06),
+                                       scalar(:var_07), scalar(:var_08), scalar(:var_09),
+                                       scalar(:var_10), scalar(:var_11), scalar(:var_12),
+                                       scalar(:var_13), scalar(:var_14), scalar(:var_15),
+                                       scalar(:var_16)))
+    return SysLog{P}(log_name, colmeta, syslog)
 end

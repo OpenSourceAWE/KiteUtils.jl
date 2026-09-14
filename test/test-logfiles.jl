@@ -170,6 +170,39 @@ end
               getproperty(written[step], field)
     end
 end
+@testset "KiteUtils.jl: csv round trip  " begin
+    # export_log writes every SysState column, so import_log has to read every one
+    # back: a column it does not name comes back zeroed, and nothing says so.
+    set_data_path(tempdir())
+    P, O, D, L, W, S = 3, 2, 2, 4, 2, 5
+    logger = Logger(P, 2; orients=O, deflections=D, pulleys=L, winches=W, segments=S)
+    written = map(1:2) do step
+        ss = SysState(P; orients=O, deflections=D, pulleys=L, winches=W, segments=S)
+        # One distinct value per field, so a column read into the wrong field, or
+        # not read at all, cannot pass.
+        for (i, field) in enumerate(fieldnames(SysState))
+            value = getfield(ss, field)
+            if value isa AbstractVector
+                value .= [10i + j + step / 8 for j in eachindex(value)]
+            elseif value isa Integer
+                setfield!(ss, field, Int16(10i + step))
+            else
+                setfield!(ss, field, typeof(value)(10i + step / 8))
+            end
+        end
+        log!(logger, ss)
+        ss
+    end
+    export_log(KiteUtils.sys_log(logger, "csv_round_trip"))
+    read_back = import_log("csv_round_trip")
+    @test read_back isa SysLog{P}
+    @test length(read_back.syslog) == 2
+    for step in 1:2, field in fieldnames(SysState)
+        @test getproperty(read_back.syslog[step], field) ==
+              getproperty(written[step], field)
+    end
+end
+
 @testset "KiteUtils.jl: renamed body loads" begin
     # Before 0.13 the two aerodynamic body loads were called aero_force_b and
     # aero_moment_b. The quantity did not change with the name, so a log written

@@ -45,8 +45,10 @@
   for a log that did not honour the specification, SymbolicAWEModels having written
   `KA` into the field unconverted. A log declaring a convention this version does not
   know is refused rather than guessed at.
-- `import_log` takes the same `frame` keyword. A .csv carries no metadata and cannot
-  be dated, so its convention has to be stated; it defaults to `KA`, which is what
+- `import_log` reads every column `export_log` writes, rather than the two dozen it
+  named, so a .csv round-trips a whole `SysState` and a .csv holding `KS` has its body
+  columns converted like an .arrow's. It takes the same `frame` keyword, a .csv
+  carrying no metadata and not being datable; that defaults to `KA`, which is what
   `export_log` writes from a loaded log.
 - BREAKING: `calc_heading`, `calc_heading_w` and `quat2viewer`
   take an attitude in the `KA` convention, as a quaternion or rotation matrix. A
