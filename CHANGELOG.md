@@ -5,18 +5,91 @@
 - `sys_log(logger, name="sim_log"; colmeta)` is exported. It builds the `SysLog`
   of a `Logger` in memory, so reading a log back no longer has to go through a
   file.
+- `default_colmeta()` is the per-column metadata `save_log`, `demo_log` and
+  `import_log` attach to a log, exported so a caller can start from it to name a
+  column of its own.
 ### Changed
-- BREAKING: assigning the wind representation that `use_wind_vec` makes the derived
-  one now throws an `ArgumentError` instead of being discarded by `sync_wind!` on the
-  same line. That is `set.wind_vec` while `use_wind_vec` is `false`, and `set.v_wind`,
-  `set.upwind_dir` or `set.upwind_elevation` while it is `true`. Reading either
-  representation is unchanged, and so is loading a `.yaml` that carries both.
 - `syslog(logger)` and `sys_log(logger, ...)` return the steps that were logged,
   not every step the logger has room for. A `Logger(P, steps)` that logged fewer
   than `steps` states no longer yields a log padded with zero rows.
 - `save_log(logger, ...)` leaves the logger alone. It used to resize every column
   of the logger down to the number of logged steps, which ended the logger's
   preallocation and silently dropped everything logged afterwards.
+
+## KiteUtils v0.13.0 2026-09-14
+### Added
+- `FrameConvention`, an enum with the two body-frame conventions used in the
+  OpenSourceAWE packages: `KA` (aft-right-up, reported against ENU) and `KS`
+  (forward-right-down, reported against NED).
+- `fromKS2KA` and `fromKA2KS` convert an orientation between the two conventions. An
+  orientation is a body-to-world rotation, so it is rotated on both sides; a world
+  vector is not an orientation and takes `fromENU2NED` or `fromNED2ENU`, which rotate on
+  one. `fromKS2KA_columns!` converts a log's quaternion columns in place.
+- `euler_KS` reports roll, pitch and yaw from a `KA` attitude, and `orient_matrix`
+  accepts an attitude in any form.
+- `fromKS2KA_body` and `fromKA2KS_body` convert a vector resolved in the body frame —
+  a force, a moment, a turn rate — between the two conventions. Only the body frame
+  turns for one of those, where an orientation turns both and a world vector turns the
+  world frame: three kinds of quantity, three rules, and no type catches the wrong one.
+- `.arrow` logs carry table-level metadata naming the frame convention and the
+  KiteUtils version that wrote them (`log_metadata`); `log_convention` reads it
+  back. Nothing was stored there before, so its absence identifies an older log.
+### Changed
+- BREAKING: quaternions in `SysState` are `KA`, and it holds no other convention.
+- BREAKING: `aero_force_b` and `aero_moment_b` are renamed `aero_force_KA` and
+  `aero_moment_KA`. The `b` named no frame — the field documented itself as the "KB
+  reference frame", which nothing defines — and the components are `KA`, so the name
+  now says which. `load_log` still reads the old column name.
+- BREAKING: `SysState` drops `tether_induced_force` and `tether_induced_moment`.
+  Nothing filled them: both models copy a rigid body's `tether_force`/`tether_moment`
+  into the state and neither updates those during a step, so every logged column was
+  constant. The net tether load on a body is the sum of the `spring_force` entries of
+  the segments attached to it. `load_log` ignores the two columns in an older log.
+- BREAKING: `SysState` drops `roll`, `pitch` and `yaw`. They were the same
+  orientation in another form, and keeping them meant keeping a second convention
+  in the state: measured against NED, because that is what the Xsens IMU and flight
+  test data use, whereas everything else is ENU. Reporting them in `KA` instead was
+  the alternative and is worse — the axis names stop matching the axes, so roll
+  changes sign and yaw is offset a quarter turn and runs backwards, which reads as
+  a model error next to a measured trace. Call `euler_KS(ss.orient)` instead.
+- Logs carry their frame convention, so `load_log` converts what it reads into
+  `KA` — the orientations and every body-resolved column alike, `turn_rates`,
+  `aero_force_KA`, `aero_moment_KA` and `turn_rate_x`/`_y`/`_z`, so the state that
+  comes out of a load never mixes the two. Only logs from 0.13 onwards declare a
+  convention; an older log is `KS`, that being what the format specified, and is
+  converted with a warning saying so. `load_log(name; frame=KA)` is the escape hatch
+  for a log that did not honour the specification, SymbolicAWEModels having written
+  `KA` into the field unconverted. A log declaring a convention this version does not
+  know is refused rather than guessed at.
+- `import_log` reads every column `export_log` writes, rather than the two dozen it
+  named, so a .csv round-trips a whole `SysState` and a .csv holding `KS` has its body
+  columns converted like an .arrow's. It takes the same `frame` keyword, a .csv
+  carrying no metadata and not being datable; that defaults to `KA`, which is what
+  `export_log` writes from a loaded log.
+- BREAKING: `calc_heading`, `calc_heading_w` and `quat2viewer`
+  take an attitude in the `KA` convention, as a quaternion or rotation matrix. A
+  `KS` orientation is converted by the caller: `quat2viewer(fromKS2KA(q))`. Roll, pitch
+  and yaw passed as a 3-element vector still work and are still `KS`, so existing
+  call sites keep their result.
+- BREAKING: `calc_clock_angle` is removed. It returned the same angle as
+  `calc_heading` for every attitude and kite position, projecting the nose onto the
+  same plane against the same reference, and threw near zenith where `calc_heading`
+  does not.
+- `demo_state_4p` stored a viewer-frame quaternion rather than the documented
+  one; both demo states now store `KA`.
+- `fromKS2EX` and `fromEX2EG` are sensor ingest only. Nothing downstream of the
+  sensor uses them: the heading is computed in ENU from the `KA` attitude, which
+  `test-frames.jl` shows equals the old chain exactly over a sweep of attitudes
+  and kite positions.
+- BREAKING: `enu2ned` and `ned2enu` are renamed `fromENU2NED` and `fromNED2ENU`,
+  matching the `fromX2Y` naming the other frame transformations already use.
+- `euler2rot` returns an `SMatrix`, and `fromNED2ENU` calls `fromENU2NED`, the two being
+  the same involution.
+- BREAKING: assigning the wind representation that `use_wind_vec` makes the derived
+  one now throws an `ArgumentError` instead of being discarded by `sync_wind!` on the
+  same line. That is `set.wind_vec` while `use_wind_vec` is `false`, and `set.v_wind`,
+  `set.upwind_dir` or `set.upwind_elevation` while it is `true`. Reading either
+  representation is unchanged, and so is loading a `.yaml` that carries both.
 
 ## KiteUtils v0.12.2
 ### Added

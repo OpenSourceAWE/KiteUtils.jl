@@ -232,7 +232,7 @@ function calc_clock_angle(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     el, az_east = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
     az_north = wrap2pi(-π / 2 - az_east)
     az_wind = azn2azw(az_north)
-    KiteUtils.calc_clock_angle(orientation, el, az_wind; respos = false)
+    KiteUtils.calc_heading(orientation, el, az_wind; respos = false)
 end
 
 # Compute data for multiple θ values
@@ -383,8 +383,6 @@ end
 
 if PLOT_3D
     function play_circle_flight_video(θ)
-        # Print orientation and position for each turn angle, and create SysState structs
-        println("turn_angle => orientation (roll, pitch, yaw) and position (x, y, z)")
         viewer = Viewer3D(true)
         segments = viewer.set.segments  # default: 6
         N = segments + 1                # number of tether particles (including ground and kite)
@@ -395,14 +393,15 @@ if PLOT_3D
             for ta in turn_angles
                 r = tether_length * sin(deg2rad(θ))
                 x = r / tan(deg2rad(θ))
-                roll, pitch, yaw = calc_orientation(deg2rad(ta); x = x, z = 0.0, r = r)
                 pos = calc_kite_pos(deg2rad(ta); x = x, z = 0.0, r = r)
                 el, az = calc_elevation_azimuth(deg2rad(ta))
                 heading = calc_kite_heading(deg2rad(ta); x = x, z = 0.0, r = r)
                 heading_rate = (heading - prev_heading) / dt
                 prev_heading = heading
-                # Build quaternion directly from rotation matrix to avoid Euler angle wrapping glitches
-                q = calc_orient_quat(deg2rad(ta); x = x, z = 0.0, r = r)
+                # Build quaternion directly from rotation matrix to avoid Euler angle
+                # wrapping glitches. calc_orient_rot builds it against NED, so it is KS
+                # and the state wants KA.
+                q = fromKS2KA(calc_orient_quat(deg2rad(ta); x = x, z = 0.0, r = r))
                 # Interpolate tether particle positions from origin to kite position
                 xs = MVector{N,Float64}([pos[1] * i / segments for i = 0:segments])
                 ys = MVector{N,Float64}([pos[2] * i / segments for i = 0:segments])
@@ -416,14 +415,13 @@ if PLOT_3D
                 state.heading = heading
                 state.course = heading_rate
                 state.heading_rate = heading_rate
-                state.roll = roll
-                state.pitch = pitch
-                state.yaw = yaw
                 state.X .= xs
                 state.Y .= ys
                 state.Z .= zs
                 t += 0.05
-                update_system(viewer, state; scale = 0.25, kite_scale = 0.25, ned = true)
+                # No ned= any more: the state carries KA and says so, which is what
+                # the keyword used to stand in for.
+                update_system(viewer, state; scale = 0.25, kite_scale = 0.25)
                 sleep(dt)
             end
         end
