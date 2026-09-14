@@ -71,7 +71,7 @@ julia> using KiteUtils
 
 julia> st = demo_state(7)
 time      [s]:       0.0
-orient    [w,x,y,z]: Float32[0.5, 0.5, -0.5, -0.5]
+orient    [w,x,y,z]: Float32[0.70710677, -0.70710677, 0.0, 0.0]
 elevation [rad]:     0.5404195
 azimuth   [rad]:     0.0
 l_tether  [m]:       0.0
@@ -109,10 +109,10 @@ Example:
 julia> using Rotations
 
 julia> q = QuatRotation(st.orient)
-3×3 QuatRotation{Float32} with indices SOneTo(3)×SOneTo(3)(Quaternion{Float32}(0.5, 0.5, -0.5, -0.5, true)):
-  0.0  0.0  -1.0
- -1.0  0.0   0.0
-  0.0  1.0   0.0
+3×3 QuatRotation{Float32} with indices SOneTo(3)×SOneTo(3)(QuaternionF32(0.707107, -0.707107, 0.0, 0.0)):
+  1.0  -0.0  0.0
+  0.0   0.0  1.0
+ -0.0  -1.0  0.0
 ```
 The components X, Y and Z are vectors of the x, y and z positions of the tether particles. The last element of these vectors
 represents the kite position.
@@ -139,14 +139,14 @@ sys_state [-]:     0
 cycle [-]:         0
 fig_8 [-]:         0
 e_mech [Wh]:       0.0
-orient [-]:        Float32[0.5, 0.5, -0.5, -0.5]
+orient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]
 turn_rates [rad/s]:Float32[0.0, 0.0, 0.0]
 elevation [rad]:   0.5404195
 azimuth [rad]:     0.0
 azimuth_rate [rad/s]:0.0
-l_tether [m]:      Float32[0.0, 0.0, 0.0, 0.0]
-v_reelout [m/s]:   Float32[0.0, 0.0, 0.0, 0.0]
-winch_force [N]:   Float32[0.0, 0.0, 0.0, 0.0]
+l_tether [m]:      Float32[0.0]
+v_reelout [m/s]:   Float32[0.0]
+winch_force [N]:   Float32[0.0]
 depower [0..1]:    0.0
 steering [-1..1]:  0.0
 kcu_steering [-1..1]:0.0
@@ -166,22 +166,34 @@ alpha3 [rad]:      0.0
 alpha4 [rad]:      0.0
 CL2 [-]:           0.0
 CD2 [-]:           0.0
-aero_force_b [N]:  Float32[0.0, 0.0, 0.0]
-aero_moment_b [Nm]:Float32[0.0, 0.0, 0.0]
-tether_induced_force [N]:Float32[0.0, 0.0, 0.0]
-tether_induced_moment [Nm]:Float32[0.0, 0.0, 0.0]
-twist_angles [rad]:Float32[0.0, 0.0, 0.0, 0.0]
+aero_force_KA [N]: Float32[0.0, 0.0, 0.0]
+aero_moment_KA [Nm]:Float32[0.0, 0.0, 0.0]
+twist_angles [rad]:Float32[]
 vel_kite [m/s]:    Float32[0.0, 0.0, 0.0]
 acc [m/s²]:        0.0
 X [m]:             Float32[0.0, 1.6666666, 3.3333333, 5.0, 6.6666665, 8.333333, 10.0]
 Y [m]:             Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 Z [m]:             Float32[0.0, 0.15380114, 0.6194867, 1.4100224, 2.5474184, 4.063342, 6.0000005]
-set_torque [Nm]:   Float32[0.0, 0.0, 0.0, 0.0]
-set_speed [m/s]:   Float32[0.0, 0.0, 0.0, 0.0]
-set_force [N]:     Float32[0.0, 0.0, 0.0, 0.0]
-roll [rad]:        0.0
-pitch [rad]:       0.0
-yaw [rad]:         0.0
+flap_angle [rad]:  Float32[]
+VX [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+VY [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+VZ [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+aero_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+aero_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+aero_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+drag_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+drag_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+drag_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+spring_force [N]:  Float32[]
+turn_rate_x [rad/s]:Float32[0.0]
+turn_rate_y [rad/s]:Float32[0.0]
+turn_rate_z [rad/s]:Float32[0.0]
+twist_vel [rad/s]: Float32[]
+pulley_len [m]:    Float32[]
+pulley_vel [m/s]:  Float32[]
+set_torque [Nm]:   Float32[0.0]
+set_speed [m/s]:   Float32[0.0]
+set_force [N]:     Float32[0.0]
 var_01 [-]:        0.0
 var_02 [-]:        0.0
 var_03 [-]:        0.0
@@ -226,11 +238,10 @@ The type SysLog is a struct of a syslog as explained above and its name. In addi
 of the kite over time.
 ```julia
 julia> log = demo_log(7)
-SysLog{7, 1}("Test_flight", SysState{7, 1}[time      [s]:            0.0
-orient    [QuatRotation]: Float32[0.0 0.0 -1.0; -1.0 0.0 0.0; 0.0 1.0 0.0]
-x         [m]:            10.0
-y         [m]:            0.0
-z         [m]:            0.0
+SysLog{7, 1, ...}("Test_flight", ..., SysState{7, 1, 0, 0, 1, 1, 0, Float32}[time [s]:          0.0
+t_sim [s]:         0.012
+...
+orient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]
 ...
 ```
 You can access the elements using the dot notation, for example an array of the values for the height:
@@ -293,7 +304,10 @@ You can import a .csv file using the following code:
 set_data_path("data")
 filename="transition"
 
-log = import_log(filename)
+log = import_log(filename; frame=KS)
 save_log(log)
 ```
 This will import the file `transition.csv` and save it as `transition.arrow` file.
+The `frame` keyword states which convention the .csv holds, a .csv carrying no
+metadata to say so itself. `transition.csv` was exported before KiteUtils 0.13 and
+holds `KS`; a .csv exported since holds `KA`, which is the default.

@@ -69,10 +69,8 @@ $(TYPEDFIELDS)
     alpha4_vec::Vector{F} = zeros(F, Q)
     CL2_vec::Vector{F} = zeros(F, Q)
     CD2_vec::Vector{F} = zeros(F, Q)
-    aero_force_b_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
-    aero_moment_b_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
-    tether_induced_force_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
-    tether_induced_moment_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
+    aero_force_KA_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
+    aero_moment_KA_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
     twist_angles_vec::Vector{MVector{D, F}} = [zero(MVector{D, F}) for _ in 1:Q]
     vel_kite_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
     acc_vec::Vector{F} = zeros(F, Q)
@@ -99,9 +97,6 @@ $(TYPEDFIELDS)
     set_torque_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
     set_speed_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
     set_force_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
-    roll_vec::Vector{F} = zeros(F, Q)
-    pitch_vec::Vector{F} = zeros(F, Q)
-    yaw_vec::Vector{F} = zeros(F, Q)
     var_01_vec::Vector{F} = zeros(F, Q)
     var_02_vec::Vector{F} = zeros(F, Q)
     var_03_vec::Vector{F} = zeros(F, Q)

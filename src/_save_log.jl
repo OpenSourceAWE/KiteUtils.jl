@@ -29,8 +29,9 @@
 
 Save a flight log from a logger as .arrow file. By default lz4 compression is used, 
 if you use **false** as second parameter no compression is used. `metadata` is written
-as the table metadata of the file, beside the creation time of the logger under the
-key `created`, and read back by [`load_log`](@ref).
+as the table metadata of the file, beside the creation time of the logger under the key
+`created`, and read back by [`load_log`](@ref). [`log_metadata`](@ref) is merged over it,
+so a log always declares the frame convention it is in.
 
 arrow-js does not implement IPC body decompression, so a log written with the default
 `compress=true` cannot be read in a browser; pass `compress=false` for one that can.
@@ -92,10 +93,8 @@ function save_log(logger::Logger, name="sim_log", compress=true;
     resize!(logger.alpha4_vec, nl)
     resize!(logger.CL2_vec, nl)
     resize!(logger.CD2_vec, nl)
-    resize!(logger.aero_force_b_vec, nl)
-    resize!(logger.aero_moment_b_vec, nl)
-    resize!(logger.tether_induced_force_vec, nl)
-    resize!(logger.tether_induced_moment_vec, nl)
+    resize!(logger.aero_force_KA_vec, nl)
+    resize!(logger.aero_moment_KA_vec, nl)
     resize!(logger.twist_angles_vec, nl)
     resize!(logger.vel_kite_vec, nl)
     resize!(logger.acc_vec, nl)
@@ -122,9 +121,6 @@ function save_log(logger::Logger, name="sim_log", compress=true;
     resize!(logger.set_torque_vec, nl)
     resize!(logger.set_speed_vec, nl)
     resize!(logger.set_force_vec, nl)
-    resize!(logger.roll_vec, nl)
-    resize!(logger.pitch_vec, nl)
-    resize!(logger.yaw_vec, nl)
     resize!(logger.var_01_vec, nl)
     resize!(logger.var_02_vec, nl)
     resize!(logger.var_03_vec, nl)

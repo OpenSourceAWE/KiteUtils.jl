@@ -15,8 +15,18 @@ This projection plane is the **Small Earth (SE) reference frame**.
 | Kite Sensor | **KS** | $x$: trailing → leading edge; $y$: right wing; $z$: down |
 | Earth Xsens (NED) | **EX** | $x$: North; $y$: East; $z$: Down |
 | Earth Groundstation | **EG** | $x$: North; $y$: West; $z$: Up |
-| Wind | **W** | $x$: upwind; $y$: downwind; $z$: Up |
+| Wind | **W** | $x$: downwind; $y$: cross-wind, left looking downwind from above; $z$: Up |
 | Small Earth | **SE** | tangential to unit sphere at kite's position |
+
+This chain is written in `KS`, the convention the derivation was done in and the one the
+Xsens IMU reports. `SysState` holds the attitude in `KA`, and [`calc_heading`](@ref)
+works from that: the nose is the `KA` frame's $-x$ axis read straight out of the
+orientation, already in ENU, and the chain below picks up at step 2 with EG. The two are
+the same angle for every attitude and kite position, which `test/test-frames.jl` asserts
+against this chain kept there as a reference implementation.
+
+An attitude given as Euler angles is still `KS`, so a call site passing roll, pitch and
+yaw runs exactly the chain below.
 
 ## Transformation chain
 
@@ -107,9 +117,8 @@ R_\mathrm{el}(\beta) =
 
 $$\mathbf{h}^\mathrm{SE} = R_\mathrm{el}(\beta)\, R_\mathrm{az}(\varphi)\, R_\mathrm{first}\, \mathbf{h}^\mathrm{W}.$$
 
-The same elevation/azimuth convention is also used by `calc_clock_angle`.
-In particular, both `calc_heading` and `calc_clock_angle` expect azimuth in the wind frame,
-with positive direction counter-clockwise when viewed from above.
+`calc_heading` expects azimuth in the wind frame, with positive direction
+counter-clockwise when viewed from above.
 
 ## Heading angle definition
 
