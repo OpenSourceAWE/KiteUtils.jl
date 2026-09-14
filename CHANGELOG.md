@@ -4,9 +4,10 @@
 ### Added
 - `metadata`, a keyword of both `save_log` methods and of `sys_log`, taking a
   `Dict{String, String}` that is written as the table metadata of the .arrow file and
-  read back into the new `SysLog.metadata` field by `load_log`, so a caller can attach
-  a document of its own to a log. The keys `log_metadata` writes are merged over it, so
-  a log always declares its own frame convention.
+  read back into the new `SysLog.metadata` field by `load_log`. It is opaque to
+  KiteUtils, so a caller can attach a document of its own to a log; the keys
+  `log_metadata` writes are merged over it, so a log always declares its own frame
+  convention.
 - `Logger.created`, the date and time the logger was constructed, as an ISO 8601 string
   in local time. Every log saved from a logger carries it as the `created` table
   metadata key; a `created` of the caller's own in `metadata` wins.
