@@ -23,8 +23,26 @@ using KiteUtils, Test
     log!(logger, state)
     log!(logger, state)
     @test length(logger.time_vec) == 100
-    save_log(logger) == joinpath(tempdir(), "sim_log.arrow")
-    @test length(logger.time_vec) == 2
+    @test save_log(logger) == joinpath(tempdir(), "sim_log.arrow")
+    @test length(logger.time_vec) == 100
+    @test length(load_log("sim_log").syslog) == 2
     log = load_log("transition.arrow2"; path=joinpath(@__DIR__, "..", "data"), frame=KS)
-    length(log.syslog.time) == 8180
+    @test length(log.syslog.time) == 8180
+end
+
+@testset "SysLog from a Logger         " begin
+    set_data_path(tempdir())
+    logger = Logger(7, 10)
+    state = demo_state(7)
+    for step in 1:3
+        state.time = step
+        log!(logger, state)
+    end
+    flight_log = sys_log(logger, "sys_log_test")
+    @test length(flight_log.syslog) == 3
+    @test flight_log.syslog.time == [1.0, 2.0, 3.0]
+    @test length(logger.time_vec) == 10
+    save_log(logger, "sys_log_test")
+    @test load_log("sys_log_test").syslog.time == flight_log.syslog.time
+    @test length(logger.time_vec) == 10
 end
