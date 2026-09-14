@@ -52,10 +52,8 @@ function log!(logger::Logger, state::SysState)
     logger.alpha4_vec[i] = state.alpha4
     logger.CL2_vec[i] = state.CL2
     logger.CD2_vec[i] = state.CD2
-    logger.aero_force_b_vec[i] .= state.aero_force_b
-    logger.aero_moment_b_vec[i] .= state.aero_moment_b
-    logger.tether_induced_force_vec[i] .= state.tether_induced_force
-    logger.tether_induced_moment_vec[i] .= state.tether_induced_moment
+    logger.aero_force_KA_vec[i] .= state.aero_force_KA
+    logger.aero_moment_KA_vec[i] .= state.aero_moment_KA
     logger.twist_angles_vec[i] .= state.twist_angles
     logger.vel_kite_vec[i] .= state.vel_kite
     logger.acc_vec[i] = state.acc
@@ -82,9 +80,6 @@ function log!(logger::Logger, state::SysState)
     logger.set_torque_vec[i] .= state.set_torque
     logger.set_speed_vec[i] .= state.set_speed
     logger.set_force_vec[i] .= state.set_force
-    logger.roll_vec[i] = state.roll
-    logger.pitch_vec[i] = state.pitch
-    logger.yaw_vec[i] = state.yaw
     logger.var_01_vec[i] = state.var_01
     logger.var_02_vec[i] = state.var_02
     logger.var_03_vec[i] = state.var_03

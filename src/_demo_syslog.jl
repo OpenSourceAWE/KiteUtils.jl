@@ -52,10 +52,8 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0; duration=10)
     alpha4_vec = Vector{MyFloat}(undef, steps)
     CL2_vec = Vector{MyFloat}(undef, steps)
     CD2_vec = Vector{MyFloat}(undef, steps)
-    aero_force_b_vec = Vector{MVector{3, MyFloat}}(undef, steps)
-    aero_moment_b_vec = Vector{MVector{3, MyFloat}}(undef, steps)
-    tether_induced_force_vec = Vector{MVector{3, MyFloat}}(undef, steps)
-    tether_induced_moment_vec = Vector{MVector{3, MyFloat}}(undef, steps)
+    aero_force_KA_vec = Vector{MVector{3, MyFloat}}(undef, steps)
+    aero_moment_KA_vec = Vector{MVector{3, MyFloat}}(undef, steps)
     twist_angles_vec = Vector{MVector{D, MyFloat}}(undef, steps)
     vel_kite_vec = Vector{MVector{3, MyFloat}}(undef, steps)
     acc_vec = Vector{MyFloat}(undef, steps)
@@ -82,9 +80,6 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0; duration=10)
     set_torque_vec = Vector{MVector{W, MyFloat}}(undef, steps)
     set_speed_vec = Vector{MVector{W, MyFloat}}(undef, steps)
     set_force_vec = Vector{MVector{W, MyFloat}}(undef, steps)
-    roll_vec = Vector{MyFloat}(undef, steps)
-    pitch_vec = Vector{MyFloat}(undef, steps)
-    yaw_vec = Vector{MyFloat}(undef, steps)
     var_01_vec = Vector{MyFloat}(undef, steps)
     var_02_vec = Vector{MyFloat}(undef, steps)
     var_03_vec = Vector{MyFloat}(undef, steps)
@@ -140,10 +135,8 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0; duration=10)
         alpha4_vec[i+1] = state.alpha4
         CL2_vec[i+1] = state.CL2
         CD2_vec[i+1] = state.CD2
-        aero_force_b_vec[i+1] = state.aero_force_b
-        aero_moment_b_vec[i+1] = state.aero_moment_b
-        tether_induced_force_vec[i+1] = state.tether_induced_force
-        tether_induced_moment_vec[i+1] = state.tether_induced_moment
+        aero_force_KA_vec[i+1] = state.aero_force_KA
+        aero_moment_KA_vec[i+1] = state.aero_moment_KA
         twist_angles_vec[i+1] = state.twist_angles
         vel_kite_vec[i+1] = state.vel_kite
         acc_vec[i+1] = state.acc
@@ -170,9 +163,6 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0; duration=10)
         set_torque_vec[i+1] = state.set_torque
         set_speed_vec[i+1] = state.set_speed
         set_force_vec[i+1] = state.set_force
-        roll_vec[i+1] = state.roll
-        pitch_vec[i+1] = state.pitch
-        yaw_vec[i+1] = state.yaw
         var_01_vec[i+1] = state.var_01
         var_02_vec[i+1] = state.var_02
         var_03_vec[i+1] = state.var_03
@@ -196,13 +186,12 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0; duration=10)
                               steering_vec, kcu_steering_vec, set_steering_vec, heading_vec, heading_rate_vec, course_vec, 
                               bearing_vec, attractor_vec, v_app_vec, v_wind_gnd_vec, v_wind_200m_vec, v_wind_kite_vec, 
                               AoA_vec, side_slip_vec, alpha3_vec, alpha4_vec, CL2_vec, CD2_vec, 
-                              aero_force_b_vec, aero_moment_b_vec, tether_induced_force_vec, tether_induced_moment_vec, twist_angles_vec, vel_kite_vec, 
-                              acc_vec, X_vec, Y_vec, Z_vec, flap_angle_vec, VX_vec, 
-                              VY_vec, VZ_vec, aero_force_x_vec, aero_force_y_vec, aero_force_z_vec, drag_force_x_vec, 
-                              drag_force_y_vec, drag_force_z_vec, spring_force_vec, turn_rate_x_vec, turn_rate_y_vec, turn_rate_z_vec, 
-                              twist_vel_vec, pulley_len_vec, pulley_vel_vec, set_torque_vec, set_speed_vec, set_force_vec, 
-                              roll_vec, pitch_vec, yaw_vec, var_01_vec, var_02_vec, var_03_vec, 
-                              var_04_vec, var_05_vec, var_06_vec, var_07_vec, var_08_vec, var_09_vec, 
-                              var_10_vec, var_11_vec, var_12_vec, var_13_vec, var_14_vec, var_15_vec, 
-                              var_16_vec))
+                              aero_force_KA_vec, aero_moment_KA_vec, twist_angles_vec, vel_kite_vec, acc_vec, X_vec, 
+                              Y_vec, Z_vec, flap_angle_vec, VX_vec, VY_vec, VZ_vec, 
+                              aero_force_x_vec, aero_force_y_vec, aero_force_z_vec, drag_force_x_vec, drag_force_y_vec, drag_force_z_vec, 
+                              spring_force_vec, turn_rate_x_vec, turn_rate_y_vec, turn_rate_z_vec, twist_vel_vec, pulley_len_vec, 
+                              pulley_vel_vec, set_torque_vec, set_speed_vec, set_force_vec, var_01_vec, var_02_vec, 
+                              var_03_vec, var_04_vec, var_05_vec, var_06_vec, var_07_vec, var_08_vec, 
+                              var_09_vec, var_10_vec, var_11_vec, var_12_vec, var_13_vec, var_14_vec, 
+                              var_15_vec, var_16_vec))
 end
