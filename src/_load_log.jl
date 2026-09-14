@@ -47,22 +47,23 @@ function load_log(filename::String; path="")
                    :var_16=>Arrow.getmetadata(table.var_16)["name"],
     )
     # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
-    syslog = StructArray{SysState{P, O, D, L, W, T, S, F}}((table.time, table.t_sim, table.sys_state, table.cycle, table.fig_8, 
+    syslog = StructArray{SysState{P, O, D, L, W, T, S, N, F}}((table.time, table.t_sim, table.sys_state, table.cycle, table.fig_8, 
                                        table.e_mech, table.Qw, table.Qx, table.Qy, table.Qz, 
                                        table.turn_rates, table.elevation, table.azimuth, table.azimuth_rate, table.l_tether, 
                                        table.v_reelout, table.winch_force, table.depower, table.steering, table.kcu_steering, 
                                        table.set_steering, table.heading, table.heading_rate, table.course, table.bearing, 
                                        table.attractor, table.v_app, table.v_wind_gnd, table.v_wind_200m, table.v_wind_kite, 
                                        table.AoA, table.side_slip, table.alpha3, table.alpha4, table.CL2, 
-                                       table.CD2, table.aero_force_KA, table.aero_moment_KA, table.twist_angles, table.vel_kite, 
-                                       table.acc, table.X, table.Y, table.Z, table.flap_angle, 
-                                       table.VX, table.VY, table.VZ, table.aero_force_x, table.aero_force_y, 
-                                       table.aero_force_z, table.drag_force_x, table.drag_force_y, table.drag_force_z, table.spring_force, 
+                                       table.CD2, table.aero_force_KA_x, table.aero_force_KA_y, table.aero_force_KA_z, table.aero_moment_KA_x, 
+                                       table.aero_moment_KA_y, table.aero_moment_KA_z, table.twist_angles, table.vel_kite, table.acc, 
+                                       table.X, table.Y, table.Z, table.flap_angle, table.VX, 
+                                       table.VY, table.VZ, table.aero_force_x, table.aero_force_y, table.aero_force_z, 
+                                       table.drag_force_x, table.drag_force_y, table.drag_force_z, table.spring_force, table.gamma_distribution, 
                                        table.turn_rate_x, table.turn_rate_y, table.turn_rate_z, table.twist_vel, table.pulley_len, 
-                                       table.pulley_vel, table.set_torque, table.set_speed, table.set_force, table.var_01, 
-                                       table.var_02, table.var_03, table.var_04, table.var_05, table.var_06, 
-                                       table.var_07, table.var_08, table.var_09, table.var_10, table.var_11, 
-                                       table.var_12, table.var_13, table.var_14, table.var_15, table.var_16
-                                       ))
+                                       table.pulley_vel, table.set_torque, table.set_speed, table.set_force, table.set_ext_force_x, 
+                                       table.set_ext_force_y, table.set_ext_force_z, table.var_01, table.var_02, table.var_03, 
+                                       table.var_04, table.var_05, table.var_06, table.var_07, table.var_08, 
+                                       table.var_09, table.var_10, table.var_11, table.var_12, table.var_13, 
+                                       table.var_14, table.var_15, table.var_16))
     return SysLog{P}(basename(fullname[1:end-6]), colmeta, syslog)
 end

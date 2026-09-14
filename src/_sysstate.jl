@@ -6,27 +6,32 @@
 # Edit src/sysstate.yaml instead
 
 """
-    SysState{P, O, D, L, W, T, S, F}
+    SysState{P, O, D, L, W, T, S, N, F}
 
 Basic system state. One of these is saved per time step. P is the number
 of tether particles, O is the number of oriented frames (kite + extra
 wings/rigid bodies), D is the number of twist surfaces, L is the number
 of pulleys, W is the number of winches, T the number of tethers, S the number of
-segments and F the float type of every non-integer field. No field is a fixed
-length: a model with five winches or ten twist surfaces logs all of them. The
-quaternion components `Qw/Qx/Qy/Qz` each hold O values; frame 1 is the kite,
-aliased by the `orient` property.
+segments, N the number of aerodynamic panels and F the float type of every
+non-integer field. No field is a fixed length: a model with five winches or ten
+twist surfaces logs all of them. The quaternion components `Qw/Qx/Qy/Qz` each
+hold O values; frame 1 is the kite, aliased by the `orient` property.
+
+A field named `_KA` is per body and holds O values, one per oriented frame:
+`aero_force_KA_x[k]` is a component of body k's force in the frame that
+`Qw/Qx/Qy/Qz[k]` rotates into ENU. The turn rates are `KA` too, and every other
+vector is ENU.
 
 Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `twist_angles`, `twist_vel`, `pulley_len`, `pulley_vel`, `l_tether` and
 `v_reelout` hold a complete differential state, so a single row can be
 used to restart a simulation. `flap_angle` is a derived deflection, not
-part of that state, and neither are the `aero_force_*`, `drag_force_*` and
-`spring_force` loads, which are logged for inspection.
+part of that state, and neither are the `aero_force_*`, `drag_force_*`,
+`spring_force` and `gamma_distribution` loads, which are logged for inspection.
 
 $(TYPEDFIELDS)
 """
-@with_kw_noshow mutable struct SysState{P, O, D, L, W, T, S, F}
+@with_kw_noshow mutable struct SysState{P, O, D, L, W, T, S, N, F}
     "time since start of simulation [s]"
     time::Float64 = 0
     "time needed for one simulation timestep [s]"
@@ -99,10 +104,18 @@ $(TYPEDFIELDS)
     CL2::F = 0
     "drag coefficient"
     CD2::F = 0
-    "aerodynamic force in the KA body frame [N]"
-    aero_force_KA::MVector{3, F} = zeros(F, 3)
-    "aerodynamic moment in the KA body frame [Nm]"
-    aero_moment_KA::MVector{3, F} = zeros(F, 3)
+    "aerodynamic force along KA x, one per body [N]"
+    aero_force_KA_x::MVector{O, F} = zeros(F, O)
+    "aerodynamic force along KA y, one per body [N]"
+    aero_force_KA_y::MVector{O, F} = zeros(F, O)
+    "aerodynamic force along KA z, one per body [N]"
+    aero_force_KA_z::MVector{O, F} = zeros(F, O)
+    "aerodynamic moment around KA x, one per body [Nm]"
+    aero_moment_KA_x::MVector{O, F} = zeros(F, O)
+    "aerodynamic moment around KA y, one per body [Nm]"
+    aero_moment_KA_y::MVector{O, F} = zeros(F, O)
+    "aerodynamic moment around KA z, one per body [Nm]"
+    aero_moment_KA_z::MVector{O, F} = zeros(F, O)
     "twist angle, one per twist_surface [rad]"
     twist_angles::MVector{D, F} = zeros(F, D)
     "velocity vector of the kite [m/s]"
@@ -137,6 +150,8 @@ $(TYPEDFIELDS)
     drag_force_z::MVector{P, F} = zeros(F, P)
     "spring force, one per segment [N]"
     spring_force::MVector{S, F} = zeros(F, S)
+    "circulation, one per aerodynamic panel [m²/s]"
+    gamma_distribution::MVector{N, F} = zeros(F, N)
     "KA turn rate around x, one per oriented frame [rad/s]"
     turn_rate_x::MVector{O, F} = zeros(F, O)
     "KA turn rate around y, one per oriented frame [rad/s]"
@@ -155,6 +170,12 @@ $(TYPEDFIELDS)
     set_speed::MVector{W, F} = zeros(F, W)
     "force setting, one per winch [N]"
     set_force::MVector{W, F} = zeros(F, W)
+    "external force applied to each point in x, ENU reference frame [N]"
+    set_ext_force_x::MVector{P, F} = zeros(F, P)
+    "external force applied to each point in y, ENU reference frame [N]"
+    set_ext_force_y::MVector{P, F} = zeros(F, P)
+    "external force applied to each point in z, ENU reference frame [N]"
+    set_ext_force_z::MVector{P, F} = zeros(F, P)
     "generic variable 01"
     var_01::F = 0
     "generic variable 02"

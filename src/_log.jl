@@ -52,8 +52,12 @@ function log!(logger::Logger, state::SysState)
     logger.alpha4_vec[i] = state.alpha4
     logger.CL2_vec[i] = state.CL2
     logger.CD2_vec[i] = state.CD2
-    logger.aero_force_KA_vec[i] .= state.aero_force_KA
-    logger.aero_moment_KA_vec[i] .= state.aero_moment_KA
+    logger.aero_force_KA_x_vec[i] .= state.aero_force_KA_x
+    logger.aero_force_KA_y_vec[i] .= state.aero_force_KA_y
+    logger.aero_force_KA_z_vec[i] .= state.aero_force_KA_z
+    logger.aero_moment_KA_x_vec[i] .= state.aero_moment_KA_x
+    logger.aero_moment_KA_y_vec[i] .= state.aero_moment_KA_y
+    logger.aero_moment_KA_z_vec[i] .= state.aero_moment_KA_z
     logger.twist_angles_vec[i] .= state.twist_angles
     logger.vel_kite_vec[i] .= state.vel_kite
     logger.acc_vec[i] = state.acc
@@ -71,6 +75,7 @@ function log!(logger::Logger, state::SysState)
     logger.drag_force_y_vec[i] .= state.drag_force_y
     logger.drag_force_z_vec[i] .= state.drag_force_z
     logger.spring_force_vec[i] .= state.spring_force
+    logger.gamma_distribution_vec[i] .= state.gamma_distribution
     logger.turn_rate_x_vec[i] .= state.turn_rate_x
     logger.turn_rate_y_vec[i] .= state.turn_rate_y
     logger.turn_rate_z_vec[i] .= state.turn_rate_z
@@ -80,6 +85,9 @@ function log!(logger::Logger, state::SysState)
     logger.set_torque_vec[i] .= state.set_torque
     logger.set_speed_vec[i] .= state.set_speed
     logger.set_force_vec[i] .= state.set_force
+    logger.set_ext_force_x_vec[i] .= state.set_ext_force_x
+    logger.set_ext_force_y_vec[i] .= state.set_ext_force_y
+    logger.set_ext_force_z_vec[i] .= state.set_ext_force_z
     logger.var_01_vec[i] = state.var_01
     logger.var_02_vec[i] = state.var_02
     logger.var_03_vec[i] = state.var_03

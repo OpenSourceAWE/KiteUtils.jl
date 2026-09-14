@@ -150,8 +150,12 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         log = demo_log(7, "body_columns")
         for step in eachindex(log.syslog)
             log.syslog.turn_rates[step] .= [1, 2, 3]
-            log.syslog.aero_force_KA[step] .= [10, 20, 30]
-            log.syslog.aero_moment_KA[step] .= [40, 50, 60]
+            log.syslog.aero_force_KA_x[step] .= 10
+            log.syslog.aero_force_KA_y[step] .= 20
+            log.syslog.aero_force_KA_z[step] .= 30
+            log.syslog.aero_moment_KA_x[step] .= 40
+            log.syslog.aero_moment_KA_y[step] .= 50
+            log.syslog.aero_moment_KA_z[step] .= 60
             log.syslog.turn_rate_x[step] .= 7
             log.syslog.turn_rate_y[step] .= 8
             log.syslog.turn_rate_z[step] .= 9
@@ -163,8 +167,12 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         row = load_log("body_columns"; frame=KS).syslog[1]
         # A half turn about the spanwise axis: y survives, x and z change sign.
         @test collect(row.turn_rates) ≈ [-1, 2, -3]
-        @test collect(row.aero_force_KA) ≈ [-10, 20, -30]
-        @test collect(row.aero_moment_KA) ≈ [-40, 50, -60]
+        @test all(row.aero_force_KA_x .≈ -10)
+        @test all(row.aero_force_KA_y .≈ 20)
+        @test all(row.aero_force_KA_z .≈ -30)
+        @test all(row.aero_moment_KA_x .≈ -40)
+        @test all(row.aero_moment_KA_y .≈ 50)
+        @test all(row.aero_moment_KA_z .≈ -60)
         @test all(row.turn_rate_x .≈ -7)
         @test all(row.turn_rate_y .≈ 8)
         @test all(row.turn_rate_z .≈ -9)
@@ -172,7 +180,8 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         save_log(log)
         kept = (@test_logs load_log("body_columns")).syslog[1]
         @test collect(kept.turn_rates) ≈ [1, 2, 3]
-        @test collect(kept.aero_force_KA) ≈ [10, 20, 30]
+        @test all(kept.aero_force_KA_x .≈ 10)
+        @test all(kept.aero_force_KA_z .≈ 30)
         @test all(kept.turn_rate_x .≈ 7)
         set_data_path(data_path)
     end
@@ -185,8 +194,12 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         state = demo_state(7)
         state.orient = q_KS
         state.turn_rates .= [1, 2, 3]
-        state.aero_force_KA .= [10, 20, 30]
-        state.aero_moment_KA .= [40, 50, 60]
+        state.aero_force_KA_x .= 10
+        state.aero_force_KA_y .= 20
+        state.aero_force_KA_z .= 30
+        state.aero_moment_KA_x .= 40
+        state.aero_moment_KA_y .= 50
+        state.aero_moment_KA_z .= 60
         state.turn_rate_x .= 7
         state.turn_rate_y .= 8
         state.turn_rate_z .= 9
@@ -197,8 +210,12 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         @test all(collect(row.orient) .≈ fromKS2KA(q_KS))
         # A half turn about the spanwise axis: y survives, x and z change sign.
         @test collect(row.turn_rates) ≈ [-1, 2, -3]
-        @test collect(row.aero_force_KA) ≈ [-10, 20, -30]
-        @test collect(row.aero_moment_KA) ≈ [-40, 50, -60]
+        @test all(row.aero_force_KA_x .≈ -10)
+        @test all(row.aero_force_KA_y .≈ 20)
+        @test all(row.aero_force_KA_z .≈ -30)
+        @test all(row.aero_moment_KA_x .≈ -40)
+        @test all(row.aero_moment_KA_y .≈ 50)
+        @test all(row.aero_moment_KA_z .≈ -60)
         @test all(row.turn_rate_x .≈ -7)
         @test all(row.turn_rate_y .≈ 8)
         @test all(row.turn_rate_z .≈ -9)

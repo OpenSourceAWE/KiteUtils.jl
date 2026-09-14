@@ -166,8 +166,12 @@ alpha3 [rad]:      0.0
 alpha4 [rad]:      0.0
 CL2 [-]:           0.0
 CD2 [-]:           0.0
-aero_force_KA [N]: Float32[0.0, 0.0, 0.0]
-aero_moment_KA [Nm]:Float32[0.0, 0.0, 0.0]
+aero_force_KA_x [N]:Float32[0.0]
+aero_force_KA_y [N]:Float32[0.0]
+aero_force_KA_z [N]:Float32[0.0]
+aero_moment_KA_x [Nm]:Float32[0.0]
+aero_moment_KA_y [Nm]:Float32[0.0]
+aero_moment_KA_z [Nm]:Float32[0.0]
 twist_angles [rad]:Float32[]
 vel_kite [m/s]:    Float32[0.0, 0.0, 0.0]
 acc [m/s²]:        0.0
@@ -185,6 +189,7 @@ drag_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 drag_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 drag_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 spring_force [N]:  Float32[]
+gamma_distribution [m²/s]:Float32[]
 turn_rate_x [rad/s]:Float32[0.0]
 turn_rate_y [rad/s]:Float32[0.0]
 turn_rate_z [rad/s]:Float32[0.0]
@@ -194,6 +199,9 @@ pulley_vel [m/s]:  Float32[]
 set_torque [Nm]:   Float32[0.0]
 set_speed [m/s]:   Float32[0.0]
 set_force [N]:     Float32[0.0]
+set_ext_force_x [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+set_ext_force_y [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+set_ext_force_z [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 var_01 [-]:        0.0
 var_02 [-]:        0.0
 var_03 [-]:        0.0

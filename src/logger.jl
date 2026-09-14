@@ -5,19 +5,19 @@ include("_logger.jl")
 
 """
     Logger(P, steps; orients=1, deflections=0, pulleys=0, winches=1,
-           tethers=winches, segments=0, precision=MyFloat)
+           tethers=winches, segments=0, panels=0, precision=MyFloat)
 
 Pre-allocate a log of `P` points for `steps` time steps. The remaining counts
 are keywords so that adding a dimension does not add another positional method:
 `orients` oriented frames, `deflections` twist surfaces, `pulleys` pulleys,
-`winches` winches, `tethers` tethers and `segments` segments. `tethers` defaults
-to `winches`, which is right whenever each winch drives one tether. Pass
-`precision=Float64` to log a differential state that round-trips `integrator.u`
-exactly.
+`winches` winches, `tethers` tethers, `segments` segments and `panels`
+aerodynamic panels. `tethers` defaults to `winches`, which is right whenever each
+winch drives one tether. Pass `precision=Float64` to log a differential state
+that round-trips `integrator.u` exactly.
 """
 function Logger(P, steps; orients=1, deflections=0, pulleys=0, winches=1,
-                tethers=winches, segments=0, precision=MyFloat)
-    Logger{P, orients, deflections, pulleys, winches, tethers, segments,
+                tethers=winches, segments=0, panels=0, precision=MyFloat)
+    Logger{P, orients, deflections, pulleys, winches, tethers, segments, panels,
            precision, steps}()
 end
 
@@ -99,7 +99,7 @@ Base.getproperty(table::CsvTable, name::Symbol) = getfield(table, :columns)[name
 
 # The type a .csv column of numbers is read into; no count changes a scalar field's type.
 function number_type(name)
-    state = SysState{1, 1, 0, 0, 1, 1, 0, MyFloat}
+    state = SysState{1, 1, 0, 0, 1, 1, 0, 0, MyFloat}
     hasfield(state, name) || return MyFloat
     field = fieldtype(state, name)
     field <: Number ? field : MyFloat
