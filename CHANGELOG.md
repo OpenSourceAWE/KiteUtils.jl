@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## KiteUtils v0.13.0 2026-09-14
 ### Added
 - `FrameConvention`, an enum with the two body-frame conventions used in the
   OpenSourceAWE packages: `KA` (aft-right-up, reported against ENU) and `KS`
