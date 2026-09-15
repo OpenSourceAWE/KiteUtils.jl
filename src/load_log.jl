@@ -36,7 +36,10 @@ function load_log(filename::String; path="", debug=false,
             fullname = joinpath(path, basename(filename))
         end
     end
-    table   = Arrow.Table(fullname)
+    # Read the bytes up front rather than letting Arrow mmap the file: a lingering
+    # mmap keeps the file locked on Windows, so a save_log to the same path right
+    # after a load_log fails there (POSIX allows it, masking the bug on Linux/macOS).
+    table   = Arrow.Table(read(fullname))
     if debug
         return table
     end
