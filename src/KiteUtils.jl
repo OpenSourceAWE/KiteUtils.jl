@@ -146,13 +146,18 @@ mutable struct SysLog{P, O, S <: StructArray{<:SysState{P, O}}}
     colmeta::Dict{Symbol, Union{String, Vector{Pair{String, String}}}}
     "struct of vectors that can also be accessed like a vector of structs"
     syslog::S
+    "table metadata of the log file; opaque strings that KiteUtils never reads"
+    metadata::Dict{String, String}
 end
 
 # Outer constructors to infer the trailing type parameters
-SysLog{P, O}(name::String, colmeta::Dict, syslog::S) where {P, O, S <: StructArray{<:SysState{P, O}}} =
-    SysLog{P, O, S}(name, colmeta, syslog)
-SysLog{P}(name::String, colmeta::Dict, syslog::StructArray{<:SysState{P, O}}) where {P, O} =
-    SysLog{P, O}(name, colmeta, syslog)
+SysLog{P, O}(name::String, colmeta::Dict, syslog::S,
+             metadata::Dict{String, String} = Dict{String, String}()
+            ) where {P, O, S <: StructArray{<:SysState{P, O}}} =
+    SysLog{P, O, S}(name, colmeta, syslog, metadata)
+SysLog{P}(name::String, colmeta::Dict, syslog::StructArray{<:SysState{P, O}},
+          metadata::Dict{String, String} = Dict{String, String}()) where {P, O} =
+    SysLog{P, O}(name, colmeta, syslog, metadata)
 
 function prepre_last(vec)
     vec[end-2]
@@ -360,22 +365,31 @@ function demo_log(P, name="Test_flight"; duration=10,
 end
 
 """
-    save_log(flight_log::SysLog, compress=true; path="")
+    save_log(flight_log::SysLog, compress=true; path="",
+             metadata::Dict{String, String}=flight_log.metadata)
 
-Save a flight log of type SysLog as .arrow file. By default lz4 compression is used,
-if you use **false** as second parameter no compression is used.
+Save a flight log of type SysLog as .arrow file. Compression is lz4 unless `compress`
+is passed as `false`. `metadata` is written as the table metadata of the file and read
+back by [`load_log`](@ref), and defaults to the metadata the log already carries. It is
+opaque to KiteUtils; the keys [`log_metadata`](@ref) writes are merged over it, so a
+log always declares the frame convention it is in.
+
+arrow-js does not implement IPC body decompression, so a log written with the default
+lz4 compression cannot be read in a browser.
 """
-function save_log(flight_log::SysLog, compress=true; path="")
+function save_log(flight_log::SysLog, compress=true; path="",
+                  metadata::Dict{String, String}=flight_log.metadata)
     if path == ""
         path = DATA_PATH[1]
     end
     filename = joinpath(path, flight_log.name) * ".arrow"
+    table_metadata = merge(metadata, log_metadata())
     if compress
         Arrow.write(filename, flight_log.syslog; compress=:lz4,
-                    colmetadata=flight_log.colmeta, metadata=log_metadata())
+                    colmetadata=flight_log.colmeta, metadata=table_metadata)
     else
         Arrow.write(filename, flight_log.syslog; colmetadata=flight_log.colmeta,
-                    metadata=log_metadata())
+                    metadata=table_metadata)
     end
 end
 
