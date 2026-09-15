@@ -181,9 +181,11 @@ end
 
     save_log(logger, "metadata_test"; metadata = Dict("document" => document))
     @test load_log("metadata_test").metadata["document"] == document
+    @test load_log("metadata_test").metadata["created"] == logger.created
 
     save_log(logger, "no_metadata_test")
     @test !haskey(load_log("no_metadata_test").metadata, "document")
+    @test load_log("no_metadata_test").metadata["created"] == logger.created
 
     carried = KiteUtils.sys_log(logger, "metadata_carried")
     carried.metadata["document"] = document
@@ -194,6 +196,22 @@ end
     carried.metadata["frame_convention"] = string(KS)
     save_log(carried, false)
     @test load_log("metadata_carried").metadata["frame_convention"] == string(KA)
+end
+
+@testset "KiteUtils.jl: logger creation time" begin
+    set_data_path(tempdir())
+    logger = Logger(7, 1)
+    log!(logger, KiteUtils.demo_state(7))
+
+    @test occursin(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$", logger.created)
+
+    # The stamp is the moment the Logger was built, not the moment of saving.
+    logger.created = "1970-01-01T00:00:00"
+    save_log(logger, "created_test")
+    @test load_log("created_test").metadata["created"] == "1970-01-01T00:00:00"
+
+    save_log(logger, "created_override"; metadata = Dict("created" => "mine"))
+    @test load_log("created_override").metadata["created"] == "mine"
 end
 
 @testset "KiteUtils.jl: csv round trip  " begin
