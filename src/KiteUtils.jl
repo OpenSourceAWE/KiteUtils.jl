@@ -365,20 +365,20 @@ function demo_log(P, name="Test_flight"; duration=10,
 end
 
 """
-    save_log(flight_log::SysLog, compress=true; path="", metadata=flight_log.metadata)
+    save_log(flight_log::SysLog, compress=true; path="",
+             metadata::Dict{String, String}=flight_log.metadata)
 
-Save a flight log of type SysLog as .arrow file. By default lz4 compression is used,
-if you use **false** as second parameter no compression is used. `metadata` is written
-as the table metadata of the file and read back by [`load_log`](@ref), and defaults to
-the metadata the log already carries. It is opaque to KiteUtils; the keys
-[`log_metadata`](@ref) writes are merged over it, so a log always declares the frame
-convention it is in.
+Save a flight log of type SysLog as .arrow file. Compression is lz4 unless `compress`
+is passed as `false`. `metadata` is written as the table metadata of the file and read
+back by [`load_log`](@ref), and defaults to the metadata the log already carries. It is
+opaque to KiteUtils; the keys [`log_metadata`](@ref) writes are merged over it, so a
+log always declares the frame convention it is in.
 
 arrow-js does not implement IPC body decompression, so a log written with the default
-`compress=true` cannot be read in a browser; pass `compress=false` for one that can.
+lz4 compression cannot be read in a browser.
 """
 function save_log(flight_log::SysLog, compress=true; path="",
-                  metadata=flight_log.metadata)
+                  metadata::Dict{String, String}=flight_log.metadata)
     if path == ""
         path = DATA_PATH[1]
     end

@@ -31,7 +31,7 @@ include("_syslog.jl")
 
 """
     sys_log(logger::Logger, name="sim_log";
-                metadata = Dict{String, String}(),
+                metadata::Dict{String, String} = Dict{String, String}(),
                 colmeta = Dict(:var_01 => ["name" => "var_01"],
                                :var_02 => ["name" => "var_02"],
                                :var_03 => ["name" => "var_03"],
@@ -55,7 +55,7 @@ and the column meta data. The table metadata of the SysLog is `metadata` plus th
 time of the logger under the key `created`.
 """
 function sys_log(logger::Logger, name="sim_log"; 
-    metadata = Dict{String, String}(),
+    metadata::Dict{String, String} = Dict{String, String}(),
     colmeta = Dict(:var_01 => ["name" => "var_01"],
                    :var_02 => ["name" => "var_02"],
                    :var_03 => ["name" => "var_03"],

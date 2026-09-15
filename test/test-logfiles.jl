@@ -180,12 +180,14 @@ end
     document = "{\"sections\": [1, 2], \"note\": \"ünïcode and a newline\n\"}"
 
     save_log(logger, "metadata_test"; metadata = Dict("document" => document))
-    @test load_log("metadata_test").metadata["document"] == document
-    @test load_log("metadata_test").metadata["created"] == logger.created
+    with_document = load_log("metadata_test")
+    @test with_document.metadata["document"] == document
+    @test with_document.metadata["created"] == logger.created
 
     save_log(logger, "no_metadata_test")
-    @test !haskey(load_log("no_metadata_test").metadata, "document")
-    @test load_log("no_metadata_test").metadata["created"] == logger.created
+    without_document = load_log("no_metadata_test")
+    @test !haskey(without_document.metadata, "document")
+    @test without_document.metadata["created"] == logger.created
 
     carried = KiteUtils.sys_log(logger, "metadata_carried")
     carried.metadata["document"] = document
@@ -196,6 +198,12 @@ end
     carried.metadata["frame_convention"] = string(KS)
     save_log(carried, false)
     @test load_log("metadata_carried").metadata["frame_convention"] == string(KA)
+
+    # A dict the table metadata cannot hold is refused before a file is opened.
+    fresh_path = mktempdir()
+    @test_throws TypeError save_log(carried, false; path = fresh_path,
+                                    metadata = Dict("sections" => 2))
+    @test isempty(readdir(fresh_path))
 end
 
 @testset "KiteUtils.jl: logger creation time" begin
