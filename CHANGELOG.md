@@ -2,12 +2,21 @@
 
 ## Unreleased
 ### Added
-- `sys_log(logger, name="sim_log"; colmeta)` is exported. It builds the `SysLog`
-  of a `Logger` in memory, so reading a log back no longer has to go through a
-  file.
+- `sys_log(logger, name="sim_log"; colmeta, metadata)` is exported. It builds the
+  `SysLog` of a `Logger` in memory, so reading a log back no longer has to go through
+  a file.
 - `default_colmeta()` is the per-column metadata `save_log`, `demo_log` and
   `import_log` attach to a log, exported so a caller can start from it to name a
   column of its own.
+- `metadata`, a keyword of both `save_log` methods and of `sys_log`, taking a
+  `Dict{String, String}` that is written as the table metadata of the .arrow file and
+  read back into the new `SysLog.metadata` field by `load_log`. It is opaque to
+  KiteUtils, so a caller can attach a document of its own to a log; the keys
+  `log_metadata` writes are merged over it, so a log always declares its own frame
+  convention.
+- `Logger.created`, the date and time the logger was constructed, as an ISO 8601 string
+  in local time. Every log saved from a logger carries it as the `created` table
+  metadata key; a `created` of the caller's own in `metadata` wins.
 ### Changed
 - `syslog(logger)` and `sys_log(logger, ...)` return the steps that were logged,
   not every step the logger has room for. A `Logger(P, steps)` that logged fewer

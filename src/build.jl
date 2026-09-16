@@ -172,6 +172,8 @@ Fields:
     tethers::Int64 = T
     segments::Int64 = S
     index::Int64 = 1
+    "date and time the logger was created, local time as ISO 8601"
+    created::String = Libc.strftime("%Y-%m-%dT%H:%M:%S", time())
 """
 open(outputfile4,"w") do io
     print(io, COMMENT)
