@@ -31,6 +31,7 @@ include("_syslog.jl")
 
 """
     sys_log(logger::Logger, name="sim_log";
+                metadata::Dict{String, String} = Dict{String, String}(),
                 colmeta = Dict(:var_01 => ["name" => "var_01"],
                                :var_02 => ["name" => "var_02"],
                                :var_03 => ["name" => "var_03"],
@@ -50,9 +51,11 @@ include("_syslog.jl")
             ))
 
 Converts the data of a Logger object into a SysLog object, containing a StructArray, a name
-and the column meta data.
+and the column meta data. The table metadata of the SysLog is `metadata` plus the creation
+time of the logger under the key `created`.
 """
 function sys_log(logger::Logger, name="sim_log"; 
+    metadata::Dict{String, String} = Dict{String, String}(),
     colmeta = Dict(:var_01 => ["name" => "var_01"],
                    :var_02 => ["name" => "var_02"],
                    :var_03 => ["name" => "var_03"],
@@ -70,7 +73,8 @@ function sys_log(logger::Logger, name="sim_log";
                    :var_15 => ["name" => "var_15"],
                    :var_16 => ["name" => "var_16"]
     ))
-    SysLog{logger.points}(name, colmeta, syslog(logger))
+    SysLog{logger.points}(name, colmeta, syslog(logger),
+                          merge(Dict("created" => logger.created), metadata))
 end
 
 include("_save_log.jl")

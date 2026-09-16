@@ -173,6 +173,8 @@ Fields:
     tethers::Int64 = T
     segments::Int64 = S
     index::Int64 = 1
+    "date and time the logger was created, local time as ISO 8601"
+    created::String = Libc.strftime("%Y-%m-%dT%H:%M:%S", time())
 """
 open(outputfile4,"w") do io
     print(io, COMMENT)
@@ -238,6 +240,7 @@ HEADER = """
 \"\"\"
     save_log(logger::Logger, name="sim_log", compress=true;
                 path="",
+                metadata::Dict{String, String} = Dict{String, String}(),
                 colmeta = Dict(:var_01 => ["name" => "var_01"],
                                :var_02 => ["name" => "var_02"],
                                :var_03 => ["name" => "var_03"],
@@ -256,11 +259,18 @@ HEADER = """
                                :var_16 => ["name" => "var_16"]
             ))
 
-Save a flight log from a logger as .arrow file. By default lz4 compression is used, 
-if you use **false** as second parameter no compression is used.
+Save a flight log from a logger as .arrow file. Compression is lz4 unless `compress`
+is passed as `false`. `metadata` is written as the table metadata of the file, beside
+the creation time of the logger under the key `created`, and read back by
+[`load_log`](@ref). It is opaque to KiteUtils; the keys [`log_metadata`](@ref) writes
+are merged over it, so a log always declares the frame convention it is in.
+
+arrow-js does not implement IPC body decompression, so a log written with the default
+lz4 compression cannot be read in a browser.
 \"\"\"
 function save_log(logger::Logger, name="sim_log", compress=true;
     path="",
+    metadata::Dict{String, String} = Dict{String, String}(),
     colmeta = Dict(:var_01 => ["name" => "var_01"],
                    :var_02 => ["name" => "var_02"],
                    :var_03 => ["name" => "var_03"],
@@ -287,7 +297,7 @@ open(outputfile7,"w") do io
         println(io, "    resize!(logger." * key * "_vec, nl)")
     end
 
-    println(io, "    flight_log = (sys_log(logger, name; colmeta))")
+    println(io, "    flight_log = (sys_log(logger, name; colmeta, metadata))")
     println(io, "    save_log(flight_log, compress; path)")
     println(io, "end")
 end
