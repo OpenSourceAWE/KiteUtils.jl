@@ -55,8 +55,9 @@ first and the O frames in their last O slots, wings then bodies. [`wing_Q`](@ref
 [`body_Q`](@ref), [`wing_pos`](@ref) and [`body_pos`](@ref) index by those offsets.
 
 A `_KA` quantity at `k` is in the frame `Q[k]`: `aero_force_KA_x[k]` is a component
-of wing k's force in the frame that `Qw/Qx/Qy/Qz[k]` rotates into ENU. The turn rates
-are `KA` too, and every other vector is ENU.
+of wing k's force in the frame that `Qw/Qx/Qy/Qz[k]` rotates into ENU. The properties
+`aero_force_KA` and `aero_moment_KA` are wing 1's loads as a mutable 3-vector. The turn
+rates are `KA` too, and every other vector is ENU.
 
 Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `twist_angles`, `twist_vel`, `pulley_len`, `pulley_vel`, `l_tether` and

@@ -65,42 +65,51 @@ Base.@propagate_inbounds function Base.setindex!(o::OrientFrames, v, k::Int)
     FrameQuat(o.ss, k) .= v
 end
 
-# ---- single-point position view, mutable, backed by X/Y/Z ----
-struct PointPos{S, T} <: AbstractVector{T}
+# The x, y and z fields of the 3-vectors stored one component per field.
+const POSITION = (:X, :Y, :Z)
+const AERO_FORCE_KA = (:aero_force_KA_x, :aero_force_KA_y, :aero_force_KA_z)
+const AERO_MOMENT_KA = (:aero_moment_KA_x, :aero_moment_KA_y, :aero_moment_KA_z)
+
+# ---- 3-vector view (entry i of the three component fields C), mutable ----
+struct ComponentVec{S, T, C} <: AbstractVector{T}
     ss::S
     i::Int
 end
-PointPos(ss::S, i::Int) where {S} = PointPos{S, eltype(getfield(ss, :X))}(ss, i)
-Base.size(::PointPos) = (3,)
-Base.@propagate_inbounds function Base.getindex(p::PointPos, j::Int)
-    @boundscheck checkbounds(p, j)
-    @inbounds (getfield(p.ss, :X)[p.i], getfield(p.ss, :Y)[p.i],
-        getfield(p.ss, :Z)[p.i])[j]
+ComponentVec(ss::SysState{P, O, K, D, L, W, T, S, N, F}, fields::NTuple{3, Symbol},
+             i::Int) where {P, O, K, D, L, W, T, S, N, F} =
+    ComponentVec{typeof(ss), F, fields}(ss, i)
+Base.size(::ComponentVec) = (3,)
+Base.@propagate_inbounds function Base.getindex(v::ComponentVec{S, T, C}, j::Int
+                                                ) where {S, T, C}
+    @boundscheck checkbounds(v, j)
+    @inbounds (getfield(v.ss, C[1])[v.i], getfield(v.ss, C[2])[v.i],
+        getfield(v.ss, C[3])[v.i])[j]
 end
-Base.@propagate_inbounds function Base.setindex!(p::PointPos, v, j::Int)
-    @boundscheck checkbounds(p, j)
+Base.@propagate_inbounds function Base.setindex!(v::ComponentVec{S, T, C}, x, j::Int
+                                                 ) where {S, T, C}
+    @boundscheck checkbounds(v, j)
     @inbounds if j == 1
-        getfield(p.ss, :X)[p.i] = v
+        getfield(v.ss, C[1])[v.i] = x
     elseif j == 2
-        getfield(p.ss, :Y)[p.i] = v
+        getfield(v.ss, C[2])[v.i] = x
     else
-        getfield(p.ss, :Z)[p.i] = v
+        getfield(v.ss, C[3])[v.i] = x
     end
 end
 
 # ---- indexable collection of all point positions ----
-struct PointPositions{S, T} <: AbstractVector{PointPos{S, T}}
+struct PointPositions{S, T} <: AbstractVector{ComponentVec{S, T, POSITION}}
     ss::S
 end
 PointPositions(ss::S) where {S} = PointPositions{S, eltype(getfield(ss, :X))}(ss)
 Base.size(p::PointPositions) = (length(getfield(p.ss, :X)),)
 Base.@propagate_inbounds function Base.getindex(p::PointPositions, i::Int)
     @boundscheck checkbounds(p, i)
-    PointPos(p.ss, i)
+    ComponentVec(p.ss, POSITION, i)
 end
 Base.@propagate_inbounds function Base.setindex!(p::PointPositions, v, i::Int)
     @boundscheck checkbounds(p, i)
-    PointPos(p.ss, i) .= v
+    ComponentVec(p.ss, POSITION, i) .= v
 end
 
 # (SysState getproperty/setproperty! live in KiteUtils.jl, where the original
@@ -140,24 +149,28 @@ Base.@propagate_inbounds function Base.getindex(c::OrientColumns, k::Int)
     OrientColumn(c.sa, k)
 end
 
-# Time series of point `i`'s position: `column[t]` = position at timestep t.
-struct PosColumn{SA, T} <: AbstractVector{SVector{3, T}}
+# Time series of entry `i` of the three component fields C: `column[t]` = that 3-vector
+# at timestep t.
+struct ComponentColumn{SA, T, C} <: AbstractVector{SVector{3, T}}
     sa::SA
     i::Int
 end
-PosColumn(sa::SA, i::Int) where {SA} =
-    PosColumn{SA, eltype(eltype(StructArrays.component(sa, :X)))}(sa, i)
-Base.size(c::PosColumn) = (length(StructArrays.component(c.sa, :X)),)
-Base.@propagate_inbounds function Base.getindex(c::PosColumn{SA, T}, t::Int) where {SA, T}
+ComponentColumn(sa::StructArray{<:SysState{P, O, K, D, L, W, T, S, N, F}},
+                fields::NTuple{3, Symbol}, i::Int) where {P, O, K, D, L, W, T, S, N, F} =
+    ComponentColumn{typeof(sa), F, fields}(sa, i)
+Base.size(c::ComponentColumn{SA, T, C}) where {SA, T, C} =
+    (length(StructArrays.component(c.sa, C[1])),)
+Base.@propagate_inbounds function Base.getindex(c::ComponentColumn{SA, T, C}, t::Int
+                                                ) where {SA, T, C}
     @boundscheck checkbounds(c, t)
     @inbounds SVector{3, T}(
-        StructArrays.component(c.sa, :X)[t][c.i],
-        StructArrays.component(c.sa, :Y)[t][c.i],
-        StructArrays.component(c.sa, :Z)[t][c.i])
+        StructArrays.component(c.sa, C[1])[t][c.i],
+        StructArrays.component(c.sa, C[2])[t][c.i],
+        StructArrays.component(c.sa, C[3])[t][c.i])
 end
 
-# `syslog.pos[i]` -> the PosColumn time series of point i.
-struct PosColumns{SA, T} <: AbstractVector{PosColumn{SA, T}}
+# `syslog.pos[i]` -> the ComponentColumn time series of point i.
+struct PosColumns{SA, T} <: AbstractVector{ComponentColumn{SA, T, POSITION}}
     sa::SA
 end
 PosColumns(sa::SA) where {SA} =
@@ -167,7 +180,7 @@ Base.size(c::PosColumns) =
      length(StructArrays.component(c.sa, :X)[1]),)
 Base.@propagate_inbounds function Base.getindex(c::PosColumns, i::Int)
     @boundscheck checkbounds(c, i)
-    PosColumn(c.sa, i)
+    ComponentColumn(c.sa, POSITION, i)
 end
 
 # ---- wings and bodies: the oriented frames and position slots by their offsets ----
@@ -175,8 +188,8 @@ frame_counts(::SysState{P, O, K}) where {P, O, K} = (P, O, K)
 frame_counts(::StructArray{<:SysState{P, O, K}}) where {P, O, K} = (P, O, K)
 frame_view(state::SysState, k) = FrameQuat(state, k)
 frame_view(log::StructArray{<:SysState}, k) = OrientColumn(log, k)
-point_view(state::SysState, i) = PointPos(state, i)
-point_view(log::StructArray{<:SysState}, i) = PosColumn(log, i)
+point_view(state::SysState, i) = ComponentVec(state, POSITION, i)
+point_view(log::StructArray{<:SysState}, i) = ComponentColumn(log, POSITION, i)
 
 """
     wing_Q(state, k)
@@ -232,6 +245,10 @@ end
         return OrientColumns(sa)
     elseif key === :pos
         return PosColumns(sa)
+    elseif key === :aero_force_KA
+        return ComponentColumn(sa, AERO_FORCE_KA, 1)
+    elseif key === :aero_moment_KA
+        return ComponentColumn(sa, AERO_MOMENT_KA, 1)
     else
         return StructArrays.component(sa, key)
     end

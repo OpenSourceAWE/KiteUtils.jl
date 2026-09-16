@@ -113,6 +113,10 @@ include("sysstate_views.jl")
         return FrameQuat(st, 1)        # frame 1 = kite (legacy single quaternion)
     elseif sym === :orients
         return OrientFrames(st)
+    elseif sym === :aero_force_KA           # wing 1, the 3-vector of KiteUtils 0.13
+        return ComponentVec(st, AERO_FORCE_KA, 1)
+    elseif sym === :aero_moment_KA
+        return ComponentVec(st, AERO_MOMENT_KA, 1)
     else
         return getfield(st, sym)
     end
@@ -121,6 +125,12 @@ end
     if sym === :orient
         FrameQuat(st, 1) .= v
         return v
+    elseif sym === :aero_force_KA
+        ComponentVec(st, AERO_FORCE_KA, 1) .= v
+        return v
+    elseif sym === :aero_moment_KA
+        ComponentVec(st, AERO_MOMENT_KA, 1) .= v
+        return v
     elseif sym === :pos || sym === :orients
         error("Set individual elements instead, e.g. `st.$sym[i] = ...`")
     else
@@ -128,7 +138,8 @@ end
         return setfield!(st, sym, convert(fieldtype(typeof(st), sym), v))
     end
 end
-Base.propertynames(st::SysState) = (fieldnames(typeof(st))..., :orient, :orients, :pos)
+Base.propertynames(st::SysState) = (fieldnames(typeof(st))..., :orient, :orients, :pos,
+                                     :aero_force_KA, :aero_moment_KA)
 
 include("_show.jl")
 

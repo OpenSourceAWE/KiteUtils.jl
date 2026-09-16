@@ -36,15 +36,15 @@
   in place of `orients`: write `wings=1, bodies=2` where you wrote `orients=3` for a
   kite and two rigid bodies. `demo_syslog` takes `K` after `O`, so
   `demo_syslog(P, O, D)` is now `demo_syslog(P, O, 1, D)`.
-- BREAKING: the two aerodynamic loads are one field per component, each holding one
-  entry per wing, so a system with a second wing can log both.
-  `aero_force_KA` becomes `aero_force_KA_x`/`aero_force_KA_y`/`aero_force_KA_z` and
-  `aero_moment_KA` becomes
-  `aero_moment_KA_x`/`aero_moment_KA_y`/`aero_moment_KA_z`. Write
-  `ss.aero_force_KA_y[1]` where you wrote `ss.aero_force_KA[2]`, the 1 being the
-  kite. `load_log` and `import_log` read a pre-split log's 3-vector back as wing 1,
-  under that name or the `aero_force_b` it carried before v0.13.0, and convert the
-  component columns of a `KS` log as they already convert `turn_rate_x`/`_y`/`_z`.
+- The two aerodynamic loads are stored one field per component, each holding one entry
+  per wing, so a system with a second wing can log both:
+  `aero_force_KA_x`/`aero_force_KA_y`/`aero_force_KA_z` and
+  `aero_moment_KA_x`/`aero_moment_KA_y`/`aero_moment_KA_z`. `aero_force_KA` and
+  `aero_moment_KA` stay as properties holding wing 1's 3-vector, read and written as
+  before on a `SysState` and read per step on a log. `load_log` and `import_log` read a
+  pre-split log's 3-vector back as wing 1, under that name or the `aero_force_b` it
+  carried before v0.13.0, and convert the component columns of a `KS` log as they
+  already convert `turn_rate_x`/`_y`/`_z`.
 - `syslog(logger)` and `sys_log(logger, ...)` return the steps that were logged,
   not every step the logger has room for. A `Logger(P, steps)` that logged fewer
   than `steps` states no longer yields a log padded with zero rows.

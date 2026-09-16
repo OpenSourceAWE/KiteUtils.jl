@@ -380,3 +380,19 @@ end
     @test wing_Q(logged, 2)[1][1] == 0.2f0
     @test body_pos(logged, 1)[1] == [6, 0, 0]
 end
+
+@testset "aero_force_KA and aero_moment_KA are wing 1's loads as a 3-vector" begin
+    state = SysState(3; wings=2)
+    state.aero_force_KA = [1, 2, 3]
+    state.aero_moment_KA .= [4, 5, 6]
+    state.aero_force_KA[2] = 7
+    @test (state.aero_force_KA_x, state.aero_force_KA_y, state.aero_force_KA_z) ==
+          ([1, 0], [7, 0], [3, 0])
+    @test state.aero_moment_KA == [4, 5, 6]
+    @test state.aero_moment_KA_z == [6, 0]
+    @test :aero_force_KA in propertynames(state)
+    logger = Logger(3, 1; wings=2)
+    log!(logger, state)
+    @test syslog(logger).aero_force_KA[1] == [1, 7, 3]
+    @test syslog(logger).aero_moment_KA[1] == [4, 5, 6]
+end
