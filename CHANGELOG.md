@@ -18,19 +18,15 @@
   in local time. Every log saved from a logger carries it as the `created` table
   metadata key; a `created` of the caller's own in `metadata` wins.
 - `gamma_distribution`, one circulation per aerodynamic panel, sized by the new
-  type parameter `N` and by the `panels` keyword of both constructors:
-  `SysState(P; ..., panels)` and `Logger(P, steps; ..., panels)`.
+  type parameter `N` of `SysState{P, O, D, L, W, T, S, N, F}` and
+  `Logger{P, O, D, L, W, T, S, N, F, Q}` and by the `panels` keyword of both
+  constructors: `SysState(P; ..., panels)` and `Logger(P, steps; ..., panels)`.
 - `set_ext_force_x`, `set_ext_force_y` and `set_ext_force_z`, the external force
   applied to each point, ENU. It was settable but unlogged, so a run driven by one
   could not be replayed from its log.
 - `fromKS2KA_body_columns!(x, y, z)` converts a log's per-body component columns in
   place, as `fromKS2KA_columns!` does its quaternion columns.
 ### Changed
-- BREAKING: `SysState` is `SysState{P, O, D, L, W, T, S, N, F}` and `Logger` is
-  `Logger{P, O, D, L, W, T, S, N, F, Q}`, N being the number of aerodynamic panels.
-  An annotated signature gains one parameter before the float type:
-  `SysState{7, 1, 0, 0, 1, 1, 0, Float32}` is now
-  `SysState{7, 1, 0, 0, 1, 1, 0, 0, Float32}`.
 - BREAKING: the two per-body aerodynamic loads are one field per component, each
   holding one entry per oriented frame, so a system with a second wing can log both.
   `aero_force_KA` becomes `aero_force_KA_x`/`aero_force_KA_y`/`aero_force_KA_z` and
