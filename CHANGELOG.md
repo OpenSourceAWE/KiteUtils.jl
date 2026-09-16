@@ -23,6 +23,8 @@
 - `set_ext_force_x`, `set_ext_force_y` and `set_ext_force_z`, the external force
   applied to each point, ENU. It was settable but unlogged, so a run driven by one
   could not be replayed from its log.
+- `fromKS2KA_body_columns!(x, y, z)` converts a log's per-body component columns in
+  place, as `fromKS2KA_columns!` does its quaternion columns.
 ### Changed
 - BREAKING: `SysState` is `SysState{P, O, D, L, W, T, S, N, F}` and `Logger` is
   `Logger{P, O, D, L, W, T, S, N, F, Q}`, N being the number of aerodynamic panels.

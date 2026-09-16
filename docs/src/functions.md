@@ -73,6 +73,7 @@ euler_KS
 log_metadata
 log_convention
 fromKS2KA_columns!
+fromKS2KA_body_columns!
 ```
 
 ## Rotation matrices and conversions

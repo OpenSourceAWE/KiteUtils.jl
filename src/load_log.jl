@@ -180,20 +180,19 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
         # Loading is the boundary, so everything body-resolved is converted here and
         # the state that comes out holds KA alone. Missing one leaves a mixed-frame
         # SysState, which nothing downstream can tell apart from a correct one.
-        Qw = [MVector{O, F}(q) for q in Qw]
-        Qx = [MVector{O, F}(q) for q in Qx]
-        Qy = [MVector{O, F}(q) for q in Qy]
-        Qz = [MVector{O, F}(q) for q in Qz]
+        writable(columns...) = map(col -> [MVector{O, F}(v) for v in col], columns)
+        Qw, Qx, Qy, Qz = writable(Qw, Qx, Qy, Qz)
         fromKS2KA_columns!(Qw, Qx, Qy, Qz)
         turn_rates = [MVector{3, F}(fromKS2KA_body(v)) for v in turn_rates]
-        # The same half turn on a per-body column keeps one component each: y
-        # survives, x and z change sign.
-        negate(col) = [MVector{O, F}(-v) for v in col]
-        turn_rate_x, turn_rate_z = negate(turn_rate_x), negate(turn_rate_z)
-        aero_force_KA_x, aero_force_KA_z =
-            negate(aero_force_KA_x), negate(aero_force_KA_z)
-        aero_moment_KA_x, aero_moment_KA_z =
-            negate(aero_moment_KA_x), negate(aero_moment_KA_z)
+        turn_rate_x, turn_rate_y, turn_rate_z =
+            writable(turn_rate_x, turn_rate_y, turn_rate_z)
+        aero_force_KA_x, aero_force_KA_y, aero_force_KA_z =
+            writable(aero_force_KA_x, aero_force_KA_y, aero_force_KA_z)
+        aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z =
+            writable(aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z)
+        fromKS2KA_body_columns!(turn_rate_x, turn_rate_y, turn_rate_z)
+        fromKS2KA_body_columns!(aero_force_KA_x, aero_force_KA_y, aero_force_KA_z)
+        fromKS2KA_body_columns!(aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z)
     end
     S = haskey(table, :spring_force) ? entries(table.spring_force) : 0
     N = haskey(table, :gamma_distribution) ? entries(table.gamma_distribution) : 0

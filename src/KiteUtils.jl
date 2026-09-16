@@ -62,7 +62,7 @@ export azn2azw, calc_course, calc_heading, calc_heading_w             # geometri
 export calc_orient_rot, fromENU2NED, is_right_handed_orthonormal, fromNED2ENU
 export FrameConvention, KS, KA                                           # frame conventions
 export fromKS2KA, fromKA2KS, fromKS2KA_body, fromKA2KS_body, fromKS2KA_columns!,
-    euler_KS, orient_matrix, log_metadata, log_convention
+    fromKS2KA_body_columns!, euler_KS, orient_matrix, log_metadata, log_convention
 export angles_from_wind_vec, wind_vec_from_angles
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
 export aero_geometry_file, fpc_settings, fpp_settings, se, se_dict,
