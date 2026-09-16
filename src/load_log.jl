@@ -44,8 +44,7 @@ function load_log(filename::String; path="", debug=false,
         return table
     end
     colmeta = Dict{Symbol, Vector{Pair{String, String}}}()
-    for i in 1:16
-        var = Symbol("var_", lpad(i, 2, '0'))
+    for var in keys(default_colmeta())
         colmeta[var] = ["name" => Arrow.getmetadata(getproperty(table, var))["name"]]
     end
     declared = log_convention(table)
