@@ -16,7 +16,7 @@ jobs:
     with:
       os: ${{ matrix.os }}
       version: ${{ matrix.version }}
-      arch: ${{ matrix.arch }}
+      arch: ${{ matrix.os == 'macOS-latest' && 'aarch64' || matrix.arch }}
       allow_failure: ${{ matrix.allow_failure }}
       run_codecov: ${{ matrix.version == '1' && matrix.os == 'ubuntu-latest' }}
     secrets:
