@@ -6,21 +6,24 @@
 # Edit src/sysstate.yaml instead
 
 """
-    SysState{P, O, D, L, W, T, S, N, F}
+    SysState{P, O, K, D, L, W, T, S, N, F}
 
 Basic system state. One of these is saved per time step. P is the number
-of tether particles, O is the number of oriented frames (kite + extra
-wings/rigid bodies), D is the number of twist surfaces, L is the number
-of pulleys, W is the number of winches, T the number of tethers, S the number of
-segments, N the number of aerodynamic panels and F the float type of every
-non-integer field. No field is a fixed length: a model with five winches or ten
-twist surfaces logs all of them. The quaternion components `Qw/Qx/Qy/Qz` each
-hold O values; frame 1 is the kite, aliased by the `orient` property.
+of position slots, O the number of oriented frames, K how many of those are wings,
+D the number of twist surfaces, L the number of pulleys, W the number of winches,
+T the number of tethers, S the number of segments, N the number of aerodynamic
+panels and F the float type of every non-integer field. No field is a fixed length:
+a model with five winches or ten twist surfaces logs all of them.
 
-A field named `_KA` is per body and holds O values, one per oriented frame:
-`aero_force_KA_x[k]` is a component of body k's force in the frame that
-`Qw/Qx/Qy/Qz[k]` rotates into ENU. The turn rates are `KA` too, and every other
-vector is ENU.
+The O oriented frames are the K wings first, then the `O - K` bodies: `Qw/Qx/Qy/Qz`
+and `turn_rate_x/y/z` hold wing `k` at `k` and body `b` at `K + b`, and frame 1 is
+the kite, aliased by the `orient` property. Positions and velocities hold the points
+first and the O frames in their last O slots, wings then bodies. [`wing_Q`](@ref),
+[`body_Q`](@ref), [`wing_pos`](@ref) and [`body_pos`](@ref) index by those offsets.
+
+A `_KA` quantity at `k` is in the frame `Q[k]`: `aero_force_KA_x[k]` is a component
+of wing k's force in the frame that `Qw/Qx/Qy/Qz[k]` rotates into ENU. The turn rates
+are `KA` too, and every other vector is ENU.
 
 Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `twist_angles`, `twist_vel`, `pulley_len`, `pulley_vel`, `l_tether` and
@@ -31,7 +34,7 @@ part of that state, and neither are the `aero_force_*`, `drag_force_*`,
 
 $(TYPEDFIELDS)
 """
-@with_kw_noshow mutable struct SysState{P, O, D, L, W, T, S, N, F}
+@with_kw_noshow mutable struct SysState{P, O, K, D, L, W, T, S, N, F}
     "time since start of simulation [s]"
     time::Float64 = 0
     "time needed for one simulation timestep [s]"
@@ -44,13 +47,13 @@ $(TYPEDFIELDS)
     fig_8::Int16 = 0
     "mechanical energy [Wh]"
     e_mech::Float64 = 0
-    "KA quaternion w-component, one per oriented frame (frame 1 = kite)"
+    "KA quaternion w-component, one per wing then body (frame 1 = kite)"
     Qw::MVector{O, F} = ones(F, O)
-    "KA quaternion x-component, one per oriented frame"
+    "KA quaternion x-component, one per wing then body"
     Qx::MVector{O, F} = zeros(F, O)
-    "KA quaternion y-component, one per oriented frame"
+    "KA quaternion y-component, one per wing then body"
     Qy::MVector{O, F} = zeros(F, O)
-    "KA quaternion z-component, one per oriented frame"
+    "KA quaternion z-component, one per wing then body"
     Qz::MVector{O, F} = zeros(F, O)
     "turn rates around the KA body x, y and z axis [rad/s]"
     turn_rates::MVector{3, F} = zeros(F, 3)
@@ -104,37 +107,37 @@ $(TYPEDFIELDS)
     CL2::F = 0
     "drag coefficient"
     CD2::F = 0
-    "aerodynamic force along KA x, one per body [N]"
-    aero_force_KA_x::MVector{O, F} = zeros(F, O)
-    "aerodynamic force along KA y, one per body [N]"
-    aero_force_KA_y::MVector{O, F} = zeros(F, O)
-    "aerodynamic force along KA z, one per body [N]"
-    aero_force_KA_z::MVector{O, F} = zeros(F, O)
-    "aerodynamic moment around KA x, one per body [Nm]"
-    aero_moment_KA_x::MVector{O, F} = zeros(F, O)
-    "aerodynamic moment around KA y, one per body [Nm]"
-    aero_moment_KA_y::MVector{O, F} = zeros(F, O)
-    "aerodynamic moment around KA z, one per body [Nm]"
-    aero_moment_KA_z::MVector{O, F} = zeros(F, O)
+    "aerodynamic force along KA x, one per wing [N]"
+    aero_force_KA_x::MVector{K, F} = zeros(F, K)
+    "aerodynamic force along KA y, one per wing [N]"
+    aero_force_KA_y::MVector{K, F} = zeros(F, K)
+    "aerodynamic force along KA z, one per wing [N]"
+    aero_force_KA_z::MVector{K, F} = zeros(F, K)
+    "aerodynamic moment around KA x, one per wing [Nm]"
+    aero_moment_KA_x::MVector{K, F} = zeros(F, K)
+    "aerodynamic moment around KA y, one per wing [Nm]"
+    aero_moment_KA_y::MVector{K, F} = zeros(F, K)
+    "aerodynamic moment around KA z, one per wing [Nm]"
+    aero_moment_KA_z::MVector{K, F} = zeros(F, K)
     "twist angle, one per twist_surface [rad]"
     twist_angles::MVector{D, F} = zeros(F, D)
     "velocity vector of the kite [m/s]"
     vel_kite::MVector{3, F} = zeros(F, 3)
     "acceleration [m/s²]"
     acc::F = 0
-    "vector of particle positions in x [m]"
+    "position in x; points first, the last O wings then bodies [m]"
     X::MVector{P, F} = zeros(F, P)
-    "vector of particle positions in y [m]"
+    "position in y; points first, the last O wings then bodies [m]"
     Y::MVector{P, F} = zeros(F, P)
-    "vector of particle positions in z [m]"
+    "position in z; points first, the last O wings then bodies [m]"
     Z::MVector{P, F} = zeros(F, P)
     "flap deflection per aero segment, one per twist_surface [rad]"
     flap_angle::MVector{D, F} = zeros(F, D)
-    "vector of particle velocities in x [m/s]"
+    "velocity in x; points first, the last O wings then bodies [m/s]"
     VX::MVector{P, F} = zeros(F, P)
-    "vector of particle velocities in y [m/s]"
+    "velocity in y; points first, the last O wings then bodies [m/s]"
     VY::MVector{P, F} = zeros(F, P)
-    "vector of particle velocities in z [m/s]"
+    "velocity in z; points first, the last O wings then bodies [m/s]"
     VZ::MVector{P, F} = zeros(F, P)
     "aerodynamic force on each point in x, ENU reference frame [N]"
     aero_force_x::MVector{P, F} = zeros(F, P)
@@ -152,11 +155,11 @@ $(TYPEDFIELDS)
     spring_force::MVector{S, F} = zeros(F, S)
     "circulation, one per aerodynamic panel [m²/s]"
     gamma_distribution::MVector{N, F} = zeros(F, N)
-    "KA turn rate around x, one per oriented frame [rad/s]"
+    "KA turn rate around x, one per wing then body [rad/s]"
     turn_rate_x::MVector{O, F} = zeros(F, O)
-    "KA turn rate around y, one per oriented frame [rad/s]"
+    "KA turn rate around y, one per wing then body [rad/s]"
     turn_rate_y::MVector{O, F} = zeros(F, O)
-    "KA turn rate around z, one per oriented frame [rad/s]"
+    "KA turn rate around z, one per wing then body [rad/s]"
     turn_rate_z::MVector{O, F} = zeros(F, O)
     "twist rate, one per twist_surface [rad/s]"
     twist_vel::MVector{D, F} = zeros(F, D)
@@ -208,4 +211,5 @@ $(TYPEDFIELDS)
     var_15::F = 0
     "generic variable 16"
     var_16::F = 0
+    @assert K <= O "a SysState of $O oriented frames cannot hold $K wings"
 end

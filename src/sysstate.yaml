@@ -5,10 +5,10 @@ sysstate:
     cycle:     "Int16"                  # cycle number
     fig_8:     "Int16"                  # number of the figure of eight of the current cycle
     e_mech: "Float64"                   # mechanical energy [Wh]
-    Qw: "MVector{O, MyFloat}"           # KA quaternion w-component, one per oriented frame (frame 1 = kite)
-    Qx: "MVector{O, MyFloat}"           # KA quaternion x-component, one per oriented frame
-    Qy: "MVector{O, MyFloat}"           # KA quaternion y-component, one per oriented frame
-    Qz: "MVector{O, MyFloat}"           # KA quaternion z-component, one per oriented frame
+    Qw: "MVector{O, MyFloat}"           # KA quaternion w-component, one per wing then body (frame 1 = kite)
+    Qx: "MVector{O, MyFloat}"           # KA quaternion x-component, one per wing then body
+    Qy: "MVector{O, MyFloat}"           # KA quaternion y-component, one per wing then body
+    Qz: "MVector{O, MyFloat}"           # KA quaternion z-component, one per wing then body
     turn_rates: "MVector{3, MyFloat}"   # turn rates around the KA body x, y and z axis [rad/s]
     elevation: "MyFloat"                # elevation angle [rad]
     azimuth: "MyFloat"                  # azimuth angle in wind reference frame [rad]
@@ -36,22 +36,22 @@ sysstate:
     alpha4: "MyFloat"                   # angle of attack at particle D [rad]
     CL2: "MyFloat"                      # lift coefficient
     CD2: "MyFloat"                      # drag coefficient
-    aero_force_KA_x: "MVector{O, MyFloat}"  # aerodynamic force along KA x, one per body [N]
-    aero_force_KA_y: "MVector{O, MyFloat}"  # aerodynamic force along KA y, one per body [N]
-    aero_force_KA_z: "MVector{O, MyFloat}"  # aerodynamic force along KA z, one per body [N]
-    aero_moment_KA_x: "MVector{O, MyFloat}" # aerodynamic moment around KA x, one per body [Nm]
-    aero_moment_KA_y: "MVector{O, MyFloat}" # aerodynamic moment around KA y, one per body [Nm]
-    aero_moment_KA_z: "MVector{O, MyFloat}" # aerodynamic moment around KA z, one per body [Nm]
+    aero_force_KA_x: "MVector{K, MyFloat}"  # aerodynamic force along KA x, one per wing [N]
+    aero_force_KA_y: "MVector{K, MyFloat}"  # aerodynamic force along KA y, one per wing [N]
+    aero_force_KA_z: "MVector{K, MyFloat}"  # aerodynamic force along KA z, one per wing [N]
+    aero_moment_KA_x: "MVector{K, MyFloat}" # aerodynamic moment around KA x, one per wing [Nm]
+    aero_moment_KA_y: "MVector{K, MyFloat}" # aerodynamic moment around KA y, one per wing [Nm]
+    aero_moment_KA_z: "MVector{K, MyFloat}" # aerodynamic moment around KA z, one per wing [Nm]
     twist_angles: "MVector{D, MyFloat}" # twist angle, one per twist_surface [rad]
     vel_kite: "MVector{3, MyFloat}"     # velocity vector of the kite [m/s]
     acc: "MyFloat"                      # acceleration [m/s²]
-    X: "MVector{P, MyFloat}"            # vector of particle positions in x [m]
-    Y: "MVector{P, MyFloat}"            # vector of particle positions in y [m]
-    Z: "MVector{P, MyFloat}"            # vector of particle positions in z [m]
+    X: "MVector{P, MyFloat}"            # position in x; points first, the last O wings then bodies [m]
+    Y: "MVector{P, MyFloat}"            # position in y; points first, the last O wings then bodies [m]
+    Z: "MVector{P, MyFloat}"            # position in z; points first, the last O wings then bodies [m]
     flap_angle: "MVector{D, MyFloat}"   # flap deflection per aero segment, one per twist_surface [rad]
-    VX: "MVector{P, MyFloat}"           # vector of particle velocities in x [m/s]
-    VY: "MVector{P, MyFloat}"           # vector of particle velocities in y [m/s]
-    VZ: "MVector{P, MyFloat}"           # vector of particle velocities in z [m/s]
+    VX: "MVector{P, MyFloat}"           # velocity in x; points first, the last O wings then bodies [m/s]
+    VY: "MVector{P, MyFloat}"           # velocity in y; points first, the last O wings then bodies [m/s]
+    VZ: "MVector{P, MyFloat}"           # velocity in z; points first, the last O wings then bodies [m/s]
     aero_force_x: "MVector{P, MyFloat}" # aerodynamic force on each point in x, ENU reference frame [N]
     aero_force_y: "MVector{P, MyFloat}" # aerodynamic force on each point in y, ENU reference frame [N]
     aero_force_z: "MVector{P, MyFloat}" # aerodynamic force on each point in z, ENU reference frame [N]
@@ -60,9 +60,9 @@ sysstate:
     drag_force_z: "MVector{P, MyFloat}" # drag force on each point in z, ENU reference frame [N]
     spring_force: "MVector{S, MyFloat}" # spring force, one per segment [N]
     gamma_distribution: "MVector{N, MyFloat}" # circulation, one per aerodynamic panel [m²/s]
-    turn_rate_x: "MVector{O, MyFloat}"  # KA turn rate around x, one per oriented frame [rad/s]
-    turn_rate_y: "MVector{O, MyFloat}"  # KA turn rate around y, one per oriented frame [rad/s]
-    turn_rate_z: "MVector{O, MyFloat}"  # KA turn rate around z, one per oriented frame [rad/s]
+    turn_rate_x: "MVector{O, MyFloat}"  # KA turn rate around x, one per wing then body [rad/s]
+    turn_rate_y: "MVector{O, MyFloat}"  # KA turn rate around y, one per wing then body [rad/s]
+    turn_rate_z: "MVector{O, MyFloat}"  # KA turn rate around z, one per wing then body [rad/s]
     twist_vel: "MVector{D, MyFloat}"    # twist rate, one per twist_surface [rad/s]
     pulley_len: "MVector{L, MyFloat}"   # length of the first leg of each pulley [m]
     pulley_vel: "MVector{L, MyFloat}"   # rate of change of pulley_len [m/s]

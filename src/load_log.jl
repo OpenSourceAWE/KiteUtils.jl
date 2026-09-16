@@ -157,39 +157,40 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
         Qy = [zeros(MVector{1, F}) for _ in 1:n]
         Qz = [zeros(MVector{1, F}) for _ in 1:n]
     end
-    # A log predating the per-body split holds one 3-vector per body load, and it was
-    # the kite's, so its components read back as frame 1. `aero_force_b` was that
-    # column's name before the frame reached it.
-    function body_load(name, legacy)
+    # A log predating the per-wing split holds one 3-vector per load, and it was the
+    # kite's, so it is one wing and its components read back as wing 1. `aero_force_b`
+    # was that column's name before the frame reached it.
+    K = haskey(table, :aero_force_KA_x) ? entries(table.aero_force_KA_x) : 1
+    function wing_load(name, legacy)
         three_vector = haskey(table, name) ? name : legacy
         map(1:3) do component
-            per_body = Symbol(name, :_, "xyz"[component])
-            haskey(table, per_body) && return getproperty(table, per_body)
-            haskey(table, three_vector) || return zero_col(O)
-            return [(v = zeros(MVector{O, F}); v[1] = load[component]; v)
+            per_wing = Symbol(name, :_, "xyz"[component])
+            haskey(table, per_wing) && return getproperty(table, per_wing)
+            haskey(table, three_vector) || return zero_col(K)
+            return [(v = zeros(MVector{K, F}); v[1] = load[component]; v)
                     for load in getproperty(table, three_vector)]
         end
     end
     aero_force_KA_x, aero_force_KA_y, aero_force_KA_z =
-        body_load(:aero_force_KA, :aero_force_b)
+        wing_load(:aero_force_KA, :aero_force_b)
     aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z =
-        body_load(:aero_moment_KA, :aero_moment_b)
+        wing_load(:aero_moment_KA, :aero_moment_b)
     turn_rate_x, turn_rate_y, turn_rate_z =
         column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
     if convention !== KA
         # Loading is the boundary, so everything body-resolved is converted here and
         # the state that comes out holds KA alone. Missing one leaves a mixed-frame
         # SysState, which nothing downstream can tell apart from a correct one.
-        writable(columns...) = map(col -> [MVector{O, F}(v) for v in col], columns)
-        Qw, Qx, Qy, Qz = writable(Qw, Qx, Qy, Qz)
+        writable(len, columns...) = map(col -> [MVector{len, F}(v) for v in col], columns)
+        Qw, Qx, Qy, Qz = writable(O, Qw, Qx, Qy, Qz)
         fromKS2KA_columns!(Qw, Qx, Qy, Qz)
         turn_rates = [MVector{3, F}(fromKS2KA_body(v)) for v in turn_rates]
         turn_rate_x, turn_rate_y, turn_rate_z =
-            writable(turn_rate_x, turn_rate_y, turn_rate_z)
+            writable(O, turn_rate_x, turn_rate_y, turn_rate_z)
         aero_force_KA_x, aero_force_KA_y, aero_force_KA_z =
-            writable(aero_force_KA_x, aero_force_KA_y, aero_force_KA_z)
+            writable(K, aero_force_KA_x, aero_force_KA_y, aero_force_KA_z)
         aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z =
-            writable(aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z)
+            writable(K, aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z)
         fromKS2KA_body_columns!(turn_rate_x, turn_rate_y, turn_rate_z)
         fromKS2KA_body_columns!(aero_force_KA_x, aero_force_KA_y, aero_force_KA_z)
         fromKS2KA_body_columns!(aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z)
@@ -205,7 +206,7 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
         column(:set_ext_force_z, P)
     spring_force, gamma_distribution =
         column(:spring_force, S), column(:gamma_distribution, N)
-    syslog = StructArray{SysState{P, O, D, L, W, T, S, N, F}}((
+    syslog = StructArray{SysState{P, O, K, D, L, W, T, S, N, F}}((
         table.time, table.t_sim, table.sys_state, cycle, fig_8, table.e_mech, Qw, Qx, Qy,
         Qz, turn_rates, table.elevation, table.azimuth, azimuth_rate, l_tether, v_reelout,
         winch_force, table.depower, table.steering, kcu_steering, set_steering,

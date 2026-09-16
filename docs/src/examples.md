@@ -96,12 +96,15 @@ julia> rad2deg(st.elevation)
 ```
 
 The orientation is stored component-major in the fields `Qw`, `Qx`, `Qy` and `Qz`,
-each holding one unit-quaternion component per oriented frame (frame 1 is the kite).
-The `orient` property returns frame 1 as a `[w, x, y, z]` quaternion (see:
+each holding one unit-quaternion component per oriented frame: the wings first, then
+the bodies, frame 1 being the kite. The `orient` property returns frame 1 as a
+`[w, x, y, z]` quaternion (see:
 [Quaterinos\_and\_spatial\_rotation](https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation)).
 Use `st.orients[k]` for a mutable view of frame `k`'s quaternion and `st.pos[i]` for
-point `i`'s position; the number of frames is the second type parameter `O` of
-`SysState{P, O}`.
+point `i`'s position, or `wing_Q(st, k)`, `body_Q(st, b)`, `wing_pos(st, k)` and
+`body_pos(st, b)` to address a wing or body without counting past the others. The
+number of frames is the second type parameter `O` of `SysState{P, O, K}` and the number
+of wings the third, `K`.
 
 If you need to work with rotations, use the package Rotatations.jl (see: [Rotations.jl](https://github.com/JuliaGeometry/Rotations.jl))  
 Example:
@@ -246,7 +249,7 @@ The type SysLog is a struct of a syslog as explained above and its name. In addi
 of the kite over time.
 ```julia
 julia> log = demo_log(7)
-SysLog{7, 1, ...}("Test_flight", ..., SysState{7, 1, 0, 0, 1, 1, 0, 0, Float32}[time [s]:          0.0
+SysLog{7, 1, ...}("Test_flight", ..., SysState{7, 1, 1, 0, 0, 1, 1, 0, 0, Float32}[time [s]:          0.0
 t_sim [s]:         0.012
 ...
 orient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]

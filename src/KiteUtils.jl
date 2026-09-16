@@ -47,6 +47,7 @@ using PrecompileTools: @compile_workload, @setup_workload
 using Arrow, DocStringExtensions, LinearAlgebra, RecursiveArrayTools, Rotations, StaticArrays, StructArrays, YAML
 using CSV, Parameters, Parsers, Pkg, StructTypes
 export Logger, MyFloat, Settings, SysLog, SysState
+export body_pos, body_Q, wing_pos, wing_Q                        # wings and bodies
 
 import Base.length
 import ReferenceFrameRotations as RFR

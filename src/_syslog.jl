@@ -35,9 +35,9 @@ The rows that were logged, as a `StructArray` of `SysState`. It is a view on the
 columns of `logger`, so the steps it has room for but never logged are left out
 and the logger stays usable.
 """
-function syslog(logger::Logger{P, O, D, L, W, T, S, N, F, Q}) where {P, O, D, L, W, T, S, N, F, Q}
+function syslog(logger::Logger{P, O, K, D, L, W, T, S, N, F, Q}) where {P, O, K, D, L, W, T, S, N, F, Q}
     l = logger
-    preallocated = StructArray{SysState{P, O, D, L, W, T, S, N, F}}((
+    preallocated = StructArray{SysState{P, O, K, D, L, W, T, S, N, F}}((
         l.time_vec, l.t_sim_vec, l.sys_state_vec,
         l.cycle_vec, l.fig_8_vec, l.e_mech_vec,
         l.Qw_vec, l.Qx_vec, l.Qy_vec,

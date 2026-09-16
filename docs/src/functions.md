@@ -36,6 +36,14 @@ get_comment
 get_unit
 ```
 
+# Wings and bodies of a state
+```@docs
+wing_Q
+body_Q
+wing_pos
+body_pos
+```
+
 # Creating test data
 ```@docs
 demo_state

@@ -6,13 +6,13 @@
 # Edit src/sysstate.yaml instead
 
 """
-    demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
+    demo_syslog(P, O=1, K=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
 
 Create a demo flight log with given duration [s] as StructArray of
-`SysState{P, O, D, L, W, T, S, N, MyFloat}`, the counts meaning what they mean there.
+`SysState{P, O, K, D, L, W, T, S, N, MyFloat}`, the counts meaning what they mean there.
 The demo data fills the points and frame 1; every other entry is zero.
 """
-function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
+function demo_syslog(P, O=1, K=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
     max_height = 6.03
     steps   = Int(duration * se().sample_freq) + 1
     time_vec = Vector{Float64}(undef, steps)
@@ -51,12 +51,12 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
     alpha4_vec = Vector{MyFloat}(undef, steps)
     CL2_vec = Vector{MyFloat}(undef, steps)
     CD2_vec = Vector{MyFloat}(undef, steps)
-    aero_force_KA_x_vec = Vector{MVector{O, MyFloat}}(undef, steps)
-    aero_force_KA_y_vec = Vector{MVector{O, MyFloat}}(undef, steps)
-    aero_force_KA_z_vec = Vector{MVector{O, MyFloat}}(undef, steps)
-    aero_moment_KA_x_vec = Vector{MVector{O, MyFloat}}(undef, steps)
-    aero_moment_KA_y_vec = Vector{MVector{O, MyFloat}}(undef, steps)
-    aero_moment_KA_z_vec = Vector{MVector{O, MyFloat}}(undef, steps)
+    aero_force_KA_x_vec = Vector{MVector{K, MyFloat}}(undef, steps)
+    aero_force_KA_y_vec = Vector{MVector{K, MyFloat}}(undef, steps)
+    aero_force_KA_z_vec = Vector{MVector{K, MyFloat}}(undef, steps)
+    aero_moment_KA_x_vec = Vector{MVector{K, MyFloat}}(undef, steps)
+    aero_moment_KA_y_vec = Vector{MVector{K, MyFloat}}(undef, steps)
+    aero_moment_KA_z_vec = Vector{MVector{K, MyFloat}}(undef, steps)
     twist_angles_vec = Vector{MVector{D, MyFloat}}(undef, steps)
     vel_kite_vec = Vector{MVector{3, MyFloat}}(undef, steps)
     acc_vec = Vector{MyFloat}(undef, steps)
@@ -105,8 +105,8 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
     var_16_vec = Vector{MyFloat}(undef, steps)
     for i in range(0, length=steps)
         state = demo_state(P, max_height * i/steps, i/se().sample_freq;
-            orients=O, deflections=D, pulleys=L, winches=W, tethers=T,
-            segments=S, panels=N)
+            wings=K, bodies=O-K, deflections=D, pulleys=L, winches=W,
+            tethers=T, segments=S, panels=N)
         elevation_vec[i+1] = asin(state.Z[end]/state.X[end])
         time_vec[i+1] = state.time
         t_sim_vec[i+1] = state.t_sim
@@ -197,7 +197,7 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
         var_15_vec[i+1] = state.var_15
         var_16_vec[i+1] = state.var_16
     end
-    StructArray{SysState{P, O, D, L, W, T, S, N, MyFloat}}((time_vec, t_sim_vec, sys_state_vec, cycle_vec, fig_8_vec, e_mech_vec, 
+    StructArray{SysState{P, O, K, D, L, W, T, S, N, MyFloat}}((time_vec, t_sim_vec, sys_state_vec, cycle_vec, fig_8_vec, e_mech_vec, 
                               Qw_vec, Qx_vec, Qy_vec, Qz_vec, turn_rates_vec, elevation_vec, 
                               azimuth_vec, azimuth_rate_vec, l_tether_vec, v_reelout_vec, winch_force_vec, depower_vec, 
                               steering_vec, kcu_steering_vec, set_steering_vec, heading_vec, heading_rate_vec, course_vec, 

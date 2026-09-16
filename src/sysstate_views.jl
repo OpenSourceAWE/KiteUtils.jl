@@ -2,26 +2,26 @@
 # SPDX-License-Identifier: MIT
 
 # Ergonomic views over the component-major SysState storage. Positions live in
-# X/Y/Z (one entry per point), orientations in Qw/Qx/Qy/Qz (one entry per
+# X/Y/Z (one entry per position slot), orientations in Qw/Qx/Qy/Qz (one entry per
 # oriented frame). These views present per-entity vectors and keep the legacy
 # `orient` property (frame 1) working for backwards compatibility.
 
 """
-    SysState(P; orients=1, deflections=0, pulleys=0, winches=1,
+    SysState(P; wings=1, bodies=0, deflections=0, pulleys=0, winches=1,
              tethers=winches, segments=0, panels=0, precision=MyFloat)
 
-Construct a `SysState` of `P` points. The remaining counts are keywords so that
-adding a dimension does not add another positional method: `orients` oriented
-frames, `deflections` twist surfaces, `pulleys` pulleys, `winches` winches,
-`tethers` tethers, `segments` segments and `panels` aerodynamic panels. `tethers`
-defaults to `winches`, which is right whenever each winch drives one tether. Pass
-`precision=Float64` for a differential state that round-trips `integrator.u`
-exactly.
+Construct a `SysState` of `P` position slots. The remaining counts are keywords so
+that adding a dimension does not add another positional method: `wings` wings and
+`bodies` bodies, which together are its `wings + bodies` oriented frames,
+`deflections` twist surfaces, `pulleys` pulleys, `winches` winches, `tethers`
+tethers, `segments` segments and `panels` aerodynamic panels. `tethers` defaults to
+`winches`, which is right whenever each winch drives one tether. Pass
+`precision=Float64` for a differential state that round-trips `integrator.u` exactly.
 """
-function SysState(P::Integer; orients=1, deflections=0, pulleys=0, winches=1,
+function SysState(P::Integer; wings=1, bodies=0, deflections=0, pulleys=0, winches=1,
                   tethers=winches, segments=0, panels=0, precision=MyFloat)
-    SysState{P, orients, deflections, pulleys, winches, tethers, segments,
-             panels, precision}()
+    SysState{P, wings + bodies, wings, deflections, pulleys, winches, tethers,
+             segments, panels, precision}()
 end
 
 # ---- single-quaternion view (frame k), mutable, backed by Qw/Qx/Qy/Qz ----
@@ -168,6 +168,61 @@ Base.size(c::PosColumns) =
 Base.@propagate_inbounds function Base.getindex(c::PosColumns, i::Int)
     @boundscheck checkbounds(c, i)
     PosColumn(c.sa, i)
+end
+
+# ---- wings and bodies: the oriented frames and position slots by their offsets ----
+frame_counts(::SysState{P, O, K}) where {P, O, K} = (P, O, K)
+frame_counts(::StructArray{<:SysState{P, O, K}}) where {P, O, K} = (P, O, K)
+frame_view(state::SysState, k) = FrameQuat(state, k)
+frame_view(log::StructArray{<:SysState}, k) = OrientColumn(log, k)
+point_view(state::SysState, i) = PointPos(state, i)
+point_view(log::StructArray{<:SysState}, i) = PosColumn(log, i)
+
+"""
+    wing_Q(state, k)
+
+The quaternion of wing `k`, `Q[k]`: a mutable view into a `SysState`, or the time
+series of a `SysLog`'s `syslog`.
+"""
+function wing_Q(state, k::Int)
+    _, _, K = frame_counts(state)
+    checkbounds(Base.OneTo(K), k)
+    frame_view(state, k)
+end
+
+"""
+    body_Q(state, b)
+
+The quaternion of body `b`, `Q[K + b]` behind the K wings, as [`wing_Q`](@ref) does.
+"""
+function body_Q(state, b::Int)
+    _, O, K = frame_counts(state)
+    checkbounds(Base.OneTo(O - K), b)
+    frame_view(state, K + b)
+end
+
+"""
+    wing_pos(state, k)
+
+The position of wing `k`, the `k`-th of the last O position slots: a mutable view into
+a `SysState`, or the time series of a `SysLog`'s `syslog`.
+"""
+function wing_pos(state, k::Int)
+    P, O, K = frame_counts(state)
+    checkbounds(Base.OneTo(K), k)
+    point_view(state, P - O + k)
+end
+
+"""
+    body_pos(state, b)
+
+The position of body `b`, the slot behind the K wings' in the last O, as
+[`wing_pos`](@ref) does.
+"""
+function body_pos(state, b::Int)
+    P, O, K = frame_counts(state)
+    checkbounds(Base.OneTo(O - K), b)
+    point_view(state, P - O + K + b)
 end
 
 @inline function Base.getproperty(sa::StructArray{<:SysState}, key::Symbol)

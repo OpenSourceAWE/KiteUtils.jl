@@ -47,7 +47,7 @@ function load_log(filename::String; path="")
                    :var_16=>Arrow.getmetadata(table.var_16)["name"],
     )
     # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
-    syslog = StructArray{SysState{P, O, D, L, W, T, S, N, F}}((table.time, table.t_sim, table.sys_state, table.cycle, table.fig_8, 
+    syslog = StructArray{SysState{P, O, K, D, L, W, T, S, N, F}}((table.time, table.t_sim, table.sys_state, table.cycle, table.fig_8, 
                                        table.e_mech, table.Qw, table.Qx, table.Qy, table.Qz, 
                                        table.turn_rates, table.elevation, table.azimuth, table.azimuth_rate, table.l_tether, 
                                        table.v_reelout, table.winch_force, table.depower, table.steering, table.kcu_steering, 

@@ -6,26 +6,24 @@
 # Edit src/sysstate.yaml instead
 
 """
-    mutable struct Logger{P, O, D, L, W, T, S, N, F, Q}
+    mutable struct Logger{P, O, K, D, L, W, T, S, N, F, Q}
 
-Struct to store a simulation log. P is number of points of the tether, segments+1,
-O is the number of oriented frames, D is the number of twist surfaces, L is the
-number of pulleys, W is the number of winches, T is the number of tethers, S is
-the number of segments, N is the number of aerodynamic panels, F is the float
-type of the logged columns and Q is the number of time steps that will be
-pre-allocated.
+Struct to store a simulation log. P, O, K, D, L, W, T, S, N and F are the counts
+and float type of the [`SysState`](@ref) it logs, and Q is the number of time steps
+that will be pre-allocated.
 
 Constructor:
-- Logger(P, steps; orients, deflections, pulleys, winches, tethers, segments,
+- Logger(P, steps; wings, bodies, deflections, pulleys, winches, tethers, segments,
   panels, precision)
 
 Fields:
 
 $(TYPEDFIELDS)
 """
-@with_kw mutable struct Logger{P, O, D, L, W, T, S, N, F, Q}
+@with_kw mutable struct Logger{P, O, K, D, L, W, T, S, N, F, Q}
     points::Int64 = P
     orients::Int64 = O
+    wings::Int64 = K
     deflections::Int64 = D
     pulleys::Int64 = L
     winches::Int64 = W
@@ -71,12 +69,12 @@ $(TYPEDFIELDS)
     alpha4_vec::Vector{F} = zeros(F, Q)
     CL2_vec::Vector{F} = zeros(F, Q)
     CD2_vec::Vector{F} = zeros(F, Q)
-    aero_force_KA_x_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    aero_force_KA_y_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    aero_force_KA_z_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    aero_moment_KA_x_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    aero_moment_KA_y_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    aero_moment_KA_z_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
+    aero_force_KA_x_vec::Vector{MVector{K, F}} = [zero(MVector{K, F}) for _ in 1:Q]
+    aero_force_KA_y_vec::Vector{MVector{K, F}} = [zero(MVector{K, F}) for _ in 1:Q]
+    aero_force_KA_z_vec::Vector{MVector{K, F}} = [zero(MVector{K, F}) for _ in 1:Q]
+    aero_moment_KA_x_vec::Vector{MVector{K, F}} = [zero(MVector{K, F}) for _ in 1:Q]
+    aero_moment_KA_y_vec::Vector{MVector{K, F}} = [zero(MVector{K, F}) for _ in 1:Q]
+    aero_moment_KA_z_vec::Vector{MVector{K, F}} = [zero(MVector{K, F}) for _ in 1:Q]
     twist_angles_vec::Vector{MVector{D, F}} = [zero(MVector{D, F}) for _ in 1:Q]
     vel_kite_vec::Vector{MVector{3, F}} = [zero(MVector{3, F}) for _ in 1:Q]
     acc_vec::Vector{F} = zeros(F, Q)

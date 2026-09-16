@@ -156,7 +156,8 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
     end
     @testset "a KS log's body columns are converted, not just its orientation" begin
         data_path = get_data_path()
-        log = demo_log(7, "body_columns")
+        # A kite and a body, so the per-wing loads are shorter than the per-frame rates.
+        log = SysLog{7}("body_columns", default_colmeta(), demo_syslog(7, 2, 1))
         for step in eachindex(log.syslog)
             log.syslog.turn_rates[step] .= [1, 2, 3]
             log.syslog.aero_force_KA_x[step] .= 10
@@ -176,6 +177,7 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         row = load_log("body_columns"; frame=KS).syslog[1]
         # A half turn about the spanwise axis: y survives, x and z change sign.
         @test collect(row.turn_rates) ≈ [-1, 2, -3]
+        @test (length(row.aero_force_KA_x), length(row.turn_rate_x)) == (1, 2)
         @test all(row.aero_force_KA_x .≈ -10)
         @test all(row.aero_force_KA_y .≈ 20)
         @test all(row.aero_force_KA_z .≈ -30)
