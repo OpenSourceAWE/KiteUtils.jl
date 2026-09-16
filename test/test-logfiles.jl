@@ -112,6 +112,12 @@ end
         @test all(isfinite, row.attractor)
         @test all(isfinite, row.set_torque)
         @test isfinite(row.heading_rate)
+        # Every archived log predates these columns.
+        @test length(row.pulley_len) == length(row.gamma_distribution) == 0
+        for field in (:set_ext_force_x, :set_ext_force_y, :set_ext_force_z)
+            @test length(getproperty(row, field)) == length(row.X)
+            @test all(iszero, getproperty(row, field))
+        end
     end
     # A log with no twist_angles column defaults it to zero rather than garbage.
     old = load_log("sim_log"; frame=KS)
