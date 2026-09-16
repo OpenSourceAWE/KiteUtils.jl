@@ -381,6 +381,13 @@ end
     @test body_pos(logged, 1)[1] == [6, 0, 0]
 end
 
+@testset "orients=O is one wing and O - 1 bodies" begin
+    @test typeof(SysState(6; orients=3)) == typeof(SysState(6; wings=1, bodies=2))
+    @test typeof(SysState(6; wings=2, orients=3)) == typeof(SysState(6; wings=2, bodies=1))
+    @test typeof(Logger(6, 1; orients=3)) == typeof(Logger(6, 1; wings=1, bodies=2))
+    @test typeof(demo_state(6; orients=3)) == typeof(SysState(6; bodies=2))
+end
+
 @testset "aero_force_KA and aero_moment_KA are wing 1's loads as a 3-vector" begin
     state = SysState(3; wings=2)
     state.aero_force_KA = [1, 2, 3]

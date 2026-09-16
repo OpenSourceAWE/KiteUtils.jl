@@ -7,19 +7,22 @@
 # `orient` property (frame 1) working for backwards compatibility.
 
 """
-    SysState(P; wings=1, bodies=0, deflections=0, pulleys=0, winches=1,
-             tethers=winches, segments=0, panels=0, precision=MyFloat)
+    SysState(P; wings=1, orients=wings, bodies=orients-wings, deflections=0,
+             pulleys=0, winches=1, tethers=winches, segments=0, panels=0,
+             precision=MyFloat)
 
 Construct a `SysState` of `P` position slots. The remaining counts are keywords so
 that adding a dimension does not add another positional method: `wings` wings and
-`bodies` bodies, which together are its `wings + bodies` oriented frames,
+`bodies` bodies, which together are its `wings + bodies` oriented frames, or
+`orients` oriented frames of which the first `wings` are wings,
 `deflections` twist surfaces, `pulleys` pulleys, `winches` winches, `tethers`
 tethers, `segments` segments and `panels` aerodynamic panels. `tethers` defaults to
 `winches`, which is right whenever each winch drives one tether. Pass
 `precision=Float64` for a differential state that round-trips `integrator.u` exactly.
 """
-function SysState(P::Integer; wings=1, bodies=0, deflections=0, pulleys=0, winches=1,
-                  tethers=winches, segments=0, panels=0, precision=MyFloat)
+function SysState(P::Integer; wings=1, orients=wings, bodies=orients - wings,
+                  deflections=0, pulleys=0, winches=1, tethers=winches, segments=0,
+                  panels=0, precision=MyFloat)
     SysState{P, wings + bodies, wings, deflections, pulleys, winches, tethers,
              segments, panels, precision}()
 end

@@ -4,14 +4,16 @@
 include("_logger.jl")
 
 """
-    Logger(P, steps; wings=1, bodies=0, deflections=0, pulleys=0, winches=1,
-           tethers=winches, segments=0, panels=0, precision=MyFloat)
+    Logger(P, steps; wings=1, orients=wings, bodies=orients-wings, deflections=0,
+           pulleys=0, winches=1, tethers=winches, segments=0, panels=0,
+           precision=MyFloat)
 
 Pre-allocate a log for `steps` time steps of the `SysState` that
-`SysState(P; wings, bodies, ...)` constructs, taking the same keywords.
+`SysState(P; wings, orients, bodies, ...)` constructs, taking the same keywords.
 """
-function Logger(P, steps; wings=1, bodies=0, deflections=0, pulleys=0, winches=1,
-                tethers=winches, segments=0, panels=0, precision=MyFloat)
+function Logger(P, steps; wings=1, orients=wings, bodies=orients - wings,
+                deflections=0, pulleys=0, winches=1, tethers=winches, segments=0,
+                panels=0, precision=MyFloat)
     Logger{P, wings + bodies, wings, deflections, pulleys, winches, tethers, segments,
            panels, precision, steps}()
 end

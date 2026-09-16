@@ -21,6 +21,9 @@
   `SysState{P, O, K, D, L, W, T, S, N, F}` and `Logger{P, O, K, D, L, W, T, S, N, F, Q}`.
   Of the O oriented frames the first K are wings and the rest bodies, and the last O
   position slots hold them in that order; `SysState{P, O, K, ...}()` asserts `K <= O`.
+- `wings` and `bodies`, keywords of `SysState(P; ...)` and `Logger(P, steps; ...)`:
+  `wings=2, bodies=1` for two wings and a rigid body. `orients=O` stays, as one wing
+  and `O - 1` bodies.
 - `wing_Q`, `body_Q`, `wing_pos` and `body_pos` address one wing or body by those
   offsets, as a mutable view of a `SysState` or a time series of a log's `syslog`.
 - `gamma_distribution`, one circulation per aerodynamic panel, sized by `N` and by the
@@ -32,10 +35,8 @@
 - `fromKS2KA_body_columns!(x, y, z)` converts a log's per-body component columns in
   place, as `fromKS2KA_columns!` does its quaternion columns.
 ### Changed
-- BREAKING: `SysState(P; ...)` and `Logger(P, steps; ...)` take `wings` and `bodies`
-  in place of `orients`: write `wings=1, bodies=2` where you wrote `orients=3` for a
-  kite and two rigid bodies. `demo_syslog` takes `K` after `O`, so
-  `demo_syslog(P, O, D)` is now `demo_syslog(P, O, 1, D)`.
+- BREAKING: `demo_syslog` takes `K` after `O`, so `demo_syslog(P, O, D)` is now
+  `demo_syslog(P, O, 1, D)`.
 - The two aerodynamic loads are stored one field per component, each holding one entry
   per wing, so a system with a second wing can log both:
   `aero_force_KA_x`/`aero_force_KA_y`/`aero_force_KA_z` and
