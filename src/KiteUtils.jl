@@ -205,15 +205,16 @@ function __init__()
 end
 
 """
-    demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2)
+    demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2, counts...)
 
-Create a demo state with a given height and time. P is the number of tether particles.
+Create a demo state with a given height and time. P is the number of tether particles
+and `counts` the other keywords of `SysState(P; ...)`; the entries they add are zero.
 Kite is parking and aligned with the tether.
 
 Returns a SysState instance.
 """
-function demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2)
-    ss = SysState(P)
+function demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2, counts...)
+    ss = SysState(P; counts...)
     ss.time = time
     a = 10
     turn_angle = azimuth_north+pi/2

@@ -46,6 +46,9 @@
 - `save_log(logger, ...)` leaves the logger alone. It used to resize every column
   of the logger down to the number of logged steps, which ended the logger's
   preallocation and silently dropped everything logged afterwards.
+- `demo_syslog(P, O, D, L, W, T, S, N)` returns states of those counts; it threw a
+  `DimensionMismatch` for any count but `P`. `demo_state(P; counts...)` takes the
+  keywords of `SysState(P; ...)` for the same purpose.
 
 ## KiteUtils v0.13.0 2026-09-14
 ### Added

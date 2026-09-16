@@ -114,11 +114,9 @@ HEADER = """
 \"\"\"
     demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
 
-Create a demo flight log  with given duration [s] as StructArray. P is the number of tether
-particles, O the number of oriented frames (demo data fills only frame 1), D the
-number of aero segments (demo data has no flaps, so D=0), L the number of
-pulleys (demo data has none, so L=0), S the number of segments (likewise 0) and
-N the number of aerodynamic panels (likewise 0).
+Create a demo flight log with given duration [s] as StructArray of
+`SysState{P, O, D, L, W, T, S, N, MyFloat}`, the counts meaning what they mean there.
+The demo data fills the points and frame 1; every other entry is zero.
 \"\"\"
 function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
     max_height = 6.03
@@ -131,7 +129,9 @@ open(outputfile3,"w") do io
         println(io, "    " * key * "_vec = Vector{" * sysstate[key] * "}(undef, steps)")
     end
     println(io, "    for i in range(0, length=steps)")
-    println(io, "        state = demo_state(P, max_height * i/steps, i/se().sample_freq)")
+    println(io, "        state = demo_state(P, max_height * i/steps, i/se().sample_freq;")
+    println(io, "            orients=O, deflections=D, pulleys=L, winches=W, tethers=T,")
+    println(io, "            segments=S, panels=N)")
     println(io, "        elevation_vec[i+1] = asin(state.Z[end]/state.X[end])")
     for key in keys(sysstate)
         println(io, "        " * key * "_vec[i+1] = state." * key)

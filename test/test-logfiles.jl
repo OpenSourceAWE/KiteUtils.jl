@@ -340,3 +340,16 @@ end
         @test getproperty(row, field) == getproperty(written, field)
     end
 end
+
+@testset "demo_syslog sizes every column by the counts it is given" begin
+    syslog = demo_syslog(7, 2, 3, 4, 2, 3, 5, 6; duration=1)
+    @test eltype(syslog) == SysState{7, 2, 3, 4, 2, 3, 5, 6, Float32}
+    row = syslog[end]
+    @test length(row.aero_force_KA_x) == 2
+    @test length(row.flap_angle) == 3
+    @test length(row.pulley_len) == 4
+    @test length(row.set_torque) == 2
+    @test length(row.l_tether) == 3
+    @test length(row.spring_force) == 5
+    @test length(row.gamma_distribution) == 6
+end
