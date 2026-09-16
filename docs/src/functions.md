@@ -52,7 +52,9 @@ load_log
 save_log
 import_log
 export_log
+default_colmeta
 sys_log
+syslog
 Base.getproperty
 ```
 The function ```set_data_path(data_path)``` can be used to set the directory for the log files. 

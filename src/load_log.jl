@@ -8,7 +8,8 @@ load_log(_, filename::String; kwargs...) = load_log(filename; kwargs...)
     load_log(filename::String; path="", frame=nothing)
 
 Read a log file that was saved as .arrow file. Everything the returned `SysLog` holds
-is `KA`: the orientations and every body-resolved column alike.
+is `KA`: the orientations and every body-resolved column alike, and the table metadata
+the file carries comes back as its `metadata` field.
 
 Logs written by KiteUtils 0.13 and later declare their convention and are read by it.
 An older log declares nothing and is `KS`, that being what the format specified, so
@@ -35,7 +36,10 @@ function load_log(filename::String; path="", debug=false,
             fullname = joinpath(path, basename(filename))
         end
     end
-    table   = Arrow.Table(fullname)
+    # Read the bytes up front rather than letting Arrow mmap the file: a lingering
+    # mmap keeps the file locked on Windows, so a save_log to the same path right
+    # after a load_log fails there (POSIX allows it, masking the bug on Linux/macOS).
+    table   = Arrow.Table(read(fullname))
     if debug
         return table
     end
@@ -64,13 +68,16 @@ function load_log(filename::String; path="", debug=false,
               "needs load_log(...; frame=KA); load_log(...; frame=KS) confirms the " *
               "specified convention. Either silences this."
     end
+    metadata = Dict{String, String}(something(Arrow.getmetadata(table),
+                                              Pair{String, String}[]))
     syslog_from_table(table, basename(fullname[1:end-6]), colmeta,
-                      something(declared, frame, KS))
+                      something(declared, frame, KS); metadata)
 end
 
 # The reader both log formats share: an `Arrow.Table` and a `CsvTable` are addressed
 # alike, so back-compat and the conversion out of `convention` happen in one place.
-function syslog_from_table(table, log_name, colmeta, convention::FrameConvention)
+function syslog_from_table(table, log_name, colmeta, convention::FrameConvention;
+                           metadata = Dict{String, String}())
     P =  length(table.Z[1])
     # Float type is whatever the file was written with, so Float32 logs stay Float32.
     F =  eltype(table.Z[1])
@@ -215,5 +222,5 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
         scalar(:var_05), scalar(:var_06), scalar(:var_07), scalar(:var_08), scalar(:var_09),
         scalar(:var_10), scalar(:var_11), scalar(:var_12), scalar(:var_13), scalar(:var_14),
         scalar(:var_15), scalar(:var_16)))
-    return SysLog{P}(log_name, colmeta, syslog)
+    return SysLog{P}(log_name, colmeta, syslog, metadata)
 end

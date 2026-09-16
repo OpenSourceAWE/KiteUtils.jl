@@ -170,6 +170,58 @@ end
               getproperty(written[step], field)
     end
 end
+
+@testset "KiteUtils.jl: log metadata    " begin
+    set_data_path(tempdir())
+    logger = Logger(7, 3)
+    for _ in 1:3
+        log!(logger, KiteUtils.demo_state(7))
+    end
+    document = "{\"sections\": [1, 2], \"note\": \"ünïcode and a newline\n\"}"
+
+    save_log(logger, "metadata_test"; metadata = Dict("document" => document))
+    with_document = load_log("metadata_test")
+    @test with_document.metadata["document"] == document
+    @test with_document.metadata["created"] == logger.created
+
+    save_log(logger, "no_metadata_test")
+    without_document = load_log("no_metadata_test")
+    @test !haskey(without_document.metadata, "document")
+    @test without_document.metadata["created"] == logger.created
+
+    carried = KiteUtils.sys_log(logger, "metadata_carried")
+    carried.metadata["document"] = document
+    save_log(carried, false)
+    @test load_log("metadata_carried").metadata["document"] == document
+
+    # A stale declaration travelling on a loaded log cannot outrank what is written.
+    carried.metadata["frame_convention"] = string(KS)
+    save_log(carried, false)
+    @test load_log("metadata_carried").metadata["frame_convention"] == string(KA)
+
+    # A dict the table metadata cannot hold is refused before a file is opened.
+    fresh_path = mktempdir()
+    @test_throws TypeError save_log(carried, false; path = fresh_path,
+                                    metadata = Dict("sections" => 2))
+    @test isempty(readdir(fresh_path))
+end
+
+@testset "KiteUtils.jl: logger creation time" begin
+    set_data_path(tempdir())
+    logger = Logger(7, 1)
+    log!(logger, KiteUtils.demo_state(7))
+
+    @test occursin(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$", logger.created)
+
+    # The stamp is the moment the Logger was built, not the moment of saving.
+    logger.created = "1970-01-01T00:00:00"
+    save_log(logger, "created_test")
+    @test load_log("created_test").metadata["created"] == "1970-01-01T00:00:00"
+
+    save_log(logger, "created_override"; metadata = Dict("created" => "mine"))
+    @test load_log("created_override").metadata["created"] == "mine"
+end
+
 @testset "KiteUtils.jl: csv round trip  " begin
     # export_log writes every SysState column, so import_log has to read every one
     # back: a column it does not name comes back zeroed, and nothing says so.

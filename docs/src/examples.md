@@ -246,7 +246,7 @@ The type SysLog is a struct of a syslog as explained above and its name. In addi
 of the kite over time.
 ```julia
 julia> log = demo_log(7)
-SysLog{7, 1, ...}("Test_flight", ..., SysState{7, 1, 0, 0, 1, 1, 0, Float32}[time [s]:          0.0
+SysLog{7, 1, ...}("Test_flight", ..., SysState{7, 1, 0, 0, 1, 1, 0, 0, Float32}[time [s]:          0.0
 t_sim [s]:         0.012
 ...
 orient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]
