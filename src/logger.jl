@@ -30,54 +30,38 @@ end
 include("_syslog.jl")
 
 """
-    sys_log(logger::Logger, name="sim_log";
-                metadata::Dict{String, String} = Dict{String, String}(),
-                colmeta = Dict(:var_01 => ["name" => "var_01"],
-                               :var_02 => ["name" => "var_02"],
-                               :var_03 => ["name" => "var_03"],
-                               :var_04 => ["name" => "var_04"],
-                               :var_05 => ["name" => "var_05"],
-                               :var_06 => ["name" => "var_06"],
-                               :var_07 => ["name" => "var_07"],
-                               :var_08 => ["name" => "var_08"],
-                               :var_09 => ["name" => "var_09"],
-                               :var_10 => ["name" => "var_10"],
-                               :var_11 => ["name" => "var_11"],
-                               :var_12 => ["name" => "var_12"],
-                               :var_13 => ["name" => "var_13"],
-                               :var_14 => ["name" => "var_14"],
-                               :var_15 => ["name" => "var_15"],
-                               :var_16 => ["name" => "var_16"]
-            ))
+    sys_log(logger::Logger, name="sim_log"; colmeta=default_colmeta(),
+            metadata::Dict{String, String}=Dict{String, String}())
 
-Converts the data of a Logger object into a SysLog object, containing a StructArray, a name
-and the column meta data. The table metadata of the SysLog is `metadata` plus the creation
-time of the logger under the key `created`.
+Convert the data of a `Logger` into a `SysLog`, holding the rows that were
+logged, the name of the log and the column meta data. The table metadata of the
+`SysLog` is `metadata` plus the creation time of the logger under the key `created`.
 """
-function sys_log(logger::Logger, name="sim_log"; 
-    metadata::Dict{String, String} = Dict{String, String}(),
-    colmeta = Dict(:var_01 => ["name" => "var_01"],
-                   :var_02 => ["name" => "var_02"],
-                   :var_03 => ["name" => "var_03"],
-                   :var_04 => ["name" => "var_04"],
-                   :var_05 => ["name" => "var_05"],
-                   :var_06 => ["name" => "var_06"],
-                   :var_07 => ["name" => "var_07"],
-                   :var_08 => ["name" => "var_08"],
-                   :var_09 => ["name" => "var_09"],
-                   :var_10 => ["name" => "var_10"],
-                   :var_11 => ["name" => "var_11"],
-                   :var_12 => ["name" => "var_12"],
-                   :var_13 => ["name" => "var_13"],
-                   :var_14 => ["name" => "var_14"],
-                   :var_15 => ["name" => "var_15"],
-                   :var_16 => ["name" => "var_16"]
-    ))
+function sys_log(logger::Logger, name="sim_log"; colmeta=default_colmeta(),
+                 metadata::Dict{String, String}=Dict{String, String}())
     SysLog{logger.points}(name, colmeta, syslog(logger),
                           merge(Dict("created" => logger.created), metadata))
 end
 
-include("_save_log.jl")
+"""
+    save_log(logger::Logger, name="sim_log", compress=true; path="",
+             colmeta=default_colmeta(),
+             metadata::Dict{String, String}=Dict{String, String}())
+
+Save the rows that were logged as .arrow file. Compression is lz4 unless `compress`
+is passed as `false`. `metadata` is written as the table metadata of the file, beside
+the creation time of the logger under the key `created`, and read back by
+[`load_log`](@ref). It is opaque to KiteUtils; the keys [`log_metadata`](@ref) writes
+are merged over it, so a log always declares the frame convention it is in.
+
+arrow-js does not implement IPC body decompression, so a log written with the default
+lz4 compression cannot be read in a browser.
+"""
+function save_log(logger::Logger, name="sim_log", compress=true; path="",
+                  colmeta=default_colmeta(),
+                  metadata::Dict{String, String}=Dict{String, String}())
+    save_log(sys_log(logger, name; colmeta, metadata), compress; path)
+end
 
 function parse_vector(str)
     m = match(r"\[(.*)\]", str)
@@ -141,7 +125,6 @@ Parameters:
 """
 function import_log(filename; frame::FrameConvention=KA)
     # A .csv carries no column metadata, so the generic names stand.
-    colmeta = Dict(Symbol("var_", lpad(i, 2, '0')) =>
-                   ["name" => "var_" * lpad(i, 2, '0')] for i in 1:16)
-    syslog_from_table(csv_columns(import_log_(filename)), filename, colmeta, frame)
+    syslog_from_table(csv_columns(import_log_(filename)), filename,
+                      default_colmeta(), frame)
 end
