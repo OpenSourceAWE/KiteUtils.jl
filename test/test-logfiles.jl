@@ -278,3 +278,16 @@ end
     @test collect(row.aero_force_KA) ≈ Float32[1, 2, 3]
     @test collect(row.aero_moment_KA) ≈ Float32[4, 5, 6]
 end
+
+@testset "KiteUtils.jl: re-saving a loaded log" begin
+    set_data_path(tempdir())
+    logger = Logger(3, 1)
+    log!(logger, SysState(3))
+    colmeta = Dict(Symbol("var_", lpad(i, 2, '0')) => ["name" => "quantity_$i"]
+                   for i in 1:16)
+    save_log(logger, "resave_source"; colmeta)
+    loaded = load_log("resave_source")
+    loaded.name = "resave_target"
+    save_log(loaded, false)
+    @test load_log("resave_target").colmeta == colmeta
+end

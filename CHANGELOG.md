@@ -24,6 +24,12 @@
 - `save_log(logger, ...)` leaves the logger alone. It used to resize every column
   of the logger down to the number of logged steps, which ended the logger's
   preallocation and silently dropped everything logged afterwards.
+### Fixed
+- `save_log(load_log(name))` threw a `BoundsError` out of Arrow. `load_log` filled
+  `SysLog.colmeta` with bare `String` values where every other producer fills it with
+  `["name" => value]`, the shape `Arrow.write(; colmetadata=...)` iterates as pairs.
+  `load_log` now builds that shape, and the field is typed
+  `Dict{Symbol, Vector{Pair{String, String}}}` so the other one cannot get in.
 
 ## KiteUtils v0.13.0 2026-09-14
 ### Added
