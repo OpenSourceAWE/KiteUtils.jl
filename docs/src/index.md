@@ -46,21 +46,21 @@ and select one of the examples with the cursor keys and press enter.
 ## Provides 
 - functions for coordinate system transformations
 - functions for reading configuration files
-- the default configuration file [settings.yaml](data/settings.yaml)
-- the default meta-configuration file [system.yaml](data/system.yaml)
+- the default configuration file [settings.yaml](https://github.com/OpenSourceAWE/KiteUtils.jl/blob/main/data/settings.yaml)
+- the default meta-configuration file [system.yaml](https://github.com/OpenSourceAWE/KiteUtils.jl/blob/main/data/system.yaml)
 - functions for logging, reading and writing log files
 - types for the state of a kite power, logging and configuration parameters
 - a function for calculation the inertia matrix of a kite
 
 ## License
-This project is licensed under the MIT License. The documentation is licensed under the CC-BY-4.0 License. Please see the below `Copyright notice` in association with the licenses that can be found in the file [LICENSE](LICENSE) in this folder.
+This project is licensed under the MIT License. The documentation is licensed under the CC-BY-4.0 License. Please see the below `Copyright notice` in association with the licenses that can be found in the file [LICENSE](https://github.com/OpenSourceAWE/KiteUtils.jl/blob/main/LICENSE).
 
 ## Copyright notice
 Technische Universiteit Delft hereby disclaims all copyright interest in the package “KiteModels.jl” (models for airborne wind energy systems) written by the Author(s).
 
 Prof.dr. H.G.C. (Henri) Werij, Dean of Aerospace Engineering, Technische Universiteit Delft.
 
-See the copyright notices in the source files, and the list of authors in [AUTHORS.md](AUTHORS.md).
+See the copyright notices in the source files, and the list of authors in [AUTHORS.md](https://github.com/OpenSourceAWE/KiteUtils.jl/blob/main/AUTHORS.md).
 
 ## Related
 - The meta package [KiteSimulators](https://github.com/aenarete/KiteSimulators.jl) which contains all packages from Julia Kite Power Tools.

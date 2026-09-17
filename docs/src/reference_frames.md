@@ -152,7 +152,7 @@ The origin of the body frame is the tow point, the KCU for a model that has one.
 not affect the orientation, a rotation being independent of where it is anchored.
 
 ## Control inputs
-see: [Reference frames and control inputs](https://ufechner7.github.io/KiteModels.jl/dev/#Reference-frames-and-control-inputs)
+see: [Reference frames and control inputs](https://opensourceawe.github.io/KiteModels.jl/dev/#Reference-frames-and-control-inputs)
 
 ## Small earth reference frame
 
