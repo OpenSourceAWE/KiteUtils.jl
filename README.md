@@ -12,7 +12,7 @@ This package is the foundation of Julia Kite Power Tools, which consist of the f
 <p align="center"><img src="https://github.com/aenarete/WinchModels.jl/blob/main/docs/kite_power_tools.png" width="500" /></p> 
 
 ## What to install
-If you want to run simulations and see the results in 3D, please install the meta package  [KiteSimulators](https://github.com/aenarete/KiteSimulators.jl) . If you have already KiteSimulators installed, use `using KiteSimulators` instead of `using KiteUtils`.
+If you want to run simulations and see the results in 3D, please install the package  [KiteControllers](https://github.com/OpenSourceAWE/KiteControllers.jl) . You can use the example `autopilot.jl` of that package to run the GUI of the simulation software.
 If you just want to learn how this package works quickly just install only this package.
 
 ## Installation
