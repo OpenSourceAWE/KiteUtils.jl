@@ -47,6 +47,7 @@ using PrecompileTools: @compile_workload, @setup_workload
 using Arrow, DocStringExtensions, LinearAlgebra, RecursiveArrayTools, Rotations, StaticArrays, StructArrays, YAML
 using CSV, Parameters, Parsers, Pkg, StructTypes
 export Logger, MyFloat, Settings, SysLog, SysState
+export body_pos, body_Q, wing_pos, wing_Q                        # wings and bodies
 
 import Base.length
 import ReferenceFrameRotations as RFR
@@ -62,7 +63,7 @@ export azn2azw, calc_course, calc_heading, calc_heading_w             # geometri
 export calc_orient_rot, fromENU2NED, is_right_handed_orthonormal, fromNED2ENU
 export FrameConvention, KS, KA                                           # frame conventions
 export fromKS2KA, fromKA2KS, fromKS2KA_body, fromKA2KS_body, fromKS2KA_columns!,
-    euler_KS, orient_matrix, log_metadata, log_convention
+    fromKS2KA_body_columns!, euler_KS, orient_matrix, log_metadata, log_convention
 export angles_from_wind_vec, wind_vec_from_angles
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
 export aero_geometry_file, fpc_settings, fpp_settings, se, se_dict,
@@ -112,6 +113,10 @@ include("sysstate_views.jl")
         return FrameQuat(st, 1)        # frame 1 = kite (legacy single quaternion)
     elseif sym === :orients
         return OrientFrames(st)
+    elseif sym === :aero_force_KA           # wing 1, the 3-vector of KiteUtils 0.13
+        return ComponentVec(st, AERO_FORCE_KA, 1)
+    elseif sym === :aero_moment_KA
+        return ComponentVec(st, AERO_MOMENT_KA, 1)
     else
         return getfield(st, sym)
     end
@@ -120,6 +125,12 @@ end
     if sym === :orient
         FrameQuat(st, 1) .= v
         return v
+    elseif sym === :aero_force_KA
+        ComponentVec(st, AERO_FORCE_KA, 1) .= v
+        return v
+    elseif sym === :aero_moment_KA
+        ComponentVec(st, AERO_MOMENT_KA, 1) .= v
+        return v
     elseif sym === :pos || sym === :orients
         error("Set individual elements instead, e.g. `st.$sym[i] = ...`")
     else
@@ -127,7 +138,8 @@ end
         return setfield!(st, sym, convert(fieldtype(typeof(st), sym), v))
     end
 end
-Base.propertynames(st::SysState) = (fieldnames(typeof(st))..., :orient, :orients, :pos)
+Base.propertynames(st::SysState) = (fieldnames(typeof(st))..., :orient, :orients, :pos,
+                                     :aero_force_KA, :aero_moment_KA)
 
 include("_show.jl")
 
@@ -205,15 +217,16 @@ function __init__()
 end
 
 """
-    demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2)
+    demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2, counts...)
 
-Create a demo state with a given height and time. P is the number of tether particles.
+Create a demo state with a given height and time. P is the number of tether particles
+and `counts` the other keywords of `SysState(P; ...)`; the entries they add are zero.
 Kite is parking and aligned with the tether.
 
 Returns a SysState instance.
 """
-function demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2)
-    ss = SysState(P)
+function demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2, counts...)
+    ss = SysState(P; counts...)
     ss.time = time
     a = 10
     turn_angle = azimuth_north+pi/2

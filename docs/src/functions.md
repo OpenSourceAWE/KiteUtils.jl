@@ -36,6 +36,14 @@ get_comment
 get_unit
 ```
 
+# Wings and bodies of a state
+```@docs
+wing_Q
+body_Q
+wing_pos
+body_pos
+```
+
 # Creating test data
 ```@docs
 demo_state
@@ -73,6 +81,7 @@ euler_KS
 log_metadata
 log_convention
 fromKS2KA_columns!
+fromKS2KA_body_columns!
 ```
 
 ## Rotation matrices and conversions
