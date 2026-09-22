@@ -62,9 +62,11 @@ orientation against NED.
 
 The **KA** (kite aero) reference frame is the convention of `SysState` and of every
 calculation in this package. Like `KS` it is a rotating reference frame, and its origin is
-the tow point, which is the KCU for a model that has one. It is defined as follows:
+the tow point, which is the KCU for a model that has one. Left and right are as seen
+looking at the kite from the front, so a turn to the right is a positive rotation about
+z. It is defined as follows:
 - **x**: from leading edge to trailing edge
-- **y**: spanwise, from the left to the right wing tip
+- **y**: spanwise, from the right to the left wing tip
 - **z**: up
 
 These are the aerodynamic axes, so drag is +x, side force +y and lift +z, and at zenith
@@ -74,9 +76,9 @@ positive.
 The **KS** (kite sensor) reference frame is the sensor-fixed reference frame, reported
 against NED because that is the convention the Xsens IMU reports in. Its origin is defined
 by the location where the sensor is mounted. In the simulation this is equal to the **K**
-(kite) reference frame, which is defined as follows:
+(kite) reference frame, which is defined as follows, left and right as for `KA`:
 - **x**: from trailing edge to leading edge
-- **y**: to the right looking in flight direction
+- **y**: to the left seen from the front
 - **z**: down
 
 `KS` is used in exactly three places:
@@ -139,8 +141,8 @@ The function `calc_heading()` uses this same wind-frame azimuth convention.
 ## Orientation of the kite
 The orientation is stored as a quaternion, and can be reported as roll, pitch and yaw.
 
-Quaternions stored in `SysState` are `KA`: the body-to-ENU rotation of the aft-right-up
-body frame. Its columns are the body axes expressed in ENU, so `-x` is the nose, which is what
+Quaternions stored in `SysState` are the body-to-ENU rotation of the `KA` body frame.
+Its columns are the body axes expressed in ENU, so `-x` is the nose, which is what
 `calc_heading()` is built on. It is the only orientation the state carries.
 
 Roll, pitch and yaw are not stored. [`euler_KS`](@ref)`(ss.orient)` reports them, measured
@@ -180,7 +182,7 @@ fly the kite on a prescribed trajectory that is adapted to the wind conditions.
 In Fig. 5.1 the vectors $x_k, y_k$ and $z_k$ define the body-fixed kite reference frame
 in the `KS` convention. In this
 chapter, the combination of the wing and the kite control unit (KCU) is seen as kite.
-The $y_k$ axis is defined by the vector from the left to the right wing tip, the $z_k$ axis is
+The $y_k$ axis is defined by the vector from the right to the left wing tip, seen from the front, the $z_k$ axis is
 pointing downwards from the position of the kite parallel to the upper part of the tether,
 and the $x_k$ axis is orthogonal to $y_k$ and $z_k$ . The heading angle ψ is the angle between the
 direction towards zenith and the vector $x_k$ as projected on the tangential plane touching
