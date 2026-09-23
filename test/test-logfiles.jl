@@ -345,7 +345,7 @@ end
 end
 
 @testset "demo_syslog sizes every column by the counts it is given" begin
-    syslog = demo_syslog(7, 3, 2, 3, 4, 2, 3, 5, 6; duration=1)
+    syslog = demo_syslog(7, 3, 3, 4, 2, 3, 5, 6; wings=2, duration=1)
     @test eltype(syslog) == SysState{7, 3, 2, 3, 4, 2, 3, 5, 6, Float32}
     row = syslog[end]
     @test length(row.Qw) == 3
@@ -356,6 +356,11 @@ end
     @test length(row.l_tether) == 3
     @test length(row.spring_force) == 5
     @test length(row.gamma_distribution) == 6
+end
+
+@testset "demo_syslog reads its counts in the order of KiteUtils 0.13" begin
+    @test eltype(demo_syslog(7, 2, 1, 3; duration=1)) ==
+          SysState{7, 2, 1, 1, 3, 1, 1, 0, 0, Float32}
 end
 
 @testset "wings come first among the frames and the last position slots" begin

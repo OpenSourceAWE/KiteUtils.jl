@@ -6,13 +6,14 @@
 # Edit src/sysstate.yaml instead
 
 """
-    demo_syslog(P, O=1, K=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
+    demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; wings=1, duration=10)
 
 Create a demo flight log with given duration [s] as StructArray of
-`SysState{P, O, K, D, L, W, T, S, N, MyFloat}`, the counts meaning what they mean there.
-The demo data fills the points and frame 1; every other entry is zero.
+`SysState{P, O, K, D, L, W, T, S, N, MyFloat}` with `K = wings`, the counts meaning what
+they mean there. The demo data fills the points and frame 1; every other entry is zero.
 """
-function demo_syslog(P, O=1, K=1, D=0, L=0, W=1, T=W, S=0, N=0; duration=10)
+function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; wings=1, duration=10)
+    K = wings
     max_height = 6.03
     steps   = Int(duration * se().sample_freq) + 1
     time_vec = Vector{Float64}(undef, steps)

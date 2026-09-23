@@ -35,26 +35,23 @@
 - `fromKS2KA_body_columns!(x, y, z)` converts a log's per-body component columns in
   place, as `fromKS2KA_columns!` does its quaternion columns.
 ### Changed
-- BREAKING: `demo_syslog` takes `K` after `O`, so `demo_syslog(P, O, D)` is now
-  `demo_syslog(P, O, 1, D)`.
-- BREAKING: the `aero_force_KA` and `aero_moment_KA` fields are gone. The two
-  aerodynamic loads are stored one field per component, each holding one entry per wing,
-  so a system with a second wing can log both:
+- The two aerodynamic loads are stored one field per component, each holding one entry
+  per wing, so a system with a second wing can log both:
   `aero_force_KA_x`/`aero_force_KA_y`/`aero_force_KA_z` and
   `aero_moment_KA_x`/`aero_moment_KA_y`/`aero_moment_KA_z`; wing `k`'s force along x is
-  `aero_force_KA_x[k]`. Both names stay as properties holding wing 1's 3-vector, read and
-  written as before on a `SysState` and read per step on a log. `load_log` and
-  `import_log` read a pre-split log's 3-vector back as wing 1, under that name or the
-  `aero_force_b` it carried before v0.13.0, and convert the component columns of a `KS`
-  log as they already convert `turn_rate_x`/`_y`/`_z`.
+  `aero_force_KA_x[k]`. `aero_force_KA` and `aero_moment_KA` are properties holding wing
+  1's 3-vector, read and written as before on a `SysState` and read per step on a log.
+  `load_log` and `import_log` read a pre-split log's 3-vector back as wing 1, under that
+  name or the `aero_force_b` it carried before v0.13.0, and convert the component columns
+  of a `KS` log as they already convert `turn_rate_x`/`_y`/`_z`.
 - `syslog(logger)` and `sys_log(logger, ...)` return the steps that were logged,
   not every step the logger has room for. A `Logger(P, steps)` that logged fewer
   than `steps` states no longer yields a log padded with zero rows.
 - `save_log(logger, ...)` leaves the logger alone. It used to resize every column
   of the logger down to the number of logged steps, which ended the logger's
   preallocation and silently dropped everything logged afterwards.
-- `demo_syslog(P, O, K, D, L, W, T, S, N)` returns states of those counts; it threw a
-  `DimensionMismatch` for any count but `P`. `demo_state(P; counts...)` takes the
+- `demo_syslog(P, O, D, L, W, T, S, N; wings)` returns states of those counts; it threw
+  a `DimensionMismatch` for any count but `P`. `demo_state(P; counts...)` takes the
   keywords of `SysState(P; ...)` for the same purpose.
 
 ## KiteUtils v0.13.0 2026-09-14
