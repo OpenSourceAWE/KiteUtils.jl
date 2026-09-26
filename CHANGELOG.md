@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## KiteUtils v0.14.0 2026-09-26
+
 ### Added
+
 - `sys_log(logger, name="sim_log"; colmeta, metadata)` is exported. It builds the
   `SysLog` of a `Logger` in memory, so reading a log back no longer has to go through
   a file.
@@ -34,7 +36,9 @@
   could not be replayed from its log.
 - `fromKS2KA_body_columns!(x, y, z)` converts a log's per-body component columns in
   place, as `fromKS2KA_columns!` does its quaternion columns.
+
 ### Changed
+
 - The two aerodynamic loads are stored one field per component, each holding one entry
   per wing, so a system with a second wing can log both:
   `aero_force_KA_x`/`aero_force_KA_y`/`aero_force_KA_z` and
