@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## KiteUtils v0.13.1 2026-09-26
+
 ### Added
+
 - `sys_log(logger, name="sim_log"; colmeta, metadata)` is exported. It builds the
   `SysLog` of a `Logger` in memory, so reading a log back no longer has to go through
   a file.
@@ -17,7 +19,9 @@
 - `Logger.created`, the date and time the logger was constructed, as an ISO 8601 string
   in local time. Every log saved from a logger carries it as the `created` table
   metadata key; a `created` of the caller's own in `metadata` wins.
+
 ### Changed
+
 - `syslog(logger)` and `sys_log(logger, ...)` return the steps that were logged,
   not every step the logger has room for. A `Logger(P, steps)` that logged fewer
   than `steps` states no longer yields a log padded with zero rows.
