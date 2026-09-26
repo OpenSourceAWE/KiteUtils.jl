@@ -9,14 +9,14 @@
 Utilities for simulating kite power systems.
 
 This package is the foundation of Julia Kite Power Tools, which consist of the following packages:
-<p align="center"><img src="https://github.com/aenarete/WinchModels.jl/blob/main/docs/kite_power_tools.png" width="500" /></p> 
+<p align="center"><img src="docs/src/kite_power_tools.png" width="500" /></p> 
 
 ## What to install
-If you want to run simulations and see the results in 3D, please install the meta package  [KiteSimulators](https://github.com/aenarete/KiteSimulators.jl) . If you have already KiteSimulators installed, use `using KiteSimulators` instead of `using KiteUtils`.
+If you want to run simulations and see the results in 3D, please install the package  [KiteControllers](https://github.com/OpenSourceAWE/KiteControllers.jl) . You can use the example `autopilot.jl` of that package to run the GUI of the simulation software.
 If you just want to learn how this package works quickly just install only this package.
 
 ## Installation
-If you have not yet installed Julia 1.10 or newer, follow these [installation instructions](https://ufechner7.github.io/2024/08/09/installing-julia-with-juliaup.html). You can add KiteUtils from  Julia's package manager, by typing 
+If you have not yet installed Julia 1.12 or newer, follow these [installation instructions](https://ufechner7.github.io/2024/08/09/installing-julia-with-juliaup.html). You can add KiteUtils from  Julia's package manager, by typing 
 ```julia
 using Pkg
 pkg"add KiteUtils"
@@ -66,8 +66,8 @@ See the copyright notices in the source files, and the list of authors in [AUTHO
 
 ## Related
 - The meta package [KiteSimulators](https://github.com/aenarete/KiteSimulators.jl) which contains all packages from Julia Kite Power Tools.
-- the packages [KiteModels](https://github.com/OpenSourceAWE/KiteModels.jl) and [KitePodModels](https://github.com/OpenSourceAWE/KitePodModels.jl) and [WinchModels](https://github.com/aenarete/WinchModels.jl) and [AtmosphericModels](https://github.com/aenarete/AtmosphericModels.jl)
-- the packages [KiteControllers](https://github.com/aenarete/KiteControllers.jl) and [KiteViewers](https://github.com/OpenSourceAWE/KiteViewers.jl)
+- the packages [KiteModels](https://github.com/OpenSourceAWE/KiteModels.jl) and [KitePodModels](https://github.com/OpenSourceAWE/KitePodModels.jl) and [WinchModels](https://github.com/OpenSourceAWE/WinchModels.jl) and [AtmosphericModels](https://github.com/OpenSourceAWE/AtmosphericModels.jl)
+- the packages [KiteControllers](https://github.com/OpenSourceAWE/KiteControllers.jl) and [KiteViewers](https://github.com/OpenSourceAWE/KiteViewers.jl)
 
 **Documentation** [Stable Version](https://OpenSourceAWE.github.io/KiteUtils.jl/stable) [Development Version](https://OpenSourceAWE.github.io/KiteUtils.jl/dev)
 

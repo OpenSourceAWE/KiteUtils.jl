@@ -5,12 +5,12 @@ using KiteUtils, Test, StructArrays
 
 @testset "KiteUtils.jl: Log files      " begin
     state = KiteUtils.demo_state(7)
-    @test typeof(state) == SysState{7, 1, 0, 0, 1, 1, 0, Float32}
+    @test typeof(state) == SysState{7, 1, 1, 0, 0, 1, 1, 0, 0, Float32}
     @test state.X[end] == 10.0
     @test all(state.pos[end] .≈ [10, 0, 6.0])
-    @test repr(state) == "time [s]:          0.0\nt_sim [s]:         0.012\nsys_state [-]:     0\ncycle [-]:         0\nfig_8 [-]:         0\ne_mech [Wh]:       0.0\norient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]\nturn_rates [rad/s]:Float32[0.0, 0.0, 0.0]\nelevation [rad]:   0.5404195\nazimuth [rad]:     0.0\nazimuth_rate [rad/s]:0.0\nl_tether [m]:      Float32[0.0]\nv_reelout [m/s]:   Float32[0.0]\nwinch_force [N]:   Float32[0.0]\ndepower [0..1]:    0.0\nsteering [-1..1]:  0.0\nkcu_steering [-1..1]:0.0\nset_steering [-1..1]:0.0\nheading [rad]:     0.0\nheading_rate [rad/s]:0.0\ncourse [rad]:      0.0\nbearing [rad]:     0.0\nattractor [rad]:   Float32[0.0, 0.0]\nv_app [m/s]:       0.0\nv_wind_gnd [m/s]:  Float32[10.4855, 0.0, -3.08324]\nv_wind_200m [m/s]: Float32[10.4855, 0.0, -3.08324]\nv_wind_kite [m/s]: Float32[10.4855, 0.0, -3.08324]\nAoA [rad]:         0.0\nside_slip [rad]:   0.0\nalpha3 [rad]:      0.0\nalpha4 [rad]:      0.0\nCL2 [-]:           0.0\nCD2 [-]:           0.0\naero_force_KA [N]: Float32[0.0, 0.0, 0.0]\naero_moment_KA [Nm]:Float32[0.0, 0.0, 0.0]\ntwist_angles [rad]:Float32[]\nvel_kite [m/s]:    Float32[0.0, 0.0, 0.0]\nacc [m/s\u00b2]:        0.0\nX [m]:             Float32[0.0, 1.6666666, 3.3333333, 5.0, 6.6666665, 8.333333, 10.0]\nY [m]:             Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nZ [m]:             Float32[0.0, 0.15380114, 0.6194867, 1.4100224, 2.5474184, 4.063342, 6.0000005]\nflap_angle [rad]:  Float32[]\nVX [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVY [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVZ [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nspring_force [N]:  Float32[]\nturn_rate_x [rad/s]:Float32[0.0]\nturn_rate_y [rad/s]:Float32[0.0]\nturn_rate_z [rad/s]:Float32[0.0]\ntwist_vel [rad/s]: Float32[]\npulley_len [m]:    Float32[]\npulley_vel [m/s]:  Float32[]\nset_torque [Nm]:   Float32[0.0]\nset_speed [m/s]:   Float32[0.0]\nset_force [N]:     Float32[0.0]\nvar_01 [-]:        0.0\nvar_02 [-]:        0.0\nvar_03 [-]:        0.0\nvar_04 [-]:        0.0\nvar_05 [-]:        0.0\nvar_06 [-]:        0.0\nvar_07 [-]:        0.0\nvar_08 [-]:        0.0\nvar_09 [-]:        0.0\nvar_10 [-]:        0.0\nvar_11 [-]:        0.0\nvar_12 [-]:        0.0\nvar_13 [-]:        0.0\nvar_14 [-]:        0.0\nvar_15 [-]:        0.0\nvar_16 [-]:        0.0\n"
+    @test repr(state) == "time [s]:          0.0\nt_sim [s]:         0.012\nsys_state [-]:     0\ncycle [-]:         0\nfig_8 [-]:         0\ne_mech [Wh]:       0.0\norient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]\nturn_rates [rad/s]:Float32[0.0, 0.0, 0.0]\nelevation [rad]:   0.5404195\nazimuth [rad]:     0.0\nazimuth_rate [rad/s]:0.0\nl_tether [m]:      Float32[0.0]\nv_reelout [m/s]:   Float32[0.0]\nwinch_force [N]:   Float32[0.0]\ndepower [0..1]:    0.0\nsteering [-1..1]:  0.0\nkcu_steering [-1..1]:0.0\nset_steering [-1..1]:0.0\nheading [rad]:     0.0\nheading_rate [rad/s]:0.0\ncourse [rad]:      0.0\nbearing [rad]:     0.0\nattractor [rad]:   Float32[0.0, 0.0]\nv_app [m/s]:       0.0\nv_wind_gnd [m/s]:  Float32[10.4855, 0.0, -3.08324]\nv_wind_200m [m/s]: Float32[10.4855, 0.0, -3.08324]\nv_wind_kite [m/s]: Float32[10.4855, 0.0, -3.08324]\nAoA [rad]:         0.0\nside_slip [rad]:   0.0\nalpha3 [rad]:      0.0\nalpha4 [rad]:      0.0\nCL2 [-]:           0.0\nCD2 [-]:           0.0\naero_force_KA_x [N]:Float32[0.0]\naero_force_KA_y [N]:Float32[0.0]\naero_force_KA_z [N]:Float32[0.0]\naero_moment_KA_x [Nm]:Float32[0.0]\naero_moment_KA_y [Nm]:Float32[0.0]\naero_moment_KA_z [Nm]:Float32[0.0]\ntwist_angles [rad]:Float32[]\nvel_kite [m/s]:    Float32[0.0, 0.0, 0.0]\nacc [m/s²]:        0.0\nX [m]:             Float32[0.0, 1.6666666, 3.3333333, 5.0, 6.6666665, 8.333333, 10.0]\nY [m]:             Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nZ [m]:             Float32[0.0, 0.15380114, 0.6194867, 1.4100224, 2.5474184, 4.063342, 6.0000005]\nflap_angle [rad]:  Float32[]\nVX [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVY [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVZ [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nspring_force [N]:  Float32[]\ngamma_distribution [m²/s]:Float32[]\nturn_rate_x [rad/s]:Float32[0.0]\nturn_rate_y [rad/s]:Float32[0.0]\nturn_rate_z [rad/s]:Float32[0.0]\ntwist_vel [rad/s]: Float32[]\npulley_len [m]:    Float32[]\npulley_vel [m/s]:  Float32[]\nset_torque [Nm]:   Float32[0.0]\nset_speed [m/s]:   Float32[0.0]\nset_force [N]:     Float32[0.0]\nset_ext_force_x [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nset_ext_force_y [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nset_ext_force_z [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nvar_01 [-]:        0.0\nvar_02 [-]:        0.0\nvar_03 [-]:        0.0\nvar_04 [-]:        0.0\nvar_05 [-]:        0.0\nvar_06 [-]:        0.0\nvar_07 [-]:        0.0\nvar_08 [-]:        0.0\nvar_09 [-]:        0.0\nvar_10 [-]:        0.0\nvar_11 [-]:        0.0\nvar_12 [-]:        0.0\nvar_13 [-]:        0.0\nvar_14 [-]:        0.0\nvar_15 [-]:        0.0\nvar_16 [-]:        0.0\n"
     state = KiteUtils.demo_state_4p(7)
-    @test typeof(state) == SysState{11, 1, 0, 0, 1, 1, 0, Float32}
+    @test typeof(state) == SysState{11, 1, 1, 0, 0, 1, 1, 0, 0, Float32}
     @test state.X[end] ≈ 13.62487f0
     @test state.Y[end] ≈ -2.885
     @test state.Y[end-1] ≈ 2.885
@@ -112,6 +112,12 @@ end
         @test all(isfinite, row.attractor)
         @test all(isfinite, row.set_torque)
         @test isfinite(row.heading_rate)
+        # Every archived log predates these columns.
+        @test length(row.pulley_len) == length(row.gamma_distribution) == 0
+        for field in (:set_ext_force_x, :set_ext_force_y, :set_ext_force_z)
+            @test length(getproperty(row, field)) == length(row.X)
+            @test all(iszero, getproperty(row, field))
+        end
     end
     # A log with no twist_angles column defaults it to zero rather than garbage.
     old = load_log("sim_log"; frame=KS)
@@ -137,11 +143,11 @@ end
     # A Float64 log round-trips the differential state exactly. The values below
     # are chosen so that rounding them to Float32 would change them.
     set_data_path(tempdir())
-    P, O, D, L, W = 3, 2, 2, 4, 2
-    logger = Logger(P, 2; orients=O, deflections=D, pulleys=L, winches=W,
+    P, D, L, W = 3, 2, 4, 2
+    logger = Logger(P, 2; bodies=1, deflections=D, pulleys=L, winches=W,
                     precision=Float64)
     written = map(1:2) do step
-        ss = SysState{P, O, D, L, W, W, 0, Float64}()
+        ss = SysState(P; bodies=1, deflections=D, pulleys=L, winches=W, precision=Float64)
         ss.X .= [1 + 2.0^-40 * step, 2, 3]
         ss.VX .= [4 + 2.0^-40 * step, 5, 6]
         ss.VY .= [7, 8, 9 + 2.0^-40 * step]
@@ -226,10 +232,12 @@ end
     # export_log writes every SysState column, so import_log has to read every one
     # back: a column it does not name comes back zeroed, and nothing says so.
     set_data_path(tempdir())
-    P, O, D, L, W, S = 3, 2, 2, 4, 2, 5
-    logger = Logger(P, 2; orients=O, deflections=D, pulleys=L, winches=W, segments=S)
+    P, D, L, W, S = 3, 2, 4, 2, 5
+    logger = Logger(P, 2; wings=2, bodies=1, deflections=D, pulleys=L, winches=W,
+                    segments=S)
     written = map(1:2) do step
-        ss = SysState(P; orients=O, deflections=D, pulleys=L, winches=W, segments=S)
+        ss = SysState(P; wings=2, bodies=1, deflections=D, pulleys=L, winches=W,
+                      segments=S)
         # One distinct value per field, so a column read into the wrong field, or
         # not read at all, cannot pass.
         for (i, field) in enumerate(fieldnames(SysState))
@@ -255,28 +263,169 @@ end
     end
 end
 
-@testset "KiteUtils.jl: renamed body loads" begin
-    # Before 0.13 the two aerodynamic body loads were called aero_force_b and
-    # aero_moment_b. The quantity did not change with the name, so a log written
-    # under the old one still loads into the new field.
+@testset "aerodynamic loads are indexed by wing" begin
+    set_data_path(tempdir())
+    logger = Logger(3, 1; wings=2, bodies=1)
+    written = SysState(3; wings=2, bodies=1)
+    written.aero_force_KA_x .= [11, 12]
+    written.aero_force_KA_y .= [21, 22]
+    written.aero_force_KA_z .= [31, 32]
+    written.aero_moment_KA_z .= [41, 42]
+    log!(logger, written)
+    save_log(logger, "per_wing_test")
+    row = load_log("per_wing_test").syslog[1]
+    @test typeof(row) == SysState{3, 3, 2, 0, 0, 1, 1, 0, 0, Float32}
+    for field in (:aero_force_KA_x, :aero_force_KA_y, :aero_force_KA_z, :aero_moment_KA_z)
+        @test getproperty(row, field) == getproperty(written, field)
+    end
+    @test all(iszero, row.aero_moment_KA_x)
+end
+
+@testset "a log with more wings than oriented frames is rejected on load" begin
+    set_data_path(tempdir())
+    logger = Logger(3, 1; wings=2, bodies=0)
+    log!(logger, SysState(3; wings=2, bodies=0))
+    save_log(logger, "more_wings_than_frames")
+    table = KiteUtils.Arrow.Table(joinpath(tempdir(), "more_wings_than_frames.arrow"))
+    columns = Dict{Symbol, Any}(name => collect(getproperty(table, name))
+                                for name in propertynames(table))
+    for quaternion in (:Qw, :Qx, :Qy, :Qz)
+        columns[quaternion] = [q[1:1] for q in columns[quaternion]]
+    end
+    colmeta = Dict(Symbol("var_", lpad(i, 2, '0')) =>
+                   ["name" => "var_" * lpad(i, 2, '0')] for i in 1:16)
+    KiteUtils.Arrow.write(joinpath(tempdir(), "truncated_frames.arrow"),
+                          NamedTuple(columns); colmetadata=colmeta,
+                          metadata=KiteUtils.log_metadata())
+    @test_throws ArgumentError load_log("truncated_frames")
+end
+
+@testset "a pre-split log: the two aerodynamic loads are wing 1, tether loads dropped" begin
     set_data_path(tempdir())
     logger = Logger(3, 1)
     log!(logger, SysState(3))
-    save_log(logger, "renamed_body_loads")
-    table = KiteUtils.Arrow.Table(joinpath(tempdir(), "renamed_body_loads.arrow"))
-    columns = Dict{Symbol, AbstractVector}(name => collect(getproperty(table, name))
-                                           for name in propertynames(table))
-    delete!(columns, :aero_force_KA)
-    delete!(columns, :aero_moment_KA)
-    columns[:aero_force_b] = [Float32[1, 2, 3]]
+    save_log(logger, "per_body_split")
+    split_table = KiteUtils.Arrow.Table(joinpath(tempdir(), "per_body_split.arrow"))
+    columns = Dict{Symbol, Any}(name => collect(getproperty(split_table, name))
+                                for name in propertynames(split_table))
+    for load in ("aero_force_KA", "aero_moment_KA"), axis in ("x", "y", "z")
+        delete!(columns, Symbol(load, "_", axis))
+    end
+    # Before 0.13 the two loads were one 3-vector each under aero_force_b and
+    # aero_moment_b, and tether_induced_force is a column SysState no longer has.
+    columns[:aero_force_b] = [Float32[7, 8, 9]]
     columns[:aero_moment_b] = [Float32[4, 5, 6]]
+    columns[:tether_induced_force] = [Float32[1, 2, 3]]
     colmeta = Dict(Symbol("var_", lpad(i, 2, '0')) =>
                    ["name" => "var_" * lpad(i, 2, '0')] for i in 1:16)
-    KiteUtils.Arrow.write(joinpath(tempdir(), "old_body_load_names.arrow"), columns;
-                          colmetadata=colmeta, metadata=KiteUtils.log_metadata())
-    row = load_log("old_body_load_names").syslog[1]
-    @test collect(row.aero_force_KA) ≈ Float32[1, 2, 3]
-    @test collect(row.aero_moment_KA) ≈ Float32[4, 5, 6]
+    KiteUtils.Arrow.write(joinpath(tempdir(), "legacy_body_load.arrow"),
+                          NamedTuple(columns); colmetadata=colmeta,
+                          metadata=KiteUtils.log_metadata())
+    row = load_log("legacy_body_load").syslog[1]
+    @test row.aero_force_KA_x == Float32[7]
+    @test row.aero_force_KA_y == Float32[8]
+    @test row.aero_force_KA_z == Float32[9]
+    @test row.aero_moment_KA_x == Float32[4]
+    @test row.aero_moment_KA_y == Float32[5]
+    @test row.aero_moment_KA_z == Float32[6]
+end
+
+@testset "a model without pulleys, panels or surfaces logs zero-length columns" begin
+    set_data_path(tempdir())
+    logger = Logger(3, 2; deflections=0, pulleys=0, segments=0, panels=0)
+    for _ in 1:2
+        log!(logger, SysState(3))
+    end
+    save_log(logger, "zero_length_test")
+    row = load_log("zero_length_test").syslog[1]
+    @test typeof(row) == SysState{3, 1, 1, 0, 0, 1, 1, 0, 0, Float32}
+    for field in (:twist_angles, :twist_vel, :flap_angle, :pulley_len, :pulley_vel,
+                  :spring_force, :gamma_distribution)
+        @test length(getproperty(row, field)) == 0
+    end
+end
+
+@testset "the panel circulation and the external force input round-trip" begin
+    set_data_path(tempdir())
+    logger = Logger(3, 1; panels=4)
+    written = SysState(3; panels=4)
+    written.gamma_distribution .= [1.5, 2.5, 3.5, 4.5]
+    written.set_ext_force_x .= [10, 20, 30]
+    written.set_ext_force_y .= [40, 50, 60]
+    written.set_ext_force_z .= [70, 80, 90]
+    log!(logger, written)
+    save_log(logger, "panel_input_test")
+    row = load_log("panel_input_test").syslog[1]
+    @test typeof(row) == SysState{3, 1, 1, 0, 0, 1, 1, 0, 4, Float32}
+    for field in (:gamma_distribution, :set_ext_force_x, :set_ext_force_y,
+                  :set_ext_force_z)
+        @test getproperty(row, field) == getproperty(written, field)
+    end
+end
+
+@testset "demo_syslog sizes every column by the counts it is given" begin
+    syslog = demo_syslog(7, 3, 3, 4, 2, 3, 5, 6; wings=2, duration=1)
+    @test eltype(syslog) == SysState{7, 3, 2, 3, 4, 2, 3, 5, 6, Float32}
+    row = syslog[end]
+    @test length(row.Qw) == 3
+    @test length(row.aero_force_KA_x) == 2
+    @test length(row.flap_angle) == 3
+    @test length(row.pulley_len) == 4
+    @test length(row.set_torque) == 2
+    @test length(row.l_tether) == 3
+    @test length(row.spring_force) == 5
+    @test length(row.gamma_distribution) == 6
+end
+
+@testset "demo_syslog reads its counts in the order of KiteUtils 0.13" begin
+    @test eltype(demo_syslog(7, 2, 1, 3; duration=1)) ==
+          SysState{7, 2, 1, 1, 3, 1, 1, 0, 0, Float32}
+end
+
+@testset "wings come first among the frames and the last position slots" begin
+    state = SysState(6; wings=2, bodies=1)
+    @test typeof(state) == SysState{6, 3, 2, 0, 0, 1, 1, 0, 0, Float32}
+    @test length(state.turn_rate_x) == 3
+    @test length(state.aero_force_KA_x) == 2
+    state.Qw .= [0.1, 0.2, 0.3]
+    state.X .= 1:6
+    @test wing_Q(state, 2)[1] == 0.2f0
+    @test body_Q(state, 1)[1] == 0.3f0
+    @test wing_pos(state, 1)[1] == 4
+    @test body_pos(state, 1)[1] == 6
+    wing_pos(state, 2) .= [7, 8, 9]
+    @test (state.X[5], state.Y[5], state.Z[5]) == (7, 8, 9)
+    @test_throws BoundsError wing_Q(state, 3)
+    @test_throws BoundsError body_pos(state, 2)
+    @test_throws AssertionError SysState{6, 1, 2, 0, 0, 1, 1, 0, 0, Float32}()
+    logger = Logger(6, 1; wings=2, bodies=1)
+    log!(logger, state)
+    logged = syslog(logger)
+    @test wing_Q(logged, 2)[1][1] == 0.2f0
+    @test body_pos(logged, 1)[1] == [6, 0, 0]
+end
+
+@testset "orients=O is one wing and O - 1 bodies" begin
+    @test typeof(SysState(6; orients=3)) == typeof(SysState(6; wings=1, bodies=2))
+    @test typeof(SysState(6; wings=2, orients=3)) == typeof(SysState(6; wings=2, bodies=1))
+    @test typeof(Logger(6, 1; orients=3)) == typeof(Logger(6, 1; wings=1, bodies=2))
+    @test typeof(demo_state(6; orients=3)) == typeof(SysState(6; bodies=2))
+end
+
+@testset "aero_force_KA and aero_moment_KA are wing 1's loads as a 3-vector" begin
+    state = SysState(3; wings=2)
+    state.aero_force_KA = [1, 2, 3]
+    state.aero_moment_KA .= [4, 5, 6]
+    state.aero_force_KA[2] = 7
+    @test (state.aero_force_KA_x, state.aero_force_KA_y, state.aero_force_KA_z) ==
+          ([1, 0], [7, 0], [3, 0])
+    @test state.aero_moment_KA == [4, 5, 6]
+    @test state.aero_moment_KA_z == [6, 0]
+    @test :aero_force_KA in propertynames(state)
+    logger = Logger(3, 1; wings=2)
+    log!(logger, state)
+    @test syslog(logger).aero_force_KA[1] == [1, 7, 3]
+    @test syslog(logger).aero_moment_KA[1] == [4, 5, 6]
 end
 
 @testset "KiteUtils.jl: re-saving a loaded log" begin

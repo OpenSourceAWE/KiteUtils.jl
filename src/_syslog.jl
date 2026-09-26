@@ -35,9 +35,10 @@ The rows that were logged, as a `StructArray` of `SysState`. It is a view on the
 columns of `logger`, so the steps it has room for but never logged are left out
 and the logger stays usable.
 """
-function syslog(logger::Logger{P, O, D, L, W, T, S, F, Q}) where {P, O, D, L, W, T, S, F, Q}
+function syslog(logger::Logger{P, O, K, D, L, W, T, S, N, F, Q}
+                ) where {P, O, K, D, L, W, T, S, N, F, Q}
     l = logger
-    preallocated = StructArray{SysState{P, O, D, L, W, T, S, F}}((
+    preallocated = StructArray{SysState{P, O, K, D, L, W, T, S, N, F}}((
         l.time_vec, l.t_sim_vec, l.sys_state_vec,
         l.cycle_vec, l.fig_8_vec, l.e_mech_vec,
         l.Qw_vec, l.Qx_vec, l.Qy_vec,
@@ -50,20 +51,23 @@ function syslog(logger::Logger{P, O, D, L, W, T, S, F, Q}) where {P, O, D, L, W,
         l.v_wind_gnd_vec, l.v_wind_200m_vec, l.v_wind_kite_vec,
         l.AoA_vec, l.side_slip_vec, l.alpha3_vec,
         l.alpha4_vec, l.CL2_vec, l.CD2_vec,
-        l.aero_force_KA_vec, l.aero_moment_KA_vec, l.twist_angles_vec,
-        l.vel_kite_vec, l.acc_vec, l.X_vec,
-        l.Y_vec, l.Z_vec, l.flap_angle_vec,
-        l.VX_vec, l.VY_vec, l.VZ_vec,
-        l.aero_force_x_vec, l.aero_force_y_vec, l.aero_force_z_vec,
-        l.drag_force_x_vec, l.drag_force_y_vec, l.drag_force_z_vec,
-        l.spring_force_vec, l.turn_rate_x_vec, l.turn_rate_y_vec,
-        l.turn_rate_z_vec, l.twist_vel_vec, l.pulley_len_vec,
-        l.pulley_vel_vec, l.set_torque_vec, l.set_speed_vec,
-        l.set_force_vec, l.var_01_vec, l.var_02_vec,
-        l.var_03_vec, l.var_04_vec, l.var_05_vec,
-        l.var_06_vec, l.var_07_vec, l.var_08_vec,
-        l.var_09_vec, l.var_10_vec, l.var_11_vec,
-        l.var_12_vec, l.var_13_vec, l.var_14_vec,
-        l.var_15_vec, l.var_16_vec))
+        l.aero_force_KA_x_vec, l.aero_force_KA_y_vec, l.aero_force_KA_z_vec,
+        l.aero_moment_KA_x_vec, l.aero_moment_KA_y_vec, l.aero_moment_KA_z_vec,
+        l.twist_angles_vec, l.vel_kite_vec, l.acc_vec,
+        l.X_vec, l.Y_vec, l.Z_vec,
+        l.flap_angle_vec, l.VX_vec, l.VY_vec,
+        l.VZ_vec, l.aero_force_x_vec, l.aero_force_y_vec,
+        l.aero_force_z_vec, l.drag_force_x_vec, l.drag_force_y_vec,
+        l.drag_force_z_vec, l.spring_force_vec, l.gamma_distribution_vec,
+        l.turn_rate_x_vec, l.turn_rate_y_vec, l.turn_rate_z_vec,
+        l.twist_vel_vec, l.pulley_len_vec, l.pulley_vel_vec,
+        l.set_torque_vec, l.set_speed_vec, l.set_force_vec,
+        l.set_ext_force_x_vec, l.set_ext_force_y_vec, l.set_ext_force_z_vec,
+        l.var_01_vec, l.var_02_vec, l.var_03_vec,
+        l.var_04_vec, l.var_05_vec, l.var_06_vec,
+        l.var_07_vec, l.var_08_vec, l.var_09_vec,
+        l.var_10_vec, l.var_11_vec, l.var_12_vec,
+        l.var_13_vec, l.var_14_vec, l.var_15_vec,
+        l.var_16_vec))
     view(preallocated, 1:length(logger))
 end

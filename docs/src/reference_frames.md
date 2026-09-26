@@ -93,8 +93,8 @@ neither and takes [`fromENU2NED`](@ref) or [`fromNED2ENU`](@ref), which rotate t
 frame only.
 
 The `SysState` fields resolved in the body frame, and therefore `KA`, are `turn_rates`,
-`aero_force_KA`, `aero_moment_KA` and `turn_rate_x`/`_y`/`_z`, alongside the orientation
-itself. `load_log` converts all of them when it reads a `KS` log, so a state that comes
+`aero_force_KA_x`/`_y`/`_z`, `aero_moment_KA_x`/`_y`/`_z` and
+`turn_rate_x`/`_y`/`_z`, alongside the orientation itself. `load_log` converts all of them when it reads a `KS` log, so a state that comes
 out of a load never mixes the two.
 
 ### The neighbouring packages
@@ -152,7 +152,7 @@ The origin of the body frame is the tow point, the KCU for a model that has one.
 not affect the orientation, a rotation being independent of where it is anchored.
 
 ## Control inputs
-see: [Reference frames and control inputs](https://ufechner7.github.io/KiteModels.jl/dev/#Reference-frames-and-control-inputs)
+see: [Reference frames and control inputs](https://opensourceawe.github.io/KiteModels.jl/dev/#Reference-frames-and-control-inputs)
 
 ## Small earth reference frame
 

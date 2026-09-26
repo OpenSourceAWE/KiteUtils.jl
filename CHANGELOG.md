@@ -17,13 +17,42 @@
 - `Logger.created`, the date and time the logger was constructed, as an ISO 8601 string
   in local time. Every log saved from a logger carries it as the `created` table
   metadata key; a `created` of the caller's own in `metadata` wins.
+- A wing count `K` and a panel count `N`, type parameters of
+  `SysState{P, O, K, D, L, W, T, S, N, F}` and `Logger{P, O, K, D, L, W, T, S, N, F, Q}`.
+  Of the O oriented frames the first K are wings and the rest bodies, and the last O
+  position slots hold them in that order; `SysState{P, O, K, ...}()` asserts `K <= O`.
+- `wings` and `bodies`, keywords of `SysState(P; ...)` and `Logger(P, steps; ...)`:
+  `wings=2, bodies=1` for two wings and a rigid body. `orients=O` stays, as one wing
+  and `O - 1` bodies.
+- `wing_Q`, `body_Q`, `wing_pos` and `body_pos` address one wing or body by those
+  offsets, as a mutable view of a `SysState` or a time series of a log's `syslog`.
+- `gamma_distribution`, one circulation per aerodynamic panel, sized by `N` and by the
+  `panels` keyword of both constructors: `SysState(P; ..., panels)` and
+  `Logger(P, steps; ..., panels)`.
+- `set_ext_force_x`, `set_ext_force_y` and `set_ext_force_z`, the external force
+  applied to each point, ENU. It was settable but unlogged, so a run driven by one
+  could not be replayed from its log.
+- `fromKS2KA_body_columns!(x, y, z)` converts a log's per-body component columns in
+  place, as `fromKS2KA_columns!` does its quaternion columns.
 ### Changed
+- The two aerodynamic loads are stored one field per component, each holding one entry
+  per wing, so a system with a second wing can log both:
+  `aero_force_KA_x`/`aero_force_KA_y`/`aero_force_KA_z` and
+  `aero_moment_KA_x`/`aero_moment_KA_y`/`aero_moment_KA_z`; wing `k`'s force along x is
+  `aero_force_KA_x[k]`. `aero_force_KA` and `aero_moment_KA` are properties holding wing
+  1's 3-vector, read and written as before on a `SysState` and read per step on a log.
+  `load_log` and `import_log` read a pre-split log's 3-vector back as wing 1, under that
+  name or the `aero_force_b` it carried before v0.13.0, and convert the component columns
+  of a `KS` log as they already convert `turn_rate_x`/`_y`/`_z`.
 - `syslog(logger)` and `sys_log(logger, ...)` return the steps that were logged,
   not every step the logger has room for. A `Logger(P, steps)` that logged fewer
   than `steps` states no longer yields a log padded with zero rows.
 - `save_log(logger, ...)` leaves the logger alone. It used to resize every column
   of the logger down to the number of logged steps, which ended the logger's
   preallocation and silently dropped everything logged afterwards.
+- `demo_syslog(P, O, D, L, W, T, S, N; wings)` returns states of those counts; it threw
+  a `DimensionMismatch` for any count but `P`. `demo_state(P; counts...)` takes the
+  keywords of `SysState(P; ...)` for the same purpose.
 ### Fixed
 - `save_log(load_log(name))` threw a `BoundsError` out of Arrow. `load_log` filled
   `SysLog.colmeta` with bare `String` values where every other producer fills it with
