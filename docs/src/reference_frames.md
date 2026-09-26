@@ -93,8 +93,8 @@ neither and takes [`fromENU2NED`](@ref) or [`fromNED2ENU`](@ref), which rotate t
 frame only.
 
 The `SysState` fields resolved in the body frame, and therefore `KA`, are `turn_rates`,
-`aero_force_KA`, `aero_moment_KA` and `turn_rate_x`/`_y`/`_z`, alongside the orientation
-itself. `load_log` converts all of them when it reads a `KS` log, so a state that comes
+`aero_force_KA_x`/`_y`/`_z`, `aero_moment_KA_x`/`_y`/`_z` and
+`turn_rate_x`/`_y`/`_z`, alongside the orientation itself. `load_log` converts all of them when it reads a `KS` log, so a state that comes
 out of a load never mixes the two.
 
 ### The neighbouring packages

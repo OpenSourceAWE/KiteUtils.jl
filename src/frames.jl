@@ -157,3 +157,17 @@ function fromKS2KA_columns!(Qw, Qx, Qy, Qz)
     end
     nothing
 end
+
+"""
+    fromKS2KA_body_columns!(x, y, z)
+
+Convert every body vector in a log's per-body component columns — `turn_rate_x/y/z`, say
+— from `KS` to `KA` in place with [`fromKS2KA_body`](@ref), one per timestep and oriented
+frame. The columns must be mutable; Arrow columns are not.
+"""
+function fromKS2KA_body_columns!(x, y, z)
+    for t in eachindex(x), k in eachindex(x[t])
+        x[t][k], y[t][k], z[t][k] = fromKS2KA_body(SVector(x[t][k], y[t][k], z[t][k]))
+    end
+    nothing
+end
