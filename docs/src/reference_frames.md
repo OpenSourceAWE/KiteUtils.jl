@@ -64,8 +64,11 @@ The **KA** (kite aero) reference frame is the convention of `SysState` and of ev
 calculation in this package. Like `KS` it is a rotating reference frame, and its origin is
 the tow point, which is the KCU for a model that has one. It is defined as follows:
 - **x**: from leading edge to trailing edge
-- **y**: spanwise, from the left to the right wing tip
+- **y**: spanwise, to the right looking in flight direction
 - **z**: up
+
+The frame is right-handed, and a turn to the right seen from the front is a positive
+rotation about its z axis. Looking in flight direction that turn is to the left.
 
 These are the aerodynamic axes, so drag is +x, side force +y and lift +z, and at zenith
 they line up with ENU. Geometry must satisfy `x · (TE − LE) > 0` with y spanwise
@@ -78,6 +81,9 @@ by the location where the sensor is mounted. In the simulation this is equal to 
 - **x**: from trailing edge to leading edge
 - **y**: to the right looking in flight direction
 - **z**: down
+
+The frame is right-handed, and a turn to the right looking in flight direction is a
+positive rotation about its z axis.
 
 `KS` is used in exactly three places:
 
@@ -180,7 +186,7 @@ fly the kite on a prescribed trajectory that is adapted to the wind conditions.
 In Fig. 5.1 the vectors $x_k, y_k$ and $z_k$ define the body-fixed kite reference frame
 in the `KS` convention. In this
 chapter, the combination of the wing and the kite control unit (KCU) is seen as kite.
-The $y_k$ axis is defined by the vector from the left to the right wing tip, the $z_k$ axis is
+The $y_k$ axis points to the right looking in flight direction, the $z_k$ axis is
 pointing downwards from the position of the kite parallel to the upper part of the tether,
 and the $x_k$ axis is orthogonal to $y_k$ and $z_k$ . The heading angle ψ is the angle between the
 direction towards zenith and the vector $x_k$ as projected on the tangential plane touching
