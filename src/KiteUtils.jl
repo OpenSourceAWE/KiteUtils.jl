@@ -156,7 +156,8 @@ $(TYPEDFIELDS)
 mutable struct SysLog{P, O, S <: StructArray{<:SysState{P, O}}}
     "name of the flight log"
     name::String
-    colmeta::Dict{Symbol, Union{String, Vector{Pair{String, String}}}}
+    "metadata of each column, in the shape `Arrow.write(; colmetadata)` takes"
+    colmeta::Dict{Symbol, Vector{Pair{String, String}}}
     "struct of vectors that can also be accessed like a vector of structs"
     syslog::S
     "table metadata of the log file; opaque strings that KiteUtils never reads"

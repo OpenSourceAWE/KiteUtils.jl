@@ -53,6 +53,12 @@
 - `demo_syslog(P, O, D, L, W, T, S, N; wings)` returns states of those counts; it threw
   a `DimensionMismatch` for any count but `P`. `demo_state(P; counts...)` takes the
   keywords of `SysState(P; ...)` for the same purpose.
+### Fixed
+- `save_log(load_log(name))` threw a `BoundsError` out of Arrow. `load_log` filled
+  `SysLog.colmeta` with bare `String` values where every other producer fills it with
+  `["name" => value]`, the shape `Arrow.write(; colmetadata=...)` iterates as pairs.
+  `load_log` now builds that shape, and the field is typed
+  `Dict{Symbol, Vector{Pair{String, String}}}` so the other one cannot get in.
 
 ## KiteUtils v0.13.0 2026-09-14
 ### Added
