@@ -67,8 +67,8 @@ the tow point, which is the KCU for a model that has one. It is defined as follo
 - **y**: spanwise, to the right looking in flight direction
 - **z**: up
 
-A positive rotation about z turns the kite to the right seen from the front, which is to
-the left looking in flight direction.
+The frame is right-handed, and a turn to the right seen from the front is a positive
+rotation about its z axis. Looking in flight direction that turn is to the left.
 
 These are the aerodynamic axes, so drag is +x, side force +y and lift +z, and at zenith
 they line up with ENU. Geometry must satisfy `x · (TE − LE) > 0` with y spanwise
@@ -82,7 +82,8 @@ by the location where the sensor is mounted. In the simulation this is equal to 
 - **y**: to the right looking in flight direction
 - **z**: down
 
-A positive rotation about z turns the kite to the right looking in flight direction.
+The frame is right-handed, and a turn to the right looking in flight direction is a
+positive rotation about its z axis.
 
 `KS` is used in exactly three places:
 
