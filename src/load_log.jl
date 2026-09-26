@@ -161,6 +161,8 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
     # kite's, so it is one wing and its components read back as wing 1. `aero_force_b`
     # was that column's name before the frame reached it.
     K = haskey(table, :aero_force_KA_x) ? entries(table.aero_force_KA_x) : 1
+    K <= O || throw(ArgumentError(
+        "log $log_name holds the loads of $K wings but only $O oriented frames"))
     function wing_load(name, legacy)
         three_vector = haskey(table, name) ? name : legacy
         map(1:3) do component

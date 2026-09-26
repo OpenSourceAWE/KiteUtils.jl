@@ -281,6 +281,25 @@ end
     @test all(iszero, row.aero_moment_KA_x)
 end
 
+@testset "a log with more wings than oriented frames is rejected on load" begin
+    set_data_path(tempdir())
+    logger = Logger(3, 1; wings=2, bodies=0)
+    log!(logger, SysState(3; wings=2, bodies=0))
+    save_log(logger, "more_wings_than_frames")
+    table = KiteUtils.Arrow.Table(joinpath(tempdir(), "more_wings_than_frames.arrow"))
+    columns = Dict{Symbol, Any}(name => collect(getproperty(table, name))
+                                for name in propertynames(table))
+    for quaternion in (:Qw, :Qx, :Qy, :Qz)
+        columns[quaternion] = [q[1:1] for q in columns[quaternion]]
+    end
+    colmeta = Dict(Symbol("var_", lpad(i, 2, '0')) =>
+                   ["name" => "var_" * lpad(i, 2, '0')] for i in 1:16)
+    KiteUtils.Arrow.write(joinpath(tempdir(), "truncated_frames.arrow"),
+                          NamedTuple(columns); colmetadata=colmeta,
+                          metadata=KiteUtils.log_metadata())
+    @test_throws ArgumentError load_log("truncated_frames")
+end
+
 @testset "a pre-split log: the two aerodynamic loads are wing 1, tether loads dropped" begin
     set_data_path(tempdir())
     logger = Logger(3, 1)
