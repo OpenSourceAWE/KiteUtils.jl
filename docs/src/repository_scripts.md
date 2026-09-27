@@ -26,11 +26,14 @@ it leaves your global environment alone as well.
 
 Makes the repository runnable exactly as it is pinned: it overwrites the live
 `Manifest-v<version>.toml` with the tracked `Manifest-v<version>.toml.default`
-for the Julia version on the machine, instantiates and precompiles. It runs no
-test suite, builds no system image and no documentation.
+for the Julia version on the machine, instantiates and precompiles. After it,
+starting `bin/run_julia` and running the examples its menu offers precompiles
+nothing further. It runs no test suite, builds no system image and no
+documentation.
 
 - `-y` runs it without a terminal: no question asked, the Julia already on the
-  machine. This is what a CI job or another script calls.
+  machine, and nothing prepared for `bin/run_julia`. This is what a CI job or
+  another script calls.
 - `--update` resolves instead of installing: `Pkg.update()` against the live
   manifest. The tracked `.default` is left alone.
 - `-h` lists the flags.

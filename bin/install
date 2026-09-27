@@ -15,7 +15,7 @@ Install the package environment of this repository for the Julia version that is
 on the machine: the tracked Manifest-v<version>.toml.default is copied over the
 live Manifest-v<version>.toml, instantiated and precompiled. Asked first, it
 then adds Revise, which bin/run_julia loads, to your global environment where it
-is missing.
+is missing, and starts bin/run_julia once so that it precompiles nothing later.
 
   -y        do not ask, and leave the global environment alone
   --update  resolve instead of install: Pkg.update against the live manifest,
@@ -67,4 +67,5 @@ if ! $assume_yes; then
             Pkg.add("Revise")
             println("bin/install: added Revise to your global environment for bin/run_julia.")
         end'
+    bin/run_julia < /dev/null > /dev/null
 fi
