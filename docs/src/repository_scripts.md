@@ -3,23 +3,24 @@
 The Julia packages of the OpenSourceAWE ecosystem carry three scripts in `bin/`
 that every user meets: `install`, `update_default_manifests` and `run_julia`.
 This page says what each of them does, in any repository that ships it, so that
-you know what a command will change before you type it. A repository either
-ships a script that does what is written here or does not ship it at all.
+you know what a command will change before you type it. A repository may need
+more than this, a repository used for teaching for instance; its script then
+says what it does beyond this page when you pass `-h`.
 
 `<version>` below is a Julia `major.minor`, as in `Manifest-v1.12.toml`.
 
 | Script | Reads | Writes |
 | ------ | ----- | ------ |
-| `bin/install` | `Manifest-v<version>.toml.default` (tracked) | `Manifest-v<version>.toml` (gitignored), the depot `~/.julia` |
+| `bin/install` | `Manifest-v<version>.toml.default` (tracked) | `Manifest-v<version>.toml` (gitignored), the depot `~/.julia`, your global environment where `bin/run_julia` loads from it (not with `-y`) |
 | `bin/install --update` | `Project.toml`, `Manifest-v<version>.toml`, the registry | `Manifest-v<version>.toml`, the depot `~/.julia` |
 | `bin/update_default_manifests` | `Project.toml`, the registry | every `Manifest-v<version>.toml` and `Manifest-v<version>.toml.default`, the depot `~/.julia` |
 | `bin/run_julia` | `Manifest-v<version>.toml` | the depot's precompile cache, where it is stale |
 
-Run as shown, with no flag or with `-y`, none of them changes anything else on
-your machine: no `juliaup default`, no package added to your global environment,
-no line appended to `~/.bashrc`, nothing deleted under `~/.julia`. A repository
-may offer further flags that do such things; you get them only by naming them,
-and `-h` lists them.
+Beyond that, `bin/install` adds to your global environment the packages that
+`bin/run_julia` loads from it, such as Revise, and says so when it does. Nothing
+else on your machine changes unless you name a flag for it: no `juliaup default`,
+no line appended to `~/.bashrc`, nothing deleted under `~/.julia`. With `-y`
+it leaves your global environment alone as well.
 
 ## `bin/install`
 
