@@ -11,16 +11,15 @@ says what it does beyond this page when you pass `-h`.
 
 | Script | Reads | Writes |
 | ------ | ----- | ------ |
-| `bin/install` | `Manifest-v<version>.toml.default` (tracked) | `Manifest-v<version>.toml` (gitignored), the depot `~/.julia`, your global environment where `bin/run_julia` loads from it (not with `-y`) |
+| `bin/install` | `Manifest-v<version>.toml.default` (tracked) | `Manifest-v<version>.toml` (gitignored), the depot `~/.julia`, what you need outside the repository, see below (not with `-y`) |
 | `bin/install --update` | `Project.toml`, `Manifest-v<version>.toml`, the registry | `Manifest-v<version>.toml`, the depot `~/.julia` |
 | `bin/update_default_manifests` | `Project.toml`, the registry | every `Manifest-v<version>.toml` and `Manifest-v<version>.toml.default`, the depot `~/.julia` |
 | `bin/run_julia` | `Manifest-v<version>.toml` | the depot's precompile cache, where it is stale |
 
-Beyond that, `bin/install` adds to your global environment the packages that
-`bin/run_julia` loads from it, such as Revise, and says so when it does. Nothing
-else on your machine changes unless you name a flag for it: no `juliaup default`,
-no line appended to `~/.bashrc`, nothing deleted under `~/.julia`. With `-y`
-it leaves your global environment alone as well.
+Beyond that, `bin/install` changes what you need outside the repository to work
+with it, such as Revise in your global environment where `bin/run_julia` loads
+it, the `juliaup` default, or an alias in `~/.bashrc`, and says what it changed.
+With `-y` it changes none of these.
 
 ## `bin/install`
 
