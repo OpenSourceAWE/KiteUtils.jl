@@ -13,9 +13,11 @@ Usage: bin/install [-y] [--update] [-h]
 
 Install the package environment of this repository for the Julia version that is
 on the machine: the tracked Manifest-v<version>.toml.default is copied over the
-live Manifest-v<version>.toml, instantiated and precompiled. Nothing else.
+live Manifest-v<version>.toml, instantiated and precompiled. Asked first, it
+then adds Revise, which bin/run_julia loads, to your global environment where it
+is missing.
 
-  -y        do not ask before overwriting the live manifest
+  -y        do not ask, and leave the global environment alone
   --update  resolve instead of install: Pkg.update against the live manifest,
             leaving the tracked default alone
   -h        show this message
@@ -58,3 +60,11 @@ fi
 
 cp "$manifest.default" "$manifest"
 julia --startup-file=no --project -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+
+if ! $assume_yes; then
+    julia --startup-file=no -e 'using Pkg
+        if Base.find_package("Revise") === nothing
+            Pkg.add("Revise")
+            println("bin/install: added Revise to your global environment for bin/run_julia.")
+        end'
+fi
