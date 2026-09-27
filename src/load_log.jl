@@ -43,23 +43,10 @@ function load_log(filename::String; path="", debug=false,
     if debug
         return table
     end
-    colmeta = Dict(:var_01=>Arrow.getmetadata(table.var_01)["name"],
-                   :var_02=>Arrow.getmetadata(table.var_02)["name"],
-                   :var_03=>Arrow.getmetadata(table.var_03)["name"],
-                   :var_04=>Arrow.getmetadata(table.var_04)["name"],
-                   :var_05=>Arrow.getmetadata(table.var_05)["name"],
-                   :var_06=>Arrow.getmetadata(table.var_06)["name"],
-                   :var_07=>Arrow.getmetadata(table.var_07)["name"],
-                   :var_08=>Arrow.getmetadata(table.var_08)["name"],
-                   :var_09=>Arrow.getmetadata(table.var_09)["name"],
-                   :var_10=>Arrow.getmetadata(table.var_10)["name"],
-                   :var_11=>Arrow.getmetadata(table.var_11)["name"],
-                   :var_12=>Arrow.getmetadata(table.var_12)["name"],
-                   :var_13=>Arrow.getmetadata(table.var_13)["name"],
-                   :var_14=>Arrow.getmetadata(table.var_14)["name"],
-                   :var_15=>Arrow.getmetadata(table.var_15)["name"],
-                   :var_16=>Arrow.getmetadata(table.var_16)["name"],
-    )
+    colmeta = Dict{Symbol, Vector{Pair{String, String}}}()
+    for var in keys(default_colmeta())
+        colmeta[var] = ["name" => Arrow.getmetadata(getproperty(table, var))["name"]]
+    end
     declared = log_convention(table)
     if isnothing(declared) && isnothing(frame)
         @warn "Log $(basename(fullname)) declares no frame convention, so it predates " *
