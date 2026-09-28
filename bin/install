@@ -9,26 +9,29 @@ cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.."
 
 usage() {
     cat <<'USAGE'
-Usage: bin/install [-y] [--update] [-h]
+Usage: bin/install [-y] [--student] [--update] [-h]
 
 Install the package environment of this repository for the Julia version that is
-on the machine: the tracked Manifest-v<version>.toml.default is copied over the
-live Manifest-v<version>.toml, instantiated and precompiled. Asked first, it
-then adds Revise, which bin/run_julia loads, to your global environment where it
-is missing, and starts bin/run_julia once so that it precompiles nothing later.
+on the machine: manifests under examples/ and test/ are moved to .bak, the
+tracked Manifest-v<version>.toml.default is copied over the live
+Manifest-v<version>.toml, resolved, instantiated and precompiled. Nothing
+outside the repository changes but the depot ~/.julia.
 
-  -y        do not ask, and leave the global environment alone
-  --update  resolve instead of install: Pkg.update against the live manifest,
-            leaving the tracked default alone
-  -h        show this message
+  -y         accepted for scripts; bin/install asks nothing either way
+  --student  also install Julia where it is missing, add alias jl='bin/run_julia'
+             to ~/.bashrc and Revise to your global environment
+  --update   resolve instead of install: Pkg.update against the live manifest,
+             leaving the tracked default alone
+  -h         show this message
 USAGE
 }
 
-assume_yes=false
+student=false
 update=false
 while [ $# -gt 0 ]; do
     case "$1" in
-        -y) assume_yes=true ;;
+        -y) ;;
+        --student) student=true ;;
         --update) update=true ;;
         -h|--help) usage; exit 0 ;;
         *) echo "bin/install: unknown option $1" >&2; usage >&2; exit 1 ;;
@@ -36,7 +39,21 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+has_revise() {
+    julia --startup-file=no -e 'exit(Base.find_package("Revise") === nothing ? 1 : 0)'
+}
+
 export JULIA_PKG_SERVER_REGISTRY_PREFERENCE=eager
+
+if ! command -v julia > /dev/null; then
+    if ! $student; then
+        echo "bin/install: no julia on the PATH; bin/install --student installs it." >&2
+        exit 1
+    fi
+    curl -fsSL https://install.julialang.org | sh -s -- --yes
+    export PATH="$HOME/.juliaup/bin:$PATH"
+    echo "bin/install: installed Julia with juliaup."
+fi
 
 if $update; then
     julia --startup-file=no --project -e 'using Pkg; Pkg.update()'
@@ -50,22 +67,37 @@ if [ ! -f "$manifest.default" ]; then
     exit 1
 fi
 
-if ! $assume_yes; then
-    read -r -p "Overwrite $manifest with $manifest.default and instantiate? [y/N] " reply
-    case "$reply" in
-        [yY]*) ;;
-        *) echo "bin/install: nothing installed."; exit 1 ;;
-    esac
-fi
+for stale in examples/Manifest*.toml test/Manifest*.toml; do
+    if [ -f "$stale" ]; then
+        mv "$stale" "$stale.bak"
+        echo "bin/install: moved $stale to $stale.bak."
+    fi
+done
 
 cp "$manifest.default" "$manifest"
-julia --startup-file=no --project -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+julia --startup-file=no --project -e 'using Pkg
+    try
+        Pkg.resolve()
+    catch e
+        @warn "Pkg.resolve failed; instantiating the pinned manifest as it is" exception=e
+    end
+    Pkg.instantiate()
+    Pkg.precompile()'
 
-if ! $assume_yes; then
-    julia --startup-file=no -e 'using Pkg
-        if Base.find_package("Revise") === nothing
-            Pkg.add("Revise")
-            println("bin/install: added Revise to your global environment for bin/run_julia.")
-        end'
+if $student && ! grep -qs "alias jl=" ~/.bashrc; then
+    echo "alias jl='bin/run_julia'" >> ~/.bashrc
+    echo "bin/install: added alias jl='bin/run_julia' to ~/.bashrc."
+fi
+
+if ! has_revise; then
+    if $student; then
+        julia --startup-file=no -e 'using Pkg; Pkg.add("Revise")'
+        echo "bin/install: added Revise to your global environment."
+    else
+        echo "bin/install: Revise is not in your global environment;" \
+            "bin/run_julia runs without it. bin/install --student adds it." >&2
+    fi
+fi
+if has_revise; then
     bin/run_julia < /dev/null > /dev/null
 fi
