@@ -4,7 +4,7 @@
 using KiteUtils, Test
 
 @testset "Logger:                      " begin
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     steps = 20*30
     logger = Logger(7, steps)
     state = demo_state(7)
@@ -31,7 +31,7 @@ using KiteUtils, Test
 end
 
 @testset "SysLog from a Logger         " begin
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     logger = Logger(7, 10)
     state = demo_state(7)
     for step in 1:3

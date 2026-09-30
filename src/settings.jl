@@ -409,7 +409,7 @@ const _SE_DICTS = IdDict{Settings, Dict{String, Any}}()
 """
     set_data_path(data_path="")
 
-Set the directory for log and config files.
+Set the directory for config files.
 
 If called without argument, use the data path of the package to obtain the default settings
 when calling se().
@@ -427,10 +427,31 @@ end
 """
     get_data_path()
 
-Get the directory for log and config files.
+Get the directory for config files.
 """
 function get_data_path()
     return DATA_PATH[1]
+end
+
+"""
+    set_output_path(output_path="output")
+
+Set the directory that [`save_log`](@ref), [`load_log`](@ref), [`export_log`](@ref) and
+[`import_log`](@ref) use when no `path` is passed. A relative path is taken from the
+working directory.
+"""
+function set_output_path(output_path="output")
+    OUTPUT_PATH[1] = output_path
+    return nothing
+end
+
+"""
+    get_output_path()
+
+Get the directory for log files and other simulation results, created if it is missing.
+"""
+function get_output_path()
+    return mkpath(OUTPUT_PATH[1])
 end
 
 """

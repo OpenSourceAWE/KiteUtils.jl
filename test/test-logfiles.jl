@@ -18,11 +18,11 @@ using KiteUtils, Test, StructArrays
     set_data_path(joinpath(@__DIR__, "..", "data"))
     filename="transition"
     # An archived .csv, exported long before the convention was recorded.
-    log = import_log(filename; frame=KS)
+    log = import_log(filename; path=get_data_path(), frame=KS)
     @test log isa SysLog{11}
     @test log.name == "transition"
     @test length(log.syslog) == 8180
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     log = KiteUtils.test(true)
     @test log isa SysLog{7}
     @test log.syslog.Z[end][7] ≈ 6 # height of the last particle which represents the kite (1p model)
@@ -38,7 +38,7 @@ using KiteUtils, Test, StructArrays
     src = joinpath("data", "transition.arrow")
     dst = joinpath(tempdir(), dotted_name * ".arrow")
     cp(src, dst; force=true)
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     # The logs in data/ predate the frame declaration and hold KS, so every load
     # of one says so; without that they warn, and the suite drowns in it.
     log2 = load_log(dotted_name; frame=KS)           # without extension
@@ -48,7 +48,7 @@ using KiteUtils, Test, StructArrays
     @test log3 isa SysLog
     @test length(log3.syslog) == 8180
     # verify azimuth_rate round-trips through save_log / load_log
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     logger = Logger(7, 3)
     for i in 1:3
         ss = KiteUtils.demo_state(7)
@@ -61,7 +61,7 @@ using KiteUtils, Test, StructArrays
     @test rt.syslog.azimuth_rate ≈ Float32[0.1, 0.2, 0.3]
     # verify import_log gracefully skips azimuth_rate when column is absent (old CSV format)
     set_data_path("data")
-    log_csv = import_log("transition"; frame=KS)
+    log_csv = import_log("transition"; path=get_data_path(), frame=KS)
     @test log_csv isa SysLog
     @test all(log_csv.syslog.azimuth_rate .== 0.0f0)  # absent column → default 0
 end
@@ -70,13 +70,13 @@ end
     # Back-compat: an .arrow written before the flap_angle column existed must
     # still load, with flap_angle zeroed at the file's own twist-surface count.
     set_data_path(joinpath(@__DIR__, "..", "data"))
-    old = load_log("Test_flight"; frame=KS)
+    old = load_log("Test_flight"; path=get_data_path(), frame=KS)
     @test old isa SysLog
     @test length(old.syslog[1].flap_angle) ==
           length(old.syslog[1].twist_angles)
     @test all(v -> all(iszero, v), old.syslog.flap_angle)
     # Roundtrip: flap_angle values survive save_log / load_log (D > 0).
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     D = 3
     logger = Logger(7, 2; deflections=D)
     for i in 1:2
@@ -97,7 +97,7 @@ end
     # a row — `load_log` alone returned a SysLog that looked fine.
     set_data_path(joinpath(@__DIR__, "..", "data"))
     for name in ("Test_flight", "transition", "sim_log", "failure_low_right")
-        log = load_log(name; frame=KS)
+        log = load_log(name; path=get_data_path(), frame=KS)
         # Single-winch logs store l_tether/v_reelout/winch_force as scalars
         # rather than one entry per winch. Materialising threw before they were
         # fitted onto the file's own winch count.
@@ -120,7 +120,7 @@ end
         end
     end
     # A log with no twist_angles column defaults it to zero rather than garbage.
-    old = load_log("sim_log"; frame=KS)
+    old = load_log("sim_log"; path=get_data_path(), frame=KS)
     @test all(iszero, old.syslog[1].twist_angles)
 end
 
@@ -130,7 +130,7 @@ end
     # float type stays whatever the file was written with.
     set_data_path(joinpath(@__DIR__, "..", "data"))
     for name in ("Test_flight", "transition", "sim_log", "failure_low_right")
-        old = load_log(name; frame=KS)
+        old = load_log(name; path=get_data_path(), frame=KS)
         @test old isa SysLog
         @test eltype(old.syslog[1].X) == Float32
         @test all(iszero, old.syslog[1].VX)
@@ -142,7 +142,7 @@ end
 
     # A Float64 log round-trips the differential state exactly. The values below
     # are chosen so that rounding them to Float32 would change them.
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     P, D, L, W = 3, 2, 4, 2
     logger = Logger(P, 2; bodies=1, deflections=D, pulleys=L, winches=W,
                     precision=Float64)
@@ -178,7 +178,7 @@ end
 end
 
 @testset "KiteUtils.jl: log metadata    " begin
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     logger = Logger(7, 3)
     for _ in 1:3
         log!(logger, KiteUtils.demo_state(7))
@@ -213,7 +213,7 @@ end
 end
 
 @testset "KiteUtils.jl: logger creation time" begin
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     logger = Logger(7, 1)
     log!(logger, KiteUtils.demo_state(7))
 
@@ -231,7 +231,7 @@ end
 @testset "KiteUtils.jl: csv round trip  " begin
     # export_log writes every SysState column, so import_log has to read every one
     # back: a column it does not name comes back zeroed, and nothing says so.
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     P, D, L, W, S = 3, 2, 4, 2, 5
     logger = Logger(P, 2; wings=2, bodies=1, deflections=D, pulleys=L, winches=W,
                     segments=S)
@@ -264,7 +264,7 @@ end
 end
 
 @testset "aerodynamic loads are indexed by wing" begin
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     logger = Logger(3, 1; wings=2, bodies=1)
     written = SysState(3; wings=2, bodies=1)
     written.aero_force_KA_x .= [11, 12]
@@ -282,7 +282,7 @@ end
 end
 
 @testset "a log with more wings than oriented frames is rejected on load" begin
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     logger = Logger(3, 1; wings=2, bodies=0)
     log!(logger, SysState(3; wings=2, bodies=0))
     save_log(logger, "more_wings_than_frames")
@@ -301,7 +301,7 @@ end
 end
 
 @testset "a pre-split log: the two aerodynamic loads are wing 1, tether loads dropped" begin
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     logger = Logger(3, 1)
     log!(logger, SysState(3))
     save_log(logger, "per_body_split")
@@ -331,7 +331,7 @@ end
 end
 
 @testset "a model without pulleys, panels or surfaces logs zero-length columns" begin
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     logger = Logger(3, 2; deflections=0, pulleys=0, segments=0, panels=0)
     for _ in 1:2
         log!(logger, SysState(3))
@@ -346,7 +346,7 @@ end
 end
 
 @testset "the panel circulation and the external force input round-trip" begin
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     logger = Logger(3, 1; panels=4)
     written = SysState(3; panels=4)
     written.gamma_distribution .= [1.5, 2.5, 3.5, 4.5]
@@ -429,7 +429,7 @@ end
 end
 
 @testset "KiteUtils.jl: re-saving a loaded log" begin
-    set_data_path(tempdir())
+    set_output_path(tempdir())
     logger = Logger(3, 1)
     log!(logger, SysState(3))
     colmeta = Dict(Symbol("var_", lpad(i, 2, '0')) => ["name" => "quantity_$i"]
