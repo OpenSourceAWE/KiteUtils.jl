@@ -55,6 +55,8 @@ get_particles
 
 # Loading, saving and converting log files
 ```@docs
+set_output_path
+get_output_path
 log!
 load_log
 save_log
@@ -65,7 +67,7 @@ sys_log
 syslog
 Base.getproperty
 ```
-The function ```set_data_path(data_path)``` can be used to set the directory for the log files. 
+The function ```set_output_path(output_path)``` sets the directory for the log files, `output` in the working directory by default.
 
 ## Frame conventions
 Convert an orientation between the two body-frame conventions, `KS` and `KA`. A vector

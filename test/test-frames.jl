@@ -101,17 +101,17 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         end
     end
     @testset "logs declare their frame convention" begin
-        data_path = get_data_path()
+        output_path = get_output_path()
         log = demo_log(7, "frame_stamp")
-        set_data_path(mktempdir())
+        set_output_path(mktempdir())
         save_log(log)
-        table = KiteUtils.Arrow.Table(joinpath(get_data_path(), "frame_stamp.arrow"))
+        table = KiteUtils.Arrow.Table(joinpath(get_output_path(), "frame_stamp.arrow"))
         @test KiteUtils.Arrow.getmetadata(table)["frame_convention"] == "KA"
         @test (@test_logs load_log("frame_stamp")) isa SysLog
-        set_data_path(data_path)
+        set_output_path(output_path)
     end
     @testset "an undeclared log is converted on load" begin
-        data_path = get_data_path()
+        output_path = get_output_path()
         log = demo_log(7, "old_style")
         # A known KS attitude: nose north at zenith, so KA is a quarter turn away.
         q_KS = Rotations.params(QuatRotation(calc_orient_rot([0, 1, 0], [1, 0, 0],
@@ -121,12 +121,12 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
             log.syslog.Qw[step][1], log.syslog.Qx[step][1] = q_KS[1], q_KS[2]
             log.syslog.Qy[step][1], log.syslog.Qz[step][1] = q_KS[3], q_KS[4]
         end
-        set_data_path(mktempdir())
+        set_output_path(mktempdir())
         # Written without the stamp, exactly as a pre-0.13 KiteUtils would have.
-        KiteUtils.Arrow.write(joinpath(get_data_path(), "old_style.arrow"), log.syslog,
+        KiteUtils.Arrow.write(joinpath(get_output_path(), "old_style.arrow"), log.syslog,
                               colmetadata=log.colmeta)
         @test isnothing(log_convention(KiteUtils.Arrow.Table(
-            joinpath(get_data_path(), "old_style.arrow"))))
+            joinpath(get_output_path(), "old_style.arrow"))))
 
         # Nothing declared and nothing asked, so it is read as KS and says so.
         loaded = @test_logs (:warn, r"declares no frame convention") load_log("old_style")
@@ -149,13 +149,13 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         end
         save_log(log)
         @test log_convention(KiteUtils.Arrow.Table(
-            joinpath(get_data_path(), "declared.arrow"))) == KA
+            joinpath(get_output_path(), "declared.arrow"))) == KA
         kept = @test_logs load_log("declared")
         @test all(collect(kept.syslog.orient[1]) .≈ q_KA)
-        set_data_path(data_path)
+        set_output_path(output_path)
     end
     @testset "a KS log's body columns are converted, not just its orientation" begin
-        data_path = get_data_path()
+        output_path = get_output_path()
         # A kite and a body, so the per-wing loads are shorter than the per-frame rates.
         log = SysLog{7}("body_columns", default_colmeta(), demo_syslog(7, 2))
         for step in eachindex(log.syslog)
@@ -170,9 +170,9 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
             log.syslog.turn_rate_y[step] .= 8
             log.syslog.turn_rate_z[step] .= 9
         end
-        set_data_path(mktempdir())
+        set_output_path(mktempdir())
         # Written without the stamp, exactly as a pre-0.13 KiteUtils would have.
-        KiteUtils.Arrow.write(joinpath(get_data_path(), "body_columns.arrow"), log.syslog,
+        KiteUtils.Arrow.write(joinpath(get_output_path(), "body_columns.arrow"), log.syslog,
                               colmetadata=log.colmeta)
         row = load_log("body_columns"; frame=KS).syslog[1]
         # A half turn about the spanwise axis: y survives, x and z change sign.
@@ -194,11 +194,11 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         @test all(kept.aero_force_KA_x .≈ 10)
         @test all(kept.aero_force_KA_z .≈ 30)
         @test all(kept.turn_rate_x .≈ 7)
-        set_data_path(data_path)
+        set_output_path(output_path)
     end
     @testset "a KS .csv's body columns are converted, as an .arrow's are" begin
-        data_path = get_data_path()
-        set_data_path(mktempdir())
+        output_path = get_output_path()
+        set_output_path(mktempdir())
         q_KS = Rotations.params(QuatRotation(calc_orient_rot([0, 1, 0], [1, 0, 0],
                                                              [0, 0, -1])))
         logger = Logger(7, 1)
@@ -236,13 +236,13 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         @test all(collect(kept.orient) .≈ q_KS)
         @test collect(kept.turn_rates) ≈ [1, 2, 3]
         @test all(kept.turn_rate_x .≈ 7)
-        set_data_path(data_path)
+        set_output_path(output_path)
     end
     @testset "a log declaring an unknown convention is refused" begin
-        data_path = get_data_path()
+        output_path = get_output_path()
         log = demo_log(7, "from_the_future")
-        set_data_path(mktempdir())
-        KiteUtils.Arrow.write(joinpath(get_data_path(), "from_the_future.arrow"),
+        set_output_path(mktempdir())
+        KiteUtils.Arrow.write(joinpath(get_output_path(), "from_the_future.arrow"),
                               log.syslog, colmetadata=log.colmeta,
                               metadata=Dict("frame_convention" => "KZ"))
         # Reading it under either convention would mirror every orientation, and
@@ -250,7 +250,7 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         # declaration this version cannot read is an error.
         @test_throws ArgumentError load_log("from_the_future")
         @test_throws ArgumentError load_log("from_the_future"; frame=KA)
-        set_data_path(data_path)
+        set_output_path(output_path)
     end
     @testset "quat2viewer matches the KS reference implementation" begin
         for (roll, pitch, yaw) in attitudes

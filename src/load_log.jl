@@ -25,7 +25,7 @@ log that declares a convention is taken at its word and `frame` is not consulted
 function load_log(filename::String; path="", debug=false,
                   frame::Union{Nothing, FrameConvention}=nothing)
     if path == ""
-        path = DATA_PATH[1]
+        path = get_output_path()
     end
     fullname = filename
     if ! isfile(filename)

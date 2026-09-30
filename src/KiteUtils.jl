@@ -66,6 +66,7 @@ export fromKS2KA, fromKA2KS, fromKS2KA_body, fromKA2KS_body, fromKS2KA_columns!,
     fromKS2KA_body_columns!, euler_KS, orient_matrix, log_metadata, log_convention
 export angles_from_wind_vec, wind_vec_from_angles
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
+export get_output_path, set_output_path                     # where simulation results go
 export aero_geometry_file, fpc_settings, fpp_settings, se, se_dict,
     structural_geometry_file, update_settings,
     vsm_settings_file, wc_settings
@@ -79,7 +80,8 @@ export init!, next_step!, update_sys_state!
 Type used for position components and scalar SysState members.
 """
 const MyFloat   = Float32           # type to use for position components and scalar SysState members
-const DATA_PATH = ["data"]          # path for log files and other data
+const DATA_PATH = ["data"]          # path for config files and other input
+const OUTPUT_PATH = ["output"]      # path for log files and other simulation results
 const MVec3     = MVector{3, Float64}
 const SVec3     = SVector{3, Float64}
 
@@ -378,7 +380,7 @@ lz4 compression cannot be read in a browser.
 function save_log(flight_log::SysLog, compress=true; path="",
                   metadata::Dict{String, String}=flight_log.metadata)
     if path == ""
-        path = DATA_PATH[1]
+        path = get_output_path()
     end
     filename = joinpath(path, flight_log.name) * ".arrow"
     table_metadata = merge(metadata, log_metadata())
@@ -398,7 +400,7 @@ Save a flight log of type SysLog as .csv file.
 """
 function export_log(flight_log; path="")
     if path == ""
-        path = DATA_PATH[1]
+        path = get_output_path()
     end
     filename = joinpath(path, flight_log.name) * ".csv"
     CSV.write(filename, flight_log.syslog)
@@ -480,7 +482,8 @@ function test(save=false)
     # data/Test_flight.arrow predates the frame declaration, so it is read as what
     # the format specified then; a log just written above declares KA and is read
     # by that, the keyword being consulted only for a log that declares nothing.
-    return(load_log(7, "Test_flight.arrow"; frame=KS))
+    path = save ? get_output_path() : get_data_path()
+    return(load_log(7, "Test_flight.arrow"; path, frame=KS))
 end
 
 function menu()
