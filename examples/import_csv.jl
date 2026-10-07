@@ -11,6 +11,6 @@ end
 filename="transition"
 
 # transition.csv was exported before logs recorded their convention, so it is KS.
-log = import_log(filename; path=get_data_path(), frame=KS)
+log = import_log(filename; frame=KS)
 println("Imported csv log file: ", filename * ".csv")
 println("Saved log file as: ", save_log(log))

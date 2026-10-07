@@ -67,7 +67,7 @@ sys_log
 syslog
 Base.getproperty
 ```
-The function ```set_output_path(output_path)``` sets the directory for the log files, `output` in the working directory by default.
+The function ```set_output_path(output_path)``` sets the directory for the log files, the data folder by default.
 
 ## Frame conventions
 Convert an orientation between the two body-frame conventions, `KS` and `KA`. A vector

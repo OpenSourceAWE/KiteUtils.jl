@@ -296,11 +296,11 @@ Exporting a log file in csv format:
 julia> log = demo_log(7);
 julia> export_log(log)
 ```
-By default the log file is saved in the folder `output`, created in the working directory when it is missing. You can set a different output folder with the function **`set_output_path`**.
+By default the log file is save in the data folder. You can set a different folder as data folder with the function **`set_data_path`**. 
 
 ```julia
 julia> log = demo_log(7);
-julia> set_output_path(tempdir())
+julia> set_data_path(tempdir())
 julia> export_log(log)
 ```
 
@@ -315,10 +315,10 @@ You can import a .csv file using the following code:
 set_data_path("data")
 filename="transition"
 
-log = import_log(filename; path=get_data_path(), frame=KS)
+log = import_log(filename; frame=KS)
 save_log(log)
 ```
-This will import the file `data/transition.csv` and save it as `output/transition.arrow`.
+This will import the file `transition.csv` and save it as `transition.arrow` file.
 The `frame` keyword states which convention the .csv holds, a .csv carrying no
 metadata to say so itself. `transition.csv` was exported before KiteUtils 0.13 and
 holds `KS`; a .csv exported since holds `KA`, which is the default.

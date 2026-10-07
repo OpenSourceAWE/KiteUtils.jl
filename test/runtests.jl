@@ -13,7 +13,6 @@ The file will be automatically included inside a `@testset` with title "Title Fo
 =#
 
 if basename(pwd()) == "test"; cd(".."); end
-set_output_path(mktempdir())
 
 for (_, _, files) in walkdir(@__DIR__)
     for file in files

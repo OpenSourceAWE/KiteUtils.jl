@@ -80,8 +80,8 @@ export init!, next_step!, update_sys_state!
 Type used for position components and scalar SysState members.
 """
 const MyFloat   = Float32           # type to use for position components and scalar SysState members
-const DATA_PATH = ["data"]          # path for config files and other input
-const OUTPUT_PATH = ["output"]      # path for log files and other simulation results
+const DATA_PATH = ["data"]          # path for log files and other data
+const OUTPUT_PATH = [""]            # path for simulation results; empty means DATA_PATH
 const MVec3     = MVector{3, Float64}
 const SVec3     = SVector{3, Float64}
 
@@ -482,8 +482,7 @@ function test(save=false)
     # data/Test_flight.arrow predates the frame declaration, so it is read as what
     # the format specified then; a log just written above declares KA and is read
     # by that, the keyword being consulted only for a log that declares nothing.
-    path = save ? get_output_path() : get_data_path()
-    return(load_log(7, "Test_flight.arrow"; path, frame=KS))
+    return(load_log(7, "Test_flight.arrow"; frame=KS))
 end
 
 function menu()
