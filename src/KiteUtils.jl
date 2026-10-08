@@ -66,6 +66,7 @@ export fromKS2KA, fromKA2KS, fromKS2KA_body, fromKA2KS_body, fromKS2KA_columns!,
     fromKS2KA_body_columns!, euler_KS, orient_matrix, log_metadata, log_convention
 export angles_from_wind_vec, wind_vec_from_angles
 export copy_settings, get_data_path, load_settings, set_data_path        # functions for reading and copying parameters
+export get_output_path, set_output_path                     # where simulation results go
 export aero_geometry_file, fpc_settings, fpp_settings, se, se_dict,
     structural_geometry_file, update_settings,
     vsm_settings_file, wc_settings
@@ -80,6 +81,7 @@ Type used for position components and scalar SysState members.
 """
 const MyFloat   = Float32           # type to use for position components and scalar SysState members
 const DATA_PATH = ["data"]          # path for log files and other data
+const OUTPUT_PATH = [""]            # path for simulation results; empty means DATA_PATH
 const MVec3     = MVector{3, Float64}
 const SVec3     = SVector{3, Float64}
 
@@ -378,7 +380,7 @@ lz4 compression cannot be read in a browser.
 function save_log(flight_log::SysLog, compress=true; path="",
                   metadata::Dict{String, String}=flight_log.metadata)
     if path == ""
-        path = DATA_PATH[1]
+        path = get_output_path()
     end
     filename = joinpath(path, flight_log.name) * ".arrow"
     table_metadata = merge(metadata, log_metadata())
@@ -398,7 +400,7 @@ Save a flight log of type SysLog as .csv file.
 """
 function export_log(flight_log; path="")
     if path == ""
-        path = DATA_PATH[1]
+        path = get_output_path()
     end
     filename = joinpath(path, flight_log.name) * ".csv"
     CSV.write(filename, flight_log.syslog)
