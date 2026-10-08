@@ -12,5 +12,5 @@ filename="transition"
 
 # transition.csv was exported before logs recorded their convention, so it is KS.
 log = import_log(filename; frame=KS)
-println("Imported csv log file: ", filename * ".csv")
-println("Saved log file as: ", save_log(log))
+@info "Imported csv log file" file = filename * ".csv"
+@info "Saved log file" file = save_log(log)
