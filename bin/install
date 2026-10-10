@@ -12,27 +12,33 @@ usage() {
 Usage: bin/install [-y] [--update] [-h]
 
 Install the package environment of this repository for the Julia version that is
-on the machine: the tracked Manifest-v<version>.toml.default is copied over the
-live Manifest-v<version>.toml, instantiated and precompiled. Nothing else.
+on the machine: every other manifest, here and in the sub-projects, is moved to
+.bak, the tracked Manifest-v<version>.toml.default is copied over the live
+Manifest-v<version>.toml, instantiated and precompiled. Nothing outside the
+repository changes but the depot ~/.julia.
 
-  -y        do not ask before overwriting the live manifest
+  -y        accepted for scripts; bin/install asks nothing either way
   --update  resolve instead of install: Pkg.update against the live manifest,
             leaving the tracked default alone
   -h        show this message
 USAGE
 }
 
-assume_yes=false
 update=false
 while [ $# -gt 0 ]; do
     case "$1" in
-        -y) assume_yes=true ;;
+        -y) ;;
         --update) update=true ;;
         -h|--help) usage; exit 0 ;;
         *) echo "bin/install: unknown option $1" >&2; usage >&2; exit 1 ;;
     esac
     shift
 done
+
+if ! command -v julia > /dev/null; then
+    echo "bin/install: no julia on the PATH; install it with juliaup first." >&2
+    exit 1
+fi
 
 export JULIA_PKG_SERVER_REGISTRY_PREFERENCE=eager
 
@@ -48,13 +54,18 @@ if [ ! -f "$manifest.default" ]; then
     exit 1
 fi
 
-if ! $assume_yes; then
-    read -r -p "Overwrite $manifest with $manifest.default and instantiate? [y/N] " reply
-    case "$reply" in
-        [yY]*) ;;
-        *) echo "bin/install: nothing installed."; exit 1 ;;
-    esac
-fi
+for stale in Manifest*.toml */Manifest*.toml; do
+    if [ -f "$stale" ] && [ "$stale" != "$manifest" ]; then
+        mv "$stale" "$stale.bak"
+        echo "bin/install: moved $stale to $stale.bak."
+    fi
+done
 
 cp "$manifest.default" "$manifest"
 julia --startup-file=no --project -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+
+if julia --startup-file=no -e 'exit(Base.find_package("Revise") === nothing ? 1 : 0)'; then
+    bin/run_julia < /dev/null > /dev/null
+else
+    echo "bin/install: Revise is not in your global environment; bin/run_julia runs without it." >&2
+fi
