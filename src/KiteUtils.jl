@@ -235,7 +235,14 @@ function demo_state(P, height=6.0, time=0.0; azimuth_north=-pi/2, counts...)
     ss.X .= dist .* cos(turn_angle)
     ss.Y .= dist .* sin(turn_angle)
     ss.Z .= (a .* cosh.(dist./a) .- a) * height/ 5.430806
-    q = fromKS2KA(QuatRotation(RotXYZ(pi/2, -pi/2, 0)))
+    # the kite is aligned with the tether: z (KS, down) points back along the last tether
+    # segment, y (right wing) is horizontal and normal to the plane of the tether
+    tangent = normalize(SVector(ss.X[end] - ss.X[end-1], ss.Y[end] - ss.Y[end-1],
+                                ss.Z[end] - ss.Z[end-1]))
+    z = -tangent
+    y = SVector(-sin(turn_angle), cos(turn_angle), 0.0)
+    x = y × z
+    q = QuatRotation(fromKS2KA(calc_orient_rot(x, y, z)))
     ss.orient .= MVector{4, Float32}(Rotations.params(q))
     ss.elevation = calc_elevation([ss.X[end], 0.0, ss.Z[end]])
     ss.v_wind_gnd .= [10.4855, 0, -3.08324]
