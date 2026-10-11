@@ -37,7 +37,7 @@ const set = se()</code></pre><pre><code class="language-julia hljs">Settings
 
 julia&gt; st = demo_state(7)
 time      [s]:       0.0
-orient    [w,x,y,z]: Float32[0.70710677, -0.70710677, 0.0, 0.0]
+orient    [w,x,y,z]: Float32[0.93754053, 0.0, 0.34787613, 0.0]
 elevation [rad]:     0.5404195
 azimuth   [rad]:     0.0
 l_tether  [m]:       0.0
@@ -55,10 +55,10 @@ Z         [m]:       Float32[0.0, 0.15380114, 0.6194867, 1.4100224, 2.5474184, 4
 30.963757f0</code></pre><p>The orientation is stored component-major in the fields <code>Qw</code>, <code>Qx</code>, <code>Qy</code> and <code>Qz</code>, each holding one unit-quaternion component per oriented frame: the wings first, then the bodies, frame 1 being the kite. The <code>orient</code> property returns frame 1 as a <code>[w, x, y, z]</code> quaternion (see: <a href="https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation">Quaterinos_and_spatial_rotation</a>). Use <code>st.orients[k]</code> for a mutable view of frame <code>k</code>&#39;s quaternion and <code>st.pos[i]</code> for point <code>i</code>&#39;s position, or <code>wing_Q(st, k)</code>, <code>body_Q(st, b)</code>, <code>wing_pos(st, k)</code> and <code>body_pos(st, b)</code> to address a wing or body without counting past the others. The number of frames is the second type parameter <code>O</code> of <code>SysState{P, O, K}</code> and the number of wings the third, <code>K</code>.</p><p>If you need to work with rotations, use the package Rotatations.jl (see: <a href="https://github.com/JuliaGeometry/Rotations.jl">Rotations.jl</a>)   Example:</p><pre><code class="language-julia hljs">julia&gt; using Rotations
 
 julia&gt; q = QuatRotation(st.orient)
-3×3 QuatRotation{Float32} with indices SOneTo(3)×SOneTo(3)(QuaternionF32(0.707107, -0.707107, 0.0, 0.0)):
-  1.0  -0.0  0.0
-  0.0   0.0  1.0
- -0.0  -1.0  0.0</code></pre><p>The components X, Y and Z are vectors of the x, y and z positions of the tether particles. The last element of these vectors represents the kite position.</p><pre><code class="language-julia hljs">julia&gt; kite_pos = [st.X[end], st.Y[end], st.Z[end]]
+3×3 QuatRotation{Float32} with indices SOneTo(3)×SOneTo(3)(QuaternionF32(0.937541, 0.0, 0.347876, 0.0)):
+  0.757964  0.0  0.652296
+  0.0       1.0  0.0
+ -0.652296  0.0  0.757964</code></pre><p>The components X, Y and Z are vectors of the x, y and z positions of the tether particles. The last element of these vectors represents the kite position.</p><pre><code class="language-julia hljs">julia&gt; kite_pos = [st.X[end], st.Y[end], st.Z[end]]
 3-element Vector{Float32}:
  10.0
   0.0
@@ -70,7 +70,7 @@ sys_state [-]:     0
 cycle [-]:         0
 fig_8 [-]:         0
 e_mech [Wh]:       0.0
-orient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]
+orient [-]:        Float32[0.93754053, 0.0, 0.34787613, 0.0]
 turn_rates [rad/s]:Float32[0.0, 0.0, 0.0]
 elevation [rad]:   0.5404195
 azimuth [rad]:     0.0
@@ -168,7 +168,7 @@ var_16 [-]:        0.0
 SysLog{7, 1, ...}(&quot;Test_flight&quot;, ..., SysState{7, 1, 1, 0, 0, 1, 1, 0, 0, Float32}[time [s]:          0.0
 t_sim [s]:         0.012
 ...
-orient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]
+orient [-]:        Float32[0.70710677, 0.0, 0.70710677, 0.0]
 ...</code></pre><p>You can access the elements using the dot notation, for example an array of the values for the height:</p><pre><code class="nohighlight hljs">julia&gt; log.z
 201-element Vector{Float32}:
  0.0
@@ -193,4 +193,4 @@ julia&gt; export_log(log)</code></pre><p>Output on Linux:</p><pre><code class="l
 filename=&quot;transition&quot;
 
 log = import_log(filename; frame=KS)
-save_log(log)</code></pre><p>This will import the file <code>transition.csv</code> and save it as <code>transition.arrow</code> file. The <code>frame</code> keyword states which convention the .csv holds, a .csv carrying no metadata to say so itself. <code>transition.csv</code> was exported before KiteUtils 0.13 and holds <code>KS</code>; a .csv exported since holds <code>KA</code>, which is the default.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../developer_notes/">« Developer notes</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Thursday 1 October 2026 08:51">Thursday 1 October 2026</span>. Using Julia version 1.13.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+save_log(log)</code></pre><p>This will import the file <code>transition.csv</code> and save it as <code>transition.arrow</code> file. The <code>frame</code> keyword states which convention the .csv holds, a .csv carrying no metadata to say so itself. <code>transition.csv</code> was exported before KiteUtils 0.13 and holds <code>KS</code>; a .csv exported since holds <code>KA</code>, which is the default.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../developer_notes/">« Developer notes</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Sunday 11 October 2026 15:32">Sunday 11 October 2026</span>. Using Julia version 1.13.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
