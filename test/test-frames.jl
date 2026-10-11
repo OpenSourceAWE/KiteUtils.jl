@@ -259,5 +259,18 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
                   RotMatrix{3}(QuatRotation(KiteUtils.quat2viewer_KS(q_KS)))
         end
     end
+    @testset "demo_state: the kite is aligned with the tether" begin
+        for azimuth_north in (-pi/2, 0.0, pi/4)
+            state = demo_state(7; azimuth_north)
+            R = orient_matrix(state.orient)   # columns: the KA axes in ENU
+            tangent = normalize([state.X[end] - state.X[end-1], state.Y[end] - state.Y[end-1],
+                                 state.Z[end] - state.Z[end-1]])
+            downwind = [cos(azimuth_north + pi/2), sin(azimuth_north + pi/2), 0]
+            @test R[:, 3] ≈ tangent atol=1e-6             # up: along the tether
+            @test abs(R[3, 2]) < 1e-6                     # right wing horizontal
+            @test dot(R[:, 2], downwind) ≈ 0 atol=1e-6    # ... and normal to the tether
+            @test dot(R[:, 1], downwind) > 0              # aft: downwind
+        end
+    end
 end
 nothing

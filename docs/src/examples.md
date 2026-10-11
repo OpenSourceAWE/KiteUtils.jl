@@ -71,7 +71,7 @@ julia> using KiteUtils
 
 julia> st = demo_state(7)
 time      [s]:       0.0
-orient    [w,x,y,z]: Float32[0.70710677, -0.70710677, 0.0, 0.0]
+orient    [w,x,y,z]: Float32[0.93754053, 0.0, 0.34787613, 0.0]
 elevation [rad]:     0.5404195
 azimuth   [rad]:     0.0
 l_tether  [m]:       0.0
@@ -112,10 +112,10 @@ Example:
 julia> using Rotations
 
 julia> q = QuatRotation(st.orient)
-3×3 QuatRotation{Float32} with indices SOneTo(3)×SOneTo(3)(QuaternionF32(0.707107, -0.707107, 0.0, 0.0)):
-  1.0  -0.0  0.0
-  0.0   0.0  1.0
- -0.0  -1.0  0.0
+3×3 QuatRotation{Float32} with indices SOneTo(3)×SOneTo(3)(QuaternionF32(0.937541, 0.0, 0.347876, 0.0)):
+  0.757964  0.0  0.652296
+  0.0       1.0  0.0
+ -0.652296  0.0  0.757964
 ```
 The components X, Y and Z are vectors of the x, y and z positions of the tether particles. The last element of these vectors
 represents the kite position.
@@ -142,7 +142,7 @@ sys_state [-]:     0
 cycle [-]:         0
 fig_8 [-]:         0
 e_mech [Wh]:       0.0
-orient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]
+orient [-]:        Float32[0.93754053, 0.0, 0.34787613, 0.0]
 turn_rates [rad/s]:Float32[0.0, 0.0, 0.0]
 elevation [rad]:   0.5404195
 azimuth [rad]:     0.0
@@ -252,7 +252,7 @@ julia> log = demo_log(7)
 SysLog{7, 1, ...}("Test_flight", ..., SysState{7, 1, 1, 0, 0, 1, 1, 0, 0, Float32}[time [s]:          0.0
 t_sim [s]:         0.012
 ...
-orient [-]:        Float32[0.70710677, -0.70710677, 0.0, 0.0]
+orient [-]:        Float32[0.70710677, 0.0, 0.70710677, 0.0]
 ...
 ```
 You can access the elements using the dot notation, for example an array of the values for the height:

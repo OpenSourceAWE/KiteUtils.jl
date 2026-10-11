@@ -1,5 +1,16 @@
 # Changelog
 
+## KiteUtils v0.13.2 - unreleased
+
+### Fixed
+
+- `demo_state` stores an attitude aligned with the tether, as its docstring says and as
+  `demo_state_4p` does: up along the last tether segment, the right wing horizontal and
+  normal to the plane of the tether, aft downwind. Since 0.13.0 it stored
+  `fromKS2KA(RotXYZ(pi/2, -pi/2, 0))`, but that quaternion was a viewer quaternion
+  (KiteViewers drew it with `ned=false`), not a `KS` attitude, so viewers that convert
+  the `KA` attitude drew the demo kite turned by 90°.
+
 ## KiteUtils v0.13.1 2026-09-26
 
 ### Added
