@@ -310,10 +310,11 @@ end
     demo_state_4p(P, height=6.0, time=0.0; azimuth_north=-pi/2)
 
 Create a demo state, using the 4 point kite model with a given height and time. P is the number of tether particles.
+`time` is stored in the `time` field; `t_sim` is a fixed demo value.
 
 Returns a SysState instance.
 """
-function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
+function demo_state_4p(P, height=6.0, time=0.0; azimuth_north=-pi/2)
     function get_particle(particle, X, Y, Z)
         x, y, z = particle[1], particle[2], particle[3]
         push!(X, x)
@@ -322,6 +323,7 @@ function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
         return SVector(x,y,z)
     end
     ss = SysState(P + 4)
+    ss.time = time
     a = 10
     turn_angle = azimuth_north+pi/2
     dist = collect(range(0, stop=10, length=P))
@@ -352,7 +354,7 @@ function demo_state_4p(P, height=6.0, time=0.014; azimuth_north=-pi/2)
     ss.v_wind_gnd = [10.4855, 0, -3.08324]
     ss.v_wind_200m = [10.4855, 0, -3.08324]
     ss.v_wind_kite = [10.4855, 0, -3.08324]
-    ss.t_sim = time
+    ss.t_sim = 0.014
     ss
 end
 

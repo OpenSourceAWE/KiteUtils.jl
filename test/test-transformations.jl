@@ -27,6 +27,8 @@ using KiteUtils, LinearAlgebra, StaticArrays, Test
         elevation = deg2rad(71.5)
         azimuth   = 0.0
         @test fromENU2EG(vec1) == [2.0, -1.0, 3.0]
+        @test isconst(KiteUtils, :ENU2EG)
+        @test (@inferred fromENU2EG(vec1)) isa SVector{3}
         @test fromW2SE(vec1, elevation, azimuth) == [0.0035903140090769448, 2.0, -3.16227562202369]
         azimuth   = deg2rad(45)
         @test fromW2SE(vec1, elevation, -azimuth) == [ 1.622480056571193,  2.121320343559643, -2.62060269137249]
