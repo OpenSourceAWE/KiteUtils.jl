@@ -28,6 +28,7 @@ makedocs(;
         "Exported Functions" => "functions.md",
         "Exported Types" => "types.md",
         "Developer notes" => "developer_notes.md",
+        "Repository scripts" => "repository_scripts.md",
         "Examples" => "examples.md",
     ],
 )
