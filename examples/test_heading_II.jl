@@ -146,7 +146,7 @@ function calc_kite_heading(turn_angle; x = 100.0, z = 0.0, r = 20.0, upwind_dir 
     orientation = collect(calc_orientation(turn_angle; x = x, z = z, r = r))
     el, az_east = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
     # calc_heading expects azimuth in the wind frame, while calc_elevation_azimuth returns azimuth_east.
-    az_north = wrap2pi(-π / 2 - az_east)
+    az_north = wrap2pi(az_east - π / 2)
     az_wind = azn2azw(az_north; upwind_dir = upwind_dir)
     calc_heading(orientation, el, az_wind; respos = false)
 end
@@ -161,7 +161,7 @@ the plane perpendicular to the tether. Returns the angle in radian.
 function calc_clock_angle(turn_angle; x = 100.0, z = 0.0, r = 20.0, upwind_dir = Main.UPWIND_DIR)
     orientation = collect(calc_orientation(turn_angle; x = x, z = z, r = r))
     el, az_east = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
-    az_north = wrap2pi(-π / 2 - az_east)
+    az_north = wrap2pi(az_east - π / 2)
     az_wind = azn2azw(az_north; upwind_dir = upwind_dir)
     KiteUtils.calc_heading(orientation, el, az_wind; respos = false)
 end
