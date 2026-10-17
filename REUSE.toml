@@ -9,7 +9,7 @@ SPDX-FileCopyrightText = "2025 Uwe Fechner, Bart van de Lint"
 SPDX-License-Identifier = "CC-BY-4.0"
 
 [[annotations]]
-path = ["data/settings_ram.yaml", "data/system_ram.yaml", "CHANGELOG.md", "CONTRIBUTING.md", "README.md", "LICENSE"]
+path = ["data/settings_ram.yaml", "data/system_ram.yaml", "CHANGELOG.md", "changelog.d/*.md", "CONTRIBUTING.md", "README.md", "LICENSE"]
 SPDX-FileCopyrightText = "2025 Uwe Fechner, Bart van de Lint"
 SPDX-License-Identifier = "CC-BY-4.0"
 

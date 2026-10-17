@@ -68,7 +68,7 @@ end
 
 function import_log_(filename::String; path="")
     if path == ""
-        path = DATA_PATH[1]
+        path = get_output_path()
     end
     filename = joinpath(path, filename) * ".csv"
     return (CSV.File(filename))
@@ -107,7 +107,7 @@ function csv_columns(file)
 end
 
 """
-    import_log(filename; frame=KA)
+    import_log(filename; path="", frame=KA)
 
 Read a .csv file with a flight log and return a SysLog object. Everything the returned
 `SysLog` holds is `KA`, as after [`load_log`](@ref).
@@ -119,9 +119,10 @@ exported before KiteUtils 0.13 holds `KS` and needs `frame=KS`.
 
 Parameters:
 - filename: name of the file without extension.
+- path: the folder holding it; [`get_output_path`](@ref) when empty.
 """
-function import_log(filename; frame::FrameConvention=KA)
+function import_log(filename; path="", frame::FrameConvention=KA)
     # A .csv carries no column metadata, so the generic names stand.
-    syslog_from_table(csv_columns(import_log_(filename)), filename,
+    syslog_from_table(csv_columns(import_log_(filename; path)), filename,
                       default_colmeta(), frame)
 end

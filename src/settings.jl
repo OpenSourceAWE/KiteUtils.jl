@@ -434,6 +434,29 @@ function get_data_path()
 end
 
 """
+    set_output_path(output_path="")
+
+Set the directory that [`save_log`](@ref), [`load_log`](@ref), [`export_log`](@ref) and
+[`import_log`](@ref) use when no `path` is passed. A relative path is taken from the
+working directory; an empty one means the data folder, [`get_data_path`](@ref).
+"""
+function set_output_path(output_path="")
+    OUTPUT_PATH[1] = output_path
+    return nothing
+end
+
+"""
+    get_output_path()
+
+Get the directory for log files and other simulation results, created if it is missing:
+the data folder until [`set_output_path`](@ref) names another.
+"""
+function get_output_path()
+    isempty(OUTPUT_PATH[1]) && return get_data_path()
+    return mkpath(OUTPUT_PATH[1])
+end
+
+"""
     load_settings(project=PROJECT; relax=false)
 
 Reload the global module [`Settings`](@ref) from the given project
