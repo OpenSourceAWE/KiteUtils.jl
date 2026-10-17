@@ -104,7 +104,7 @@ All source files that start with an underscore (`_`) are auto-generated from `sr
 - **Three azimuth angles** are used:
   - **Azimuth (wind frame)**: measured positive counter-clockwise when viewed from above, zero straight downwind
   - **azimuth_north**: measured from North (0°), positive counter-clockwise when viewed from above
-  - **azimuth_east**: measured from East (0°), positive clockwise when viewed from above
+  - **azimuth_east**: measured from East (0°), positive counter-clockwise when viewed from above
 - Elevation: angle from ground to kite (0° to 90°)
 - Heading: direction the kite's nose is pointing in the Small Earth frame, measured from zenith
 

@@ -132,7 +132,7 @@ The same wind is also available as the vector `wind_vec` (m/s, ENU frame), and `
 
 ## Elevation and azimuth
 The position of the kite can be described with two angles, the azimuth angle φ and the elevation angle β .The elevation angle is zero when the height of the kite is zero, and 90° when it is at Zenith.
-Three azimuth angles are used, the azimuth angle in the wind reference frame and $\mathrm{azimuth\_east}$ and $\mathrm{azimuth\_north}$. The azimuth angles in wind reference frame and $\mathrm{azimuth\_north}$ are defined positive anti-clockwise when seen from above, $\mathrm{azimuth\_east}$ is defined positive clockwise when seen from above. In the log file and the system state $\mathrm{azimuth}$ in wind reference frame is used (for KiteUtils 0.8.2 and higher).
+Three azimuth angles are used, the azimuth angle in the wind reference frame and $\mathrm{azimuth\_east}$ and $\mathrm{azimuth\_north}$. All three are defined positive anti-clockwise when seen from above, a positive rotation about the up axis of the ENU frame; $\mathrm{azimuth\_east}$ is zero at east and equals $\mathrm{atan}(y, x)$, $\mathrm{azimuth\_north}$ is zero at north. In the log file and the system state $\mathrm{azimuth}$ in wind reference frame is used (for KiteUtils 0.8.2 and higher).
 
 The function `calc_heading()` uses this same wind-frame azimuth convention.
 
