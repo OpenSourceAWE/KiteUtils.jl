@@ -8,26 +8,31 @@ using KiteUtils, Test
     pos_kite_east  = [100.0, 0, 100.0]  # east
     pos_kite_north = [0, 100.0, 100.0]  # north
     pos_kite_south = [0, -100.0, 100.0] # south
+    pos_kite_west  = [-100.0, 0, 100.0] # west
 
-    @testset "azimuth_east turns counterclockwise from east" begin
+    @testset "azimuth_east is zero east, anti-clockwise" begin
         aze = azimuth_east(pos_kite_east)
         @test rad2deg(aze) ≈ 0.0 atol=1e-10
         aze = azimuth_east(pos_kite_north)
         @test rad2deg(aze) ≈ 90.0 atol=1e-10
         aze = azimuth_east(pos_kite_south)
         @test rad2deg(aze) ≈ -90.0 atol=1e-10
+        aze = azimuth_east(pos_kite_west)
+        @test rad2deg(aze) ≈ 180.0 atol=1e-10
     end
 
-    @testset "azimuth_north                " begin
+    @testset "azimuth_north is zero north, anti-clockwise" begin
         azn = azimuth_north(pos_kite_east)
         @test rad2deg(azn) ≈ -90.0 atol=1e-10
         azn = azimuth_north(pos_kite_north)
         @test rad2deg(azn) ≈ 0.0 atol=1e-10
         azn = azimuth_north(pos_kite_south)
         @test (rad2deg(azn) ≈ -180.0) || (rad2deg(azn) ≈ 180.0)
+        azn = azimuth_north(pos_kite_west)
+        @test rad2deg(azn) ≈ 90.0 atol=1e-10
     end
 
-    @testset "azimuth (wind reference frame)" begin
+    @testset "azn2azw is zero downwind, anti-clockwise" begin
         azn = azimuth_north(pos_kite_east)           # - pi/2
         azw = azn2azw(azn; upwind_dir = -π/2) # wind from west
         @test rad2deg(azw) ≈ 0.0 atol=1e-10
