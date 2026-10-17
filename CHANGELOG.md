@@ -10,6 +10,18 @@
   `fromKS2KA(RotXYZ(pi/2, -pi/2, 0))`, but that quaternion was a viewer quaternion
   (KiteViewers drew it with `ned=false`), not a `KS` attitude, so viewers that convert
   the `KA` attitude drew the demo kite turned by 90°.
+- `set_data_path` forces the global settings to be reloaded from the new path when that
+  path contains the active project file, as its comment says. A comparison where an
+  assignment was meant left `se()` returning the settings of the old path when the
+  project name stayed the same. A path without a project file, used only for log files,
+  keeps the loaded settings as before.
+- `Settings(project)` no longer changes the active `PROJECT`. Before, `se()` then
+  returned the old settings under the new project name, and `update_settings()` switched
+  the global settings to the other project. An independent instance now remembers its
+  own project, and `se(settings)` without a project reloads from that one.
+- `demo_state_4p(P, height, time)` stores `time` in the `time` field; it used to write it
+  into `t_sim`. The default of `time` is `0.0`, as documented; `t_sim` stays `0.014`.
+- `ENU2EG` is `const`, so `fromENU2EG`, `calc_heading` and `calc_course` are type-stable.
 
 ## KiteUtils v0.13.1 2026-09-26
 

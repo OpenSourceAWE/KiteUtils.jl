@@ -5,9 +5,9 @@
 Functions to transform between coordinate systems.
 """
 
-ENU2EG = @SMatrix [ 0  1  0;
-                   -1  0  0;
-                    0  0  1]
+const ENU2EG = @SMatrix [ 0  1  0;
+                         -1  0  0;
+                          0  0  1]
 
 """ 
     fromENU2EG(pointENU)
