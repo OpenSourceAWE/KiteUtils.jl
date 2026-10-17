@@ -1,8 +1,17 @@
 # Changelog
 
-## KiteUtils v0.13.2 - unreleased
+## Unreleased
+
+### Changed
+
+- BREAKING: `azimuth_east` turns anti-clockwise seen from above, `atan(y, x)`, like
+  `azimuth_north` and the wind-frame azimuth; it turned clockwise before. Code that
+  used `-azimuth_east(vec)` as the right-handed angle now uses `azimuth_east(vec)`.
 
 ### Fixed
+
+- The docstring of `azn2azw` says the wind-frame azimuth turns anti-clockwise, as it
+  does; it said clockwise.
 
 - `demo_state` stores an attitude aligned with the tether, as its docstring says and as
   `demo_state_4p` does: up along the last tether segment, the right wing horizontal and
