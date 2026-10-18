@@ -62,3 +62,15 @@ Usually it should be started with the alias `jl` to make it easy to launch and r
   - Then, add parameters for multi-threading and multi-processing as needed by the project
   - Check if a custom system image is available and use it if present
   - Add convenience functions like `menu()` and `menu2()` if needed
+
+## The update_default_manifests script
+
+This script is intended for developers only. If should be executed before creating a new
+release, but sometimes it is also useful after creating a new branch.
+
+**Purpose:**
+
+- update all packages to the latest version, separately for both supported Julia versions
+- run the tests
+- if the tests pass, create, overwrite and commit the default manifests
+- terminate if the tests fail
