@@ -1,72 +1,88 @@
 # Repository scripts
 
-The Julia packages of the OpenSourceAWE ecosystem carry three scripts in `bin/`
-that every user meets: `install`, `update_default_manifests` and `run_julia`.
-This page says what each of them does, in any repository that ships it, so that
-you know what a command will change before you type it. A repository may ship
-none of the three, and may offer more than this page; its `-h` says what.
+The Julia packages of the OpenSourceAWE ecosystem share three scripts in `bin/`
+that are useful for any package: `install`, `run_julia` and `update_default_manifests`.
+This page explains their purpose.
 
-`<version>` below is a Julia `major.minor`, as in `Manifest-v1.12.toml`.
+## Background
+We use packages that not only contain their source code folder, but also a number of
+sub-projects, typically at least
+- test
+- examples
+- docs
 
-| Script | Reads | Writes |
-| ------ | ----- | ------ |
-| `bin/install` | `Manifest-v<version>.toml.default` (tracked) | `Manifest-v<version>.toml` (gitignored), `.bak` of every other manifest, the depot `~/.julia` |
-| `bin/install --student` | as above | as above, and Julia, an alias in `~/.bashrc`, Revise in your global environment |
-| `bin/install --update` | `Project.toml`, `Manifest-v<version>.toml`, the registry | `Manifest-v<version>.toml`, the depot `~/.julia` |
-| `bin/update_default_manifests` | `Project.toml`, the registry | every `Manifest-v<version>.toml` and `Manifest-v<version>.toml.default`, the depot `~/.julia` |
-| `bin/run_julia` | `Manifest-v<version>.toml` | the depot's precompile cache, where it is stale |
+Each of the sub-projects usually has its own `Project.toml` file to define additional
+dependencies needed for the specific purpose, e.g. running the tests, running the examples
+or creating the HTML documentation.
 
-`bin/install` and `bin/install -y` are the same command, and change nothing
-outside the repository but the depot. Only `--student`, in a repository used
-for teaching, does.
+To achieve reproducible results, a consistent set of dependencies is defined in one manifest
+file per Julia version. The two manifest files for the latest two stable Julia versions
+are checked into the git repository.
 
-## `bin/install`
+The scripts explained here are mainly intended to be used when a package is checked out
+using git, and usually not when a package is used as a dependency of another project.
+They are Bash scripts, living in the `bin/` directory.
 
-Makes the repository runnable exactly as it is pinned: it moves every manifest
-that is not the one for the running Julia to `.bak` (a leftover
-`Manifest-v1.10.toml`, an unversioned `Manifest.toml`, a sub-project's),
-overwrites the live `Manifest-v<version>.toml` with the tracked
-`Manifest-v<version>.toml.default` for the Julia version on the machine,
-instantiates and precompiles. It reproduces the pinned setup rather than
-computing one, so it does not resolve the main project. Where it resolves a
-sub-project and that fails, it names it, carries on, and exits non-zero at the
-end. It runs no test suite, builds no system image and no documentation, and
-asks nothing. Where Revise is missing from your global environment it warns and
-goes on, since `bin/run_julia` runs without it. Where Revise is there, starting
-`bin/run_julia` and running the examples its menu offers precompiles nothing
-further.
+## The install script
 
-- `--student`, in the repositories used for teaching, also installs Julia where
-  it is missing, sets it as the `juliaup` default, adds the alias
-  `jl='bin/run_julia'` to `~/.bashrc` where it is not there yet, and adds Revise
-  to your global environment where it is missing.
-- `-y` changes nothing on its own; with `--student` it answers yes to whatever
-  that would ask.
-- `--update` resolves instead of installing: `Pkg.update()` against the live
-  manifest. The tracked `.default` is left alone.
-- `-h` lists the flags.
+The `install` script makes the package and its examples usable with the tested package versions. It has two use cases: first, for package developers to get a consistent state after a checkout or a branch switch; second, for students/researchers who
+want to learn and study the examples.
 
-Only the main project is pinned: the manifests of `examples/`, `test/` and
-`docs/` are resolved on the machine that installs them, so two installs of the
-same commit may differ there.
+### For package developers
+Without any parameters or dialog, the script shall quickly make a new checkout/branch ready to use. For this purpose, it shall:
+- check if a supported Julia version is installed and terminate otherwise
+- create a backup of any existing manifest files that are no longer needed
+- copy the default manifest for the active Julia version to the manifest in the root folder that will be used
+- instantiate the manifest and precompile the main package environment and the examples environment
 
-LiveServer, which serves the documentation locally, is not `bin/install`'s: a
-repository's `bin/build_docu` checks your global environment and asks before
-adding it.
+It shall not resolve: a default manifest that does not satisfy `Project.toml` shall make it fail, so that the default manifest gets fixed. Moving package versions is the job of `update_default_manifests`.
 
-## `bin/update_default_manifests`
+It shall terminate with an error code if any of the steps fails, except precompiling the examples environment, which shall only print a warning when it fails.
 
-Moves all the pins at once: it updates every package and writes the resolved
-manifests to the tracked `Manifest-v<version>.toml.default` files, one per Julia
-version the repository pins, each resolved under that Julia. It is the only
-script that changes what everybody else installs, so running it is a pull
-request of its own.
+The test and docs environments shall not be precompiled by default. They share the manifest of the main package, so instantiating it already downloads their dependencies.
 
-## `bin/run_julia`
+It shall not change anything outside the repository, except the Julia depot.
 
-Starts Julia on the repository for a person at a terminal: its project, its
-threads, its system image where the repository builds one, with any arguments
-passed through to `julia`. It loads Revise where it is installed and starts
-without it, with a warning, where it is not. It never installs or resolves; if
-the environment is missing, run `bin/install`. Loading a package whose cache is
-stale still makes Julia precompile it, as any `using` does.
+### For end users
+Invoked as `bin/install -i`, it shall first check if `juliaup` is installed and sufficient disk space is available, and terminate if not. If the preconditions are fulfilled, it shall provide a dialog with the following options:
+- install a supported Julia version if none is installed yet
+- select a different supported Julia version than the version currently active
+- add an alias `jl` to the `.bashrc` file (or other files if a shell other than Bash is used)
+- precompile the test environment or not
+- precompile the docs environment or not
+- run the tests or not
+
+## The run_julia script
+Both developers and end users should use it, unless they have found a better way to start Julia.
+Usually it is started with the alias `jl`, which makes it easy to launch and re-launch the Julia REPL.
+
+**Purpose:**
+
+- set environment variables if needed
+- assemble the parameters for starting Julia:
+  - first, the parameter `--project` to use the local project file
+  - then, parameters for multi-threading and multi-processing as needed by the project
+  - a custom system image, if one is available
+  - convenience functions like `menu()` and `menu2()`, if needed
+
+The script shall allow passing extra parameters or a script name to Julia.
+
+## The update_default_manifests script
+
+This script is intended for developers only. It should be executed before creating a new
+release, but sometimes it is also useful after creating a new branch.
+
+**Purpose:**
+
+- update all packages to the latest version, separately for both supported Julia versions
+- run the tests
+- if the tests pass, create or overwrite the default manifests and commit them
+- terminate if the tests fail
+
+## Parameters
+All scripts shall support the following parameters:
+- `-h`
+- `--help`
+Both shall print a help text, explaining the purpose and usage of the script.
+
+`bin/install` shall also accept `-y`, for automation without a terminal: it shall behave as without parameters and never prompt.
