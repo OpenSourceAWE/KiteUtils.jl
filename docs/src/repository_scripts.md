@@ -1,9 +1,10 @@
 # Repository scripts
 
-The Julia packages of the OpenSourceAWE ecosystem share three scripts in `bin/`
-that are useful for any package: `install`, `update_default_manifests` and `run_julia`.
-This page explains what each of them is supposed to do. A repository may ship
-none of the three, and may offer more functions than explained her; its `-h` says what.
+The Julia packages of the OpenSourceAWE ecosystem carry three scripts in `bin/`
+that every user meets: `install`, `update_default_manifests` and `run_julia`.
+This page says what each of them does, in any repository that ships it, so that
+you know what a command will change before you type it. A repository may ship
+none of the three, and may offer more than this page; its `-h` says what.
 
 `<version>` below is a Julia `major.minor`, as in `Manifest-v1.12.toml`.
 
