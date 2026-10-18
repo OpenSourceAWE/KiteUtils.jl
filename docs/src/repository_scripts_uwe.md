@@ -29,5 +29,23 @@ The `install` scripts makes the package and its examples usable with the tested 
 want to learn and study the examples.
 
 ### For package developers
+Without any parameters or dialog the script shall make a new checkout/ branch quickly ready to use. For this purpose:
+- check if a supported Julia version is installed and terminate otherwise
+- it shall create a backup of any existing manifest files that are not longer needed
+- it shall copy the default manifest for the active Julia version to the manifest in the root folder that will be used
+- resolve, instantiate and precompile the main package environment and the examples environment
+
+It shall terminate with an error code if any of the steps fails.
+
+**Open questions:**
+- shall the test environment be instantiated by default
+- shall the docs environment be instantiated by default
 
 ### For end users
+Invoked as `./install -i` it shall first check if `juliaup` is installed and sufficient disk space available and terminate if not. If the preconditions are fulfilled, it shall provide a dialog with the following options:
+- install a supported Julia version if none is installed yet
+- select a different supported Julia version than the version currently active
+- add an alias for `jl` to the `.bashrc` file (or other files if another shell than BASH is used)
+- instantiate the test environment or not
+- instantiate the docs environment or not
+- run the tests or not
