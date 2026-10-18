@@ -7,8 +7,16 @@ none of the three, and may offer more functions than explained her; its `-h` say
 
 `<version>` below is a Julia `major.minor`, as in `Manifest-v1.12.toml`.
 
+| Script | Reads | Writes |
+| ------ | ----- | ------ |
+| `bin/install` | `Manifest-v<version>.toml.default` (tracked) | `Manifest-v<version>.toml` (gitignored), `.bak` of every other manifest, the depot `~/.julia` |
+| `bin/install --student` | as above | as above, and Julia, an alias in `~/.bashrc`, Revise in your global environment |
+| `bin/install --update` | `Project.toml`, `Manifest-v<version>.toml`, the registry | `Manifest-v<version>.toml`, the depot `~/.julia` |
+| `bin/update_default_manifests` | `Project.toml`, the registry | every `Manifest-v<version>.toml` and `Manifest-v<version>.toml.default`, the depot `~/.julia` |
+| `bin/run_julia` | `Manifest-v<version>.toml` | the depot's precompile cache, where it is stale |
+
 `bin/install` and `bin/install -y` are the same command, and change nothing
-outside the repository. Only `--student`, in a repository used
+outside the repository but the depot. Only `--student`, in a repository used
 for teaching, does.
 
 ## `bin/install`
