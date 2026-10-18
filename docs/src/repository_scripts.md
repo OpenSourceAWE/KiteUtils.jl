@@ -37,7 +37,7 @@ Without any parameters or dialog, the script shall quickly make a new checkout/b
 
 It shall not resolve: if the default manifest does not satisfy `Project.toml`, it shall say so, so that the default manifest gets fixed. Moving package versions is the job of `update_default_manifests`.
 
-It shall terminate with an error code if any of the steps fails, except precompiling the examples environment, which shall only print a warning when it fails.
+It shall terminate with an error code if any of the steps fails.
 
 The test and docs environments shall not be precompiled by default. They share the manifest of the main package, so instantiating it already downloads their dependencies.
 
