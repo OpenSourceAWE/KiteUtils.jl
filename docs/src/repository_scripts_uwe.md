@@ -5,7 +5,7 @@ that are useful for any package: `install`, `update_default_manifests` and `run_
 This page explains there purpose.
 
 ## Background
-We use packages that not only contain their source code folder, but also a number of 
+We use packages that not only contain their source code folder, but also a number of
 sub-projects, typically at least
 - test
 - examples
@@ -49,3 +49,16 @@ Invoked as `./install -i` it shall first check if `juliaup` is installed and suf
 - instantiate the test environment or not
 - instantiate the docs environment or not
 - run the tests or not
+
+## The run_julia script
+Both developers and end users should use it, unless they found a better way to start Julia.
+Usually it should be started with the alias `jl` to make it easy to launch and re-launch the Julia REPL.
+
+**Purpose:**
+
+- set environmental variables if needed
+- assemble the parameters for starting Julia. 
+  - First, this is the parameter `--project` to use the local project file.
+  - Then, add parameters for multi-threading and multi-processing as needed by the project
+  - Check if a custom system image is available and use it if present
+  - Add convenience functions like `menu()` and `menu2()` if needed
