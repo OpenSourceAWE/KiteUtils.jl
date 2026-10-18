@@ -63,6 +63,8 @@ Usually it should be started with the alias `jl` to make it easy to launch and r
   - Check if a custom system image is available and use it if present
   - Add convenience functions like `menu()` and `menu2()` if needed
 
+The script should allow to pass extra parameters or a script name to Julia.
+
 ## The update_default_manifests script
 
 This script is intended for developers only. If should be executed before creating a new
@@ -74,3 +76,8 @@ release, but sometimes it is also useful after creating a new branch.
 - run the tests
 - if the tests pass, create, overwrite and commit the default manifests
 - terminate if the tests fail
+
+## Parameters
+All scripts shall support the following parameters:
+- `-h`
+- `--help`
