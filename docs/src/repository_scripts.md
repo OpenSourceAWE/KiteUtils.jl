@@ -21,13 +21,14 @@ for teaching, does.
 
 ## `bin/install`
 
-Makes the repository runnable exactly as it is pinned: it moves every manifest
+Makes the repository usable with the tested package versions: it moves every manifest
 that is not the one for the running Julia to `.bak` (a leftover
 `Manifest-v1.10.toml`, an unversioned `Manifest.toml`, a sub-project's),
 overwrites the live `Manifest-v<version>.toml` with the tracked
 `Manifest-v<version>.toml.default` for the Julia version on the machine,
-instantiates and precompiles. It reproduces the pinned setup rather than
-computing one, so it does not resolve the main project. Where it resolves a
+instantiates, resolves and precompiles. 
+
+Where it resolves a
 sub-project and that fails, it names it, carries on, and exits non-zero at the
 end. It runs no test suite, builds no system image and no documentation, and
 asks nothing. Where Revise is missing from your global environment it warns and
