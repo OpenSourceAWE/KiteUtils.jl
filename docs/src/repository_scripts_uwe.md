@@ -81,3 +81,4 @@ release, but sometimes it is also useful after creating a new branch.
 All scripts shall support the following parameters:
 - `-h`
 - `--help`
+Both shall print a help text, explaining the purpose and usage of the script.
