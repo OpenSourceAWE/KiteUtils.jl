@@ -2,19 +2,36 @@
 
 The Julia packages of the OpenSourceAWE ecosystem share three scripts in `bin/`
 that are useful for any package: `install`, `update_default_manifests` and `run_julia`.
-This page explains what each of them is supposed to do. A repository may ship
-none of the three, and may offer more functions than explained her; its `-h` says what.
+This page explains there purpose.
 
-`<version>` below is a Julia `major.minor`, as in `Manifest-v1.12.toml`.
+## Background
+We use packages that not only contain their source code folder, but also a number of 
+sub-projects, typically at least
+- test
+- examples
+- docs
 
-`bin/install` and `bin/install -y` are the same command, and change nothing
-outside the repository. Only `--student`, in a repository used
-for teaching, does.
+Each of the sub-projects usually has his own `Project.toml` file to define additional
+dependencies needed for the specific purpose, e.g. running the tests, running the examples
+or creating the html documentation.
 
-## `bin/install`
+To achieve reproducible results a consistent set of dependencies is defined in one manifest
+file per Julia version. The two manifest files for the latest two stable Julia versions
+are checked into the git repository.
 
-Makes the repository usable with the tested package versions: it moves every manifest
-that is not the one for the running Julia to `.bak` (a leftover
+The scripts explained here are mainly intended to be used when a package is checked out
+using git, and usually not used when a package is used as dependency of another project.
+They are bash scripts, living in the bin directory.
+
+
+## The install script
+
+The `install` scripts makes the package and its examples usable with the tested package versions. It has two use cases: Firstly, for the package developers to get a consistent state after a checkout or a switched branch. And secondly for students/ researchers who
+want to learn and study the examples.
+
+
+
+it moves every manifest that is not the one for the running Julia to `.bak` (a leftover
 `Manifest-v1.10.toml`, an unversioned `Manifest.toml`, a sub-project's),
 overwrites the live `Manifest-v<version>.toml` with the tracked
 `Manifest-v<version>.toml.default` for the Julia version on the machine,
