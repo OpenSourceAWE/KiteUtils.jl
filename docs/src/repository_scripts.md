@@ -35,7 +35,7 @@ Without any parameters or dialog, the script shall quickly make a new checkout/b
 - copy the default manifest for the active Julia version to the manifest in the root folder that will be used
 - instantiate the manifest and precompile the main package environment and the examples environment
 
-It shall not resolve: a default manifest that does not satisfy `Project.toml` shall make it fail, so that the default manifest gets fixed. Moving package versions is the job of `update_default_manifests`.
+It shall not resolve: if the default manifest does not satisfy `Project.toml`, it shall say so, so that the default manifest gets fixed. Moving package versions is the job of `update_default_manifests`.
 
 It shall terminate with an error code if any of the steps fails, except precompiling the examples environment, which shall only print a warning when it fails.
 
