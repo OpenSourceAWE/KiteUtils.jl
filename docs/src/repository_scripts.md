@@ -41,7 +41,7 @@ It shall terminate with an error code if any of the steps fails.
 
 The test and docs environments shall not be precompiled by default. They share the manifest of the main package, so instantiating it already downloads their dependencies.
 
-It shall not change anything outside the repository, except the Julia depot.
+Unless invoked with `-i`, it shall not change anything outside the repository, except the Julia depot.
 
 ### For end users
 Invoked as `bin/install -i`, it shall first check if `juliaup` is installed and sufficient disk space is available, and terminate if not. If the preconditions are fulfilled, it shall provide a dialog with the following options:
