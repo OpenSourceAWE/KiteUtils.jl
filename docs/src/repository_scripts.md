@@ -33,15 +33,16 @@ Without any parameters or dialog, the script shall quickly make a new checkout/b
 - check if a supported Julia version is installed and terminate otherwise
 - create a backup of any existing manifest files that are no longer needed
 - copy the default manifest for the active Julia version to the manifest in the root folder that will be used
+- resolve, which fixes small issues such as a pinned version that is not yet available on every package server
 - instantiate the manifest and precompile the main package environment and the examples environment
 
-It shall not resolve: if the default manifest does not satisfy `Project.toml`, it shall say so, so that the default manifest gets fixed. Moving package versions is the job of `update_default_manifests`.
+Moving all package versions to the latest is the job of `update_default_manifests`.
 
 It shall terminate with an error code if any of the steps fails.
 
-The test and docs environments shall not be precompiled by default. They share the manifest of the main package, so instantiating it already downloads their dependencies.
+The test and docs environments shall not be precompiled by default.
 
-Unless invoked with `-i`, it shall not change anything outside the repository, except the Julia depot.
+Unless invoked with `-i`, it shall not change anything outside the repository, except the Julia depot: there it adds the packages it installs and their precompiled files, and it may delete stale precompiled files of the package to force fresh precompilation.
 
 ### For end users
 Invoked as `bin/install -i`, it shall first check if `juliaup` is installed and sufficient disk space is available, and terminate if not. If the preconditions are fulfilled, it shall provide a dialog with the following options:
