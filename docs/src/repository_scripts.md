@@ -53,6 +53,7 @@ Invoked as `bin/install -i`, it shall first check if `juliaup` is installed and 
 - precompile the test environment or not
 - precompile the docs environment or not
 - run the tests or not
+- install Revise in the global environment or not
 
 ## The run_julia script
 Both developers and end users should use it, unless they have found a better way to start Julia.
@@ -65,6 +66,7 @@ Usually it is started with the alias `jl`, which makes it easy to launch and re-
   - first, the parameter `--project` to use the local project file
   - then, parameters for multi-threading and multi-processing as needed by the project
   - a custom system image, if one is available
+  - loading Revise before the package, if Revise is available, e.g. in the global environment, so that changes to the source code take effect without restarting Julia
   - convenience functions like `menu()` and `menu2()`, if needed
 
 The script shall allow passing extra parameters or a script name to Julia.
