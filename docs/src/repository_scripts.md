@@ -36,9 +36,9 @@ Without any parameters or dialog, the script shall quickly make a new checkout/b
 - resolve, which fixes small issues such as a pinned version that is not yet available on every package server
 - instantiate the manifest and precompile the main package environment and the examples environment
 
-Moving all package versions to the latest is the job of `update_default_manifests`.
+The `install` script shall terminate with an error code if any of these steps fails.
 
-It shall terminate with an error code if any of the steps fails.
+Moving all package versions to the latest is not the job of `install` but of `update_default_manifests`.
 
 The test and docs environments shall not be precompiled by default.
 
