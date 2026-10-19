@@ -33,6 +33,7 @@ Without any parameters or dialog, the script shall quickly make a new checkout/b
 - check if a supported Julia version is installed and terminate otherwise
 - create a backup of any existing manifest files that are no longer needed
 - copy the default manifest for the active Julia version to the manifest in the root folder that will be used
+- copy each default configuration file, such as `.JETLSConfig.toml.default`, to its local name without the `.default` suffix (here `.JETLSConfig.toml`), but only if the local file does not exist yet, so that local changes are kept; the local files are not tracked by git
 - resolve, which fixes small issues such as a pinned version that is not yet available on every package server
 - instantiate the manifest and precompile the main package environment and the examples environment
 
