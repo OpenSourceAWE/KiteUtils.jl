@@ -84,6 +84,28 @@ release, but sometimes it is also useful after creating a new branch.
 - if the tests pass, create or overwrite the default manifests and commit them
 - terminate if the tests fail
 
+**Resolve, then fall back to update:** where the script only brings a manifest in line
+with the `Project.toml` files instead of updating everything, it shall not rely on
+`Pkg.resolve()` alone. `Pkg.resolve()` keeps every package at the version the manifest
+already records, so it fails with an error like `empty intersection between
+MakieControlPlots@0.1.16 and project compatibility 0.1.20 - 0.1` as soon as a manifest pins a
+package below a raised compat floor. This is the normal state of the manifest of the
+Julia version that is not used day to day, which falls behind while the other one is
+kept current. On that error the script shall warn and run `Pkg.update()` for that
+Julia version instead:
+
+```bash
+julia +"$julia_major" --project=examples -e 'using Pkg
+    try Pkg.resolve() catch
+        @warn "Resolve failed, the manifest is below a compat floor; updating instead"
+        Pkg.update()
+    end
+    Pkg.instantiate(); Pkg.precompile()'
+```
+
+Without this fallback, the script stops on the first stale manifest and the default
+manifests cannot be refreshed at all.
+
 ## Parameters
 All scripts shall support the following parameters:
 - `-h`
