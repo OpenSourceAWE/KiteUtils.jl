@@ -2,6 +2,11 @@
 
 ## KiteUtils v0.13.2 - unreleased
 
+### Added
+
+- `Settings` has a field `project_file`, the absolute path of the project file (for example
+  `system.yaml`) it was loaded from.
+
 ### Fixed
 
 - `demo_state` stores an attitude aligned with the tether, as its docstring says and as

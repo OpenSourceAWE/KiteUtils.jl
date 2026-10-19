@@ -21,6 +21,8 @@ $(TYPEDFIELDS)
 @with_kw mutable struct Settings @deftype Float64
     "name of the yaml file with the settings"
     sim_settings::String      = ""
+    "absolute path of the project file the settings were loaded from, empty if none"
+    project_file::String      = ""
 
     "filename without extension  [replay only]"
     log_file::String      = ""
@@ -677,7 +679,8 @@ Update function for the [`Settings`](@ref) struct.
 The settings.yaml file to load is determined by the content of the project file. If `project`
 is omitted, the global settings use the active PROJECT, which defaults to `system.yaml`, and an
 independent instance uses the project it was loaded from. Only loading the global settings
-changes the active PROJECT.
+changes the active PROJECT. Loading a project file stores its absolute path in
+`project_file`.
 The project file must be located in the directory specified by the data path [`get_data_path`](@ref).
 """
 function se(settings::Settings, project=nothing; relax=false)
@@ -748,6 +751,7 @@ function se(settings::Settings, project=nothing; relax=false)
             throw(ArgumentError("Invalid profile_law $(settings.profile_law) in $sim_settings_path; " *
                                  "must be 0..6 (0=CONST, 1=EXP, 2=LOG, 3=EXPLOG, 4=CUSTOM_LOG, 5=CUSTOM_EXP, 6=CUSTOM_JET)"))
         end
+        settings.project_file = abspath(project_path)
         if is_global
             PROJECT = processed_project
             _SETTINGS_DIR[] = abspath(DATA_PATH[1])
