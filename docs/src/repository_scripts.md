@@ -2,7 +2,8 @@
 
 The Julia packages of the OpenSourceAWE ecosystem share three scripts in `bin/`
 that are useful for any package: `install`, `run_julia` and `update_default_manifests`.
-This page explains their purpose.
+This page explains their purpose. It is a guideline: a repository may deviate from it in
+small ways where it has a reason to, and says so in the script's help text.
 
 ## Background
 We use packages that not only contain their source code folder, but also a number of
