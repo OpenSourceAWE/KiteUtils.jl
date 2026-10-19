@@ -42,11 +42,12 @@ end
     other_path = joinpath(mktempdir(), "data")
     cp(datapath, other_path)
     set_data_path(datapath)
-    first = Settings("system.yaml")
+    system_set = Settings("system.yaml")
     set_data_path(other_path)
-    second = Settings("data/system_ram.yaml")
-    @test first.project_file == abspath(joinpath(datapath, "system.yaml"))
-    @test second.project_file == abspath(joinpath(other_path, "system_ram.yaml"))
+    ram_set = Settings("data/system_ram.yaml")
+    @test system_set.project_file == abspath(joinpath(datapath, "system.yaml"))
+    @test ram_set.project_file == abspath(joinpath(other_path, "system_ram.yaml"))
     @test isabspath(load_settings("system.yaml").project_file)
+    @test Settings().project_file == ""
     set_data_path(datapath)
 end

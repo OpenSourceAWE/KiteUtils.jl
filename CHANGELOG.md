@@ -5,8 +5,7 @@
 ### Added
 
 - `Settings` has a field `project_file`, the absolute path of the project file (for example
-  `system.yaml`) it was loaded from, so that other entries of that project file can be found
-  next to it without the global `PROJECT` and data path.
+  `system.yaml`) it was loaded from.
 
 ### Fixed
 
