@@ -36,3 +36,17 @@ using KiteUtils, Test
     @test se().segments == 6
     set_data_path(datapath)
 end
+
+@testset "KiteUtils.jl: Settings records the project file it was loaded from" begin
+    datapath = joinpath(@__DIR__, "..", "data")
+    other_path = joinpath(mktempdir(), "data")
+    cp(datapath, other_path)
+    set_data_path(datapath)
+    first = Settings("system.yaml")
+    set_data_path(other_path)
+    second = Settings("data/system_ram.yaml")
+    @test first.project_file == abspath(joinpath(datapath, "system.yaml"))
+    @test second.project_file == abspath(joinpath(other_path, "system_ram.yaml"))
+    @test isabspath(load_settings("system.yaml").project_file)
+    set_data_path(datapath)
+end

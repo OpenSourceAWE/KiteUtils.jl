@@ -21,6 +21,8 @@ $(TYPEDFIELDS)
 @with_kw mutable struct Settings @deftype Float64
     "name of the yaml file with the settings"
     sim_settings::String      = ""
+    "absolute path of the project file the settings were loaded from, empty if none"
+    project_file::String      = ""
 
     "filename without extension  [replay only]"
     log_file::String      = ""
@@ -705,6 +707,7 @@ function se(settings::Settings, project=nothing; relax=false)
         # determine which sim_settings to load
         project_path = joinpath(DATA_PATH[1], processed_project)
         dict = YAML.load_file(project_path)
+        settings.project_file = abspath(project_path)
         try
             settings.sim_settings = dict["system"]["sim_settings"]
         catch

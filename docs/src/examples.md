@@ -30,6 +30,7 @@ const set = se()
 ```julia
 Settings
   sim_settings: String "settings.yaml"
+  project_file: String "/home/user/repos/KiteUtils.jl/data/system.yaml"
   log_file: String "data/log_8700W_8ms"
   log_level: Float64 2.0
   time_lapse: Float64 1.0
