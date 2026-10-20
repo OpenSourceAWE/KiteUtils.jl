@@ -56,6 +56,9 @@ Invoked as `bin/install -i`, it shall first check if `juliaup` is installed and 
 - run the tests or not
 - install Revise in the global environment or not
 
+For the terminal dialogs REPL.TerminalMenus shall be used, with a fallback if no Julia is
+installed yet.
+
 ## The run_julia script
 Both developers and end users should use it, unless they have found a better way to start Julia.
 Usually it is started with the alias `jl`, which makes it easy to launch and re-launch the Julia REPL.
