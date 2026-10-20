@@ -2,6 +2,11 @@
 
 ## KiteUtils v0.13.2 - unreleased
 
+### Changed
+
+- The examples plot with MakieControlPlots instead of ControlPlots, so they no longer
+  need Python and Matplotlib, and `install_examples` adds MakieControlPlots.
+
 ### Fixed
 
 - `demo_state` stores an attitude aligned with the tether, as its docstring says and as

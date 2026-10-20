@@ -4,11 +4,12 @@
 # TODO: add the option to fly at any elevation angle of the center point
 
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate("examples")
 end
 
-using ControlPlots
+using LaTeXStrings
+using MakieControlPlots
 using KiteUtils
 using LinearAlgebra: cross, dot, normalize
 using Rotations
@@ -218,7 +219,7 @@ clock_angle_rate_all = Vector{Vector{Float64}}()
 y_labels = String[]
 z_labels = String[]
 h_labels = String[]
-pd_labels = String[]
+pd_labels = LaTeXString[]
 clock_angle_labels = String[]
 car_labels = String[]
 
@@ -252,7 +253,7 @@ for θ in THETA
     dh[1] = (h_unwrap[2] - h_unwrap[1]) / dt
     dh[end] = (h_unwrap[end] - h_unwrap[end-1]) / dt
     push!(psi_dot_all, dh)
-    push!(pd_labels, "\$\\dot{\\Psi}\$ (θ=$(θ)°)")
+    push!(pd_labels, L"\dot{\Psi}~(\theta=%$(θ)^\circ)")
     push!(clock_angle_all, [rad2deg(calc_clock_angle(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
     push!(clock_angle_labels, "clock angle (θ=$(θ)°)")
     # Compute clock angle rate using finite differences with unwrapping
@@ -290,65 +291,25 @@ function plot_heading_and_position(
     clock_angle_labels,
     car_labels,
 )
-    # Combined plot: 4 subplots
-    plt.figure("heading and position", figsize = (10, 18))
-
-    plt.subplot(5, 1, 1)
-    colors = ["C0", "C1", "C2", "C3"]
-    for i in eachindex(theta)
-        y_lbl = i == 1 ? "y" : nothing
-        z_lbl = i == 1 ? "z" : nothing
-        plt.plot(collect(turn_angles), ys_all[i], "-", color = colors[i], label = y_lbl)
-        plt.plot(collect(turn_angles), zs_all[i], ":", color = colors[i], label = z_lbl)
-    end
-    plt.ylabel("y, z [m]")
-    yz_handles = [
-        plt.matplotlib.lines.Line2D([0], [0], color = "black", linestyle = "-", label = "y"),
-        plt.matplotlib.lines.Line2D([0], [0], color = "black", linestyle = ":", label = "z"),
-    ]
-    leg1 = plt.legend(handles = yz_handles, loc = "lower left")
-    plt.gca().add_artist(leg1)
-    # Second legend for theta/color mapping
-    theta_handles =
-        [plt.matplotlib.lines.Line2D([0], [0], color = colors[i], label = "θ=$(theta[i])°") for i in eachindex(theta)]
-    plt.legend(handles = theta_handles, loc = "lower right")
-    plt.grid(true)
-
-    plt.subplot(5, 1, 2)
-    for i in eachindex(theta)
-        plt.plot(collect(turn_angles), headings_all[i], label = h_labels[i])
-    end
-    plt.ylabel("Ψ [°]")
-    plt.legend()
-    plt.grid(true)
-
-    plt.subplot(5, 1, 3)
-    for i in eachindex(theta)
-        plt.plot(collect(turn_angles), psi_dot_all[i], label = pd_labels[i])
-    end
-    plt.ylabel("\$\\dot{\\Psi}\$ [°/°]")
-    plt.legend()
-    plt.grid(true)
-
-    plt.subplot(5, 1, 4)
-    for i in eachindex(theta)
-        plt.plot(collect(turn_angles), clock_angle_all[i], label = clock_angle_labels[i])
-    end
-    plt.ylabel("clock angle [°]")
-    plt.legend()
-    plt.grid(true)
-
-    plt.subplot(5, 1, 5)
-    for i in eachindex(theta)
-        plt.plot(collect(turn_angles), clock_angle_rate_all[i], label = car_labels[i])
-    end
-    plt.xlabel("turn angle [°]")
-    plt.ylabel("clock angle rate [°/°]")
-    plt.legend()
-    plt.grid(true)
-
-    plt.tight_layout()
-    plt.show(block = false)
+    # The first channel shows y (solid) and z (dotted) in the same color for each θ
+    colors = ["#0072B2", "#E69F00", "#009E73", "#CC79A7"][eachindex(theta)]
+    yz_labels = [["y (θ=$(θ)°)" for θ in theta]; ["z (θ=$(θ)°)" for θ in theta]]
+    yz_styles = [fill(:solid, length(theta)); fill(:dot, length(theta))]
+    plotx(
+        collect(turn_angles),
+        [ys_all; zs_all],
+        headings_all,
+        psi_dot_all,
+        clock_angle_all,
+        clock_angle_rate_all;
+        xlabel = "turn angle [°]",
+        ylabels = ["y, z [m]", "Ψ [°]", L"\dot{\Psi}~[^\circ/^\circ]", "clock angle [°]", "clock angle rate [°/°]"],
+        labels = [yz_labels, h_labels, pd_labels, clock_angle_labels, car_labels],
+        linestyle = [yz_styles, nothing, nothing, nothing, nothing],
+        color = [[colors; colors], colors, colors, colors, colors],
+        fig = "heading and position",
+        disp = true,
+    )
 end
 
 plot_heading_and_position(
