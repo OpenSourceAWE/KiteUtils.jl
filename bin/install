@@ -257,6 +257,8 @@ install_env() {
         'using Pkg; Pkg.resolve(); Pkg.instantiate(); Pkg.precompile(; strict=true)'
 }
 
+# Pkg.resolve() does not update the registry, but needs the versions of the default manifest
+julia --startup-file=no -e 'using Pkg; Pkg.Registry.update()'
 install_env .
 install_env examples
 if $install_revise; then
