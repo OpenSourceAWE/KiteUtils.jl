@@ -6,6 +6,8 @@ using REPL.TerminalMenus: RadioMenu, request
 options = ["bridle_info = include(\"bridle_info.jl\")",
            "import_csv = include(\"import_csv.jl\")",
            "calc_rotational_inertia = include(\"calculate_rotational_inertia.jl\")",
+           "test_heading = include(\"test_heading.jl\")",
+           "test_heading_II = include(\"test_heading_II.jl\")",
            "quit"]
 
 function example_menu(options)

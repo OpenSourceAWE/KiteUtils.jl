@@ -515,7 +515,7 @@ function install_examples(add_packages=true)
     copy_examples()
     Base.invokelatest(() -> copy_settings(["transition.csv"]))
     if add_packages
-        Pkg.add("ControlPlots")
+        Pkg.add("MakieControlPlots")
         Pkg.add("LaTeXStrings")
         Pkg.add("StatsBase")
     end

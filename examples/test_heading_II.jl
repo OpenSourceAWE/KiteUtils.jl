@@ -4,11 +4,11 @@
 # TODO: add the option to fly at any elevation angle of the center point
 
 using Pkg
-if ! ("ControlPlots" ∈ keys(Pkg.project().dependencies))
+if ! ("MakieControlPlots" ∈ keys(Pkg.project().dependencies))
     Pkg.activate("examples")
 end
 
-using ControlPlots
+using MakieControlPlots
 using KiteUtils
 using LinearAlgebra: cross, dot, normalize
 using Rotations: QuatRotation
@@ -179,9 +179,6 @@ for θ in THETA
     push!(headings_all, [rad2deg(calc_kite_heading(deg2rad(ta); x = x, z = 0.1, r = r, upwind_dir = Main.UPWIND_DIR)) for ta in turn_angles])
     push!(clock_angle_all, [rad2deg(calc_clock_angle(deg2rad(ta); x = x, z = 0.1, r = r, upwind_dir = Main.UPWIND_DIR)) for ta in turn_angles])
 end
-
-# Avoid accumulating curves and duplicate legend entries when re-running include().
-plt.figure("heading and clock angle", clear = true)
 
 plotx(
     collect(turn_angles),
