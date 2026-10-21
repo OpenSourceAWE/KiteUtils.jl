@@ -182,11 +182,11 @@ end
     azimuth_east(vec)
 
 Calculate the azimuth angle in radian from the kite position in ENU reference frame.
-Zero east. Positive direction clockwise seen from above.
+Zero east. Positive direction anti-clockwise seen from above.
 Valid range: -π .. π.
 """
 function azimuth_east(vec)
-    return -atan(vec[begin+1], vec[begin])
+    return atan(vec[begin+1], vec[begin])
 end
 
 """
@@ -197,8 +197,7 @@ Zero north. Positive direction anti-clockwise seen from above.
 Valid range: -π .. π.
 """
 function azimuth_north(vec)
-    res = -pi/2 - azimuth_east(vec)
-    return wrap2pi(res)
+    return wrap2pi(azimuth_east(vec) - pi/2)
 end
 
 """
@@ -209,7 +208,7 @@ The `upwind_dir` is the direction the wind is coming from
 Zero is at north; clockwise positive. Default: Wind from west.
 
 Returns:
-- Angle in radians. Zero straight downwind. Positive direction clockwise seen
+- Angle in radians. Zero straight downwind. Positive direction anti-clockwise seen
   from above.
 - Valid range: -pi .. pi. 
 """
