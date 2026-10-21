@@ -62,7 +62,8 @@ end
 
 function parse_vector(str)
     m = match(r"\[(.*)\]", str)
-    strs = split(m[1], ','; keepempty=false)
+    # Julia prints a Float32 with an `f` exponent (`1.7f-5`); Parsers 3 only accepts `e`.
+    strs = split(replace(m[1], r"(?<=\d)f(?=[-+]?\d)" => "e"), ','; keepempty=false)
     Parsers.parse.(Float32, strs)
 end
 
@@ -71,7 +72,7 @@ function import_log_(filename::String; path="")
         path = get_output_path()
     end
     filename = joinpath(path, filename) * ".csv"
-    return (CSV.File(filename))
+    return CSV.File(filename; stringtype=String)
 end
 
 # The columns of a .csv flight log, addressed by name the way an `Arrow.Table` is.
