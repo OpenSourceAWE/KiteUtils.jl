@@ -1,6 +1,6 @@
 # Changelog
 
-## KiteUtils v0.13.3 - unreleased
+## KiteUtils v0.13.3 2026-10-21
 
 ### Added
 
