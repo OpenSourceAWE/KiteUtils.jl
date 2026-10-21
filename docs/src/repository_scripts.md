@@ -32,6 +32,7 @@ want to learn and study the examples.
 ### For package developers
 Without any parameters or dialog, the script shall quickly make a new checkout/branch ready to use. For this purpose, it shall:
 - check if a supported Julia version is installed and terminate otherwise
+- update the package registry, so that recently registered package versions in the default manifest can be found
 - create a backup of any existing manifest files that are no longer needed
 - copy the default manifest for the active Julia version to the manifest in the root folder that will be used
 - copy each default configuration file, such as `.JETLSConfig.toml.default`, to its local name without the `.default` suffix (here `.JETLSConfig.toml`), but only if the local file does not exist yet, so that local changes are kept; the local files are not tracked by git

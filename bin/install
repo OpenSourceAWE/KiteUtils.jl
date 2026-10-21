@@ -17,6 +17,7 @@ Usage: bin/install [-y] [-i] [-h]
 Make this checkout ready to use with the tested package versions:
   - check that the active Julia version is supported, i.e. that a
     Manifest-v<version>.toml.default exists for it
+  - update the package registry
   - back up manifests that are no longer needed (*.bak): a plain Manifest.toml,
     a locally changed Manifest-v<version>.toml and the manifests in examples/,
     test/ and docs/, which are not used because these folders belong to the
@@ -225,6 +226,10 @@ if ! is_supported "$version"; then
     exit 1
 fi
 echo "Installing for Julia $version..."
+
+# The default manifest may contain package versions that were registered recently
+echo "Updating the package registry ..."
+julia --startup-file=no -e 'using Pkg; Pkg.Registry.update()'
 
 manifest="Manifest-v$version.toml"
 # examples, test and docs are part of the workspace and use the manifest of the
