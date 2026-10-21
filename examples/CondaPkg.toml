@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Uwe Fechner
+# SPDX-License-Identifier: MIT
+
+# Python 3.15 from conda-forge comes without libpython3.15.so, so that PythonCall
+# and therefore PythonPlot and ControlPlots fail to load
+[deps]
+python = ">=3.10,<3.15"
