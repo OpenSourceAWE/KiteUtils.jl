@@ -9,15 +9,16 @@ cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.."
 
 usage() {
     cat <<'USAGE'
-Usage: bin/update_default_manifests [-y] [-h]
+Usage: bin/update_default_manifests [-y] [-h|--help]
 
-Update every package and write the resolved manifests to the tracked
-Manifest-v<version>.toml.default files of this repository. Each one is resolved
-under the Julia it pins, so every one of those Julia versions has to be on the
-machine; none is written unless all of them are.
+Update every package to its latest version, separately for each Julia version
+that has a tracked Manifest-v<version>.toml.default, and run the tests under each
+of them. Only if all tests pass are the updated manifests copied to the tracked
+defaults and committed; if any test fails, the script terminates and leaves the
+defaults alone. Every one of those Julia versions has to be on the machine.
 
-  -y   do not ask before overwriting the tracked defaults
-  -h   show this message
+  -y          do not ask before updating, testing and committing
+  -h, --help  show this message
 USAGE
 }
 
@@ -55,7 +56,7 @@ if [ ${#missing[@]} -gt 0 ]; then
 fi
 
 if ! $assume_yes; then
-    read -r -p "Update every package and rewrite the defaults of ${versions[*]}? [y/N] " \
+    read -r -p "Update every package, test and commit the defaults of ${versions[*]}? [y/N] " \
         reply
     case "$reply" in
         [yY]*) ;;
@@ -69,6 +70,23 @@ for version in "${versions[@]}"; do
     manifest="Manifest-v$version.toml"
     # Pkg resolves into Manifest.toml unless the versioned name is already a file
     : > "$manifest"
+    echo "update_default_manifests: updating and testing under Julia $version"
     julia "+$version" --startup-file=no --project -e 'using Pkg; Pkg.update()'
-    cp "$manifest" "$manifest.default"
+    if ! julia "+$version" --startup-file=no --project -e 'using Pkg; Pkg.test()'; then
+        echo "update_default_manifests: tests failed under Julia $version;" \
+             "the defaults are unchanged." >&2
+        exit 1
+    fi
 done
+
+defaults=()
+for version in "${versions[@]}"; do
+    cp "Manifest-v$version.toml" "Manifest-v$version.toml.default"
+    defaults+=("Manifest-v$version.toml.default")
+done
+
+if git diff --quiet -- "${defaults[@]}"; then
+    echo "update_default_manifests: the defaults are already up to date."
+    exit 0
+fi
+git commit -m "update the default manifests" -- "${defaults[@]}"
