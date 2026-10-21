@@ -1,11 +1,29 @@
 # Changelog
 
-## KiteUtils v0.13.2 - unreleased
+## KiteUtils v0.13.3 - unreleased
+
+### Added
+
+- `set_output_path(output_path="")` and `get_output_path()`, the folder `save_log`,
+  `load_log`, `export_log` and `import_log` use when no `path` is passed: the data
+  folder until `set_output_path` names another, which `get_output_path` creates when it
+  is missing.
+- `path`, a keyword of `import_log`, as `load_log` already has.
+- The example menu offers `test_heading` and `test_heading_II`.
 
 ### Changed
 
 - The examples plot with MakieControlPlots instead of ControlPlots, so they no longer
   need Python and Matplotlib, and `install_examples` adds MakieControlPlots.
+- Widen the compat bounds to allow CSV 1, DocStringExtensions 0.10,
+  OrderedCollections 2 and Parsers 3.
+
+### Fixed
+
+- `import_log` reads vectors written with a Float32 exponent (`1.7f-5`), which
+  Parsers 3 no longer accepts by itself.
+
+## KiteUtils v0.13.2 2026-10-11
 
 ### Fixed
 
