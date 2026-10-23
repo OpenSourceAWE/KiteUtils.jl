@@ -89,6 +89,11 @@ release, but sometimes it is also useful after creating a new branch.
 - if the tests pass, create or overwrite the default manifests and commit them
 - terminate if the tests fail
 
+**Implementation note:** load Pkg before activating the project, e.g.
+`julia -e 'using Pkg; Pkg.activate("."); Pkg.update()'`, not `julia --project -e 'using Pkg; ...'`.
+If the project depends on Pkg and its manifest is empty, Julia 1.12 otherwise fails with a
+`KeyError` in the precompilation.
+
 ## Parameters
 All scripts shall support the following parameters:
 - `-h`
