@@ -33,14 +33,11 @@ Use the following configuration in your workspace settings:
   "jetls-client.executable": {
     "path": "jetls",
     "threads": "1,0"
-  },
-  "jetls-client.initializationOptions": {
-    "n_analysis_workers": 1
   }
 }
 ```
 
-This configuration tells the extension to run the `jetls` executable and keeps analysis parallelism conservative.
+This configuration tells the extension to run the `jetls` executable with one thread.
 
 ### Project-specific JETLS files
 
