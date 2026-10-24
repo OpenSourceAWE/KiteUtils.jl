@@ -187,17 +187,17 @@ In addition, implements the properties x1, y1 and z1. They represent the kite po
 """
 function Base.getproperty(log::SysLog, sym::Symbol)
     if sym == :x
-        prepre_last.(getproperty(log.syslog, :X))
+        prepre_last.(getproperty(getfield(log, :syslog), :X))
     elseif sym == :x1
-        last.(getproperty(log.syslog, :X))
+        last.(getproperty(getfield(log, :syslog), :X))
     elseif sym == :y
-        prepre_last.(getproperty(log.syslog, :Y))
+        prepre_last.(getproperty(getfield(log, :syslog), :Y))
     elseif sym == :y1
-        last.(getproperty(log.syslog, :Y))
+        last.(getproperty(getfield(log, :syslog), :Y))
     elseif sym == :z
-        prepre_last.(getproperty(log.syslog, :Z))
+        prepre_last.(getproperty(getfield(log, :syslog), :Z))
     elseif sym == :z1
-        last.(getproperty(log.syslog, :Z))
+        last.(getproperty(getfield(log, :syslog), :Z))
     elseif sym == :orient
         getproperty(getfield(log, :syslog), :orient)
     elseif sym == :orients
