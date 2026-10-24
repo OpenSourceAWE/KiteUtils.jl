@@ -5,10 +5,12 @@
 ### Changed
 
 - BREAKING: `azimuth_east` turns anti-clockwise seen from above, `atan(y, x)`, like `azimuth_north` and the wind-frame azimuth; it turned clockwise before. Code that used `-azimuth_east(vec)` as the right-handed angle now uses `azimuth_east(vec)`.
+- the functions for modifying yaml files, `readfile`, `writefile`, `change_value`, `update_yaml_scalar`, `insert_yaml_scalar_in_section`, `get_comment` and `get_unit`, are declared `public`; they were documented, but not part of the public API
 
 ### Fixed
 
 - The docstring of `azn2azw` says the wind-frame azimuth turns anti-clockwise, as it does; it said clockwise.
+- `change_value` replaces the whole value of a line with a multibyte character, e.g. `°` or `ü`, and no comment; it kept the end of the old value, because it took the number of characters as the last index. A new value with a multibyte character no longer fails with a `StringIndexError`
 
 ## KiteUtils v0.13.3 2026-10-21
 
