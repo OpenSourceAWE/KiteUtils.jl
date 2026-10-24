@@ -79,7 +79,7 @@ end
     # the value is replaced and padded to the width of the old one, the comment is kept
     lines = ["system:", "    project: \"hydra20_600.yml\"  # project file"]
     @test change_value(lines, "project:", "\"abc.yml\"") ==
-          ["system:", "    project: \"abc.yml\"           # project file"]
+          ["system:", "    project: \"abc.yml\"          # project file"]
     @test change_value(["v_wind: 9.51"], "v_wind:", 12.0) == ["v_wind: 12.0"]
 
     # a multibyte character in the old value, without comment: the whole value is replaced
