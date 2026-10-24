@@ -43,10 +43,15 @@ Change the value of a variable in a yaml file.
 """
 function change_value(lines, varname, value::String)
     res = String[]
+    # the characters of the value; indexing the string itself would use byte indices
+    chars = collect(value)
     for line in lines
         if startswith(lstrip(line), varname)
-            start = (findfirst(varname, line)).stop+1
-            stop = something(findfirst('#', line), length(line) + 1) - 1
+            # the line starts with varname, so findfirst can not return nothing
+            start = nextind(line, last(findfirst(varname, line)::UnitRange{Int}))
+            # string indices count bytes, so the end is lastindex, not length
+            comment_pos = findfirst('#', line)
+            stop = isnothing(comment_pos) ? lastindex(line) : prevind(line, comment_pos)
             new_line = ""
             leading = true
             j = 1
@@ -55,8 +60,8 @@ function change_value(lines, varname, value::String)
                     new_line *= chr
                 elseif line[i] == ' ' && leading
                     new_line *= ' '
-                elseif j <= length(value)
-                    new_line *= value[j]
+                elseif j <= length(chars)
+                    new_line *= chars[j]
                     j += 1
                     leading = false
                 elseif i <= stop
