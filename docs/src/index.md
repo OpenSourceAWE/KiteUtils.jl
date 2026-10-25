@@ -14,7 +14,7 @@ If you just want to learn how this package works quickly just install only this 
 
 ## Installation
 
-Install [Julia 1.12](https://ufechner7.github.io/2024/08/09/installing-julia-with-juliaup.html) or later, if you haven't already.  You can add KiteUtils from  Julia's package manager, by typing 
+Install [Julia 1.13](https://ufechner7.github.io/2026/10/24/installing-julia-1.13-and-vscode.html) or later, if you haven't already.  You can add KiteUtils from  Julia's package manager, by typing 
 ```julia
 using Pkg
 pkg"add KiteUtils"
