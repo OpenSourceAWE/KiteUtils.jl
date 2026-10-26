@@ -2,7 +2,13 @@
 
 ## KiteUtils v0.14.0 - unreleased
 
+### Added
+
+- `SysState` columns for the outputs of a run: `force_x/y/z`, `wind_x/y/z` and `acc_x/y/z` per point, `turn_acc_x/y/z` per wing then body, `tether_force_twist`, `tether_moment_twist` and `aero_moment_twist` per twist surface, and `winch_acc` and `winch_friction` per winch. A log written before they existed reads them as zeros.
+
 ### Changed
+
+- BREAKING: `elevation`, `azimuth`, `heading`, `course` and `AoA` are stored per wing, in the `SysState` fields `elevations`, `azimuths`, `headings`, `courses` and `AoAs`. The old names remain properties: on a `SysState` they read and write wing 1, on a `SysLog`'s `syslog` they read wing 1's time series, and an older log loads them into wing 1. Code that reads them as fields, by `getfield`, `fieldnames` or a positional constructor, or reads the `.arrow` columns directly, uses the new names.
 
 - BREAKING: `azimuth_east` turns anti-clockwise seen from above, `atan(y, x)`, like `azimuth_north` and the wind-frame azimuth; it turned clockwise before. Code that used `-azimuth_east(vec)` as the right-handed angle now uses `azimuth_east(vec)`.
 
