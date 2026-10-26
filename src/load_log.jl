@@ -87,7 +87,7 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
     azimuth_rate, kcu_steering = scalar(:azimuth_rate), scalar(:kcu_steering)
     set_steering, heading_rate = scalar(:set_steering), scalar(:heading_rate)
     bearing, acc = scalar(:bearing), scalar(:acc)
-    AoA, side_slip = scalar(:AoA), scalar(:side_slip)
+    side_slip = scalar(:side_slip)
     alpha3, alpha4 = scalar(:alpha3), scalar(:alpha4)
     CL2, CD2 = scalar(:CL2), scalar(:CD2)
     # Single-winch logs store l_tether, v_reelout and winch_force as scalars
@@ -111,7 +111,7 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
     # fixed-width placeholders and would otherwise force every log to four.
     W = maximum((entries(getproperty(table, name))
         for name in (:v_reelout, :winch_force, :force,
-                     :set_torque, :set_speed, :set_force)
+                     :set_torque, :set_speed, :set_force, :winch_acc, :winch_friction)
         if haskey(table, name)); init=1)
     T = entries(table.l_tether)
     l_tether, v_reelout = fit(table.l_tether, T), fit(table.v_reelout, W)
@@ -166,6 +166,15 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
         wing_load(:aero_moment_KA, :aero_moment_b)
     turn_rate_x, turn_rate_y, turn_rate_z =
         column(:turn_rate_x, O), column(:turn_rate_y, O), column(:turn_rate_z, O)
+    turn_acc_x, turn_acc_y, turn_acc_z =
+        column(:turn_acc_x, O), column(:turn_acc_y, O), column(:turn_acc_z, O)
+    # A log predating the per-wing angles holds wing 1's as a scalar.
+    wing_angle(name, legacy) =
+        haskey(table, name) ? getproperty(table, name) : fit(scalar(legacy), K)
+    elevations = wing_angle(:elevations, :elevation)
+    azimuths = wing_angle(:azimuths, :azimuth)
+    headings, courses = wing_angle(:headings, :heading), wing_angle(:courses, :course)
+    AoAs = wing_angle(:AoAs, :AoA)
     if convention !== KA
         # Loading is the boundary, so everything body-resolved is converted here and
         # the state that comes out holds KA alone. Missing one leaves a mixed-frame
@@ -180,7 +189,10 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
             writable(K, aero_force_KA_x, aero_force_KA_y, aero_force_KA_z)
         aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z =
             writable(K, aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z)
+        turn_acc_x, turn_acc_y, turn_acc_z =
+            writable(O, turn_acc_x, turn_acc_y, turn_acc_z)
         fromKS2KA_body_columns!(turn_rate_x, turn_rate_y, turn_rate_z)
+        fromKS2KA_body_columns!(turn_acc_x, turn_acc_y, turn_acc_z)
         fromKS2KA_body_columns!(aero_force_KA_x, aero_force_KA_y, aero_force_KA_z)
         fromKS2KA_body_columns!(aero_moment_KA_x, aero_moment_KA_y, aero_moment_KA_z)
     end
@@ -195,21 +207,31 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
         column(:set_ext_force_z, P)
     spring_force, gamma_distribution =
         column(:spring_force, S), column(:gamma_distribution, N)
+    force_x, force_y, force_z =
+        column(:force_x, P), column(:force_y, P), column(:force_z, P)
+    wind_x, wind_y, wind_z = column(:wind_x, P), column(:wind_y, P), column(:wind_z, P)
+    acc_x, acc_y, acc_z = column(:acc_x, P), column(:acc_y, P), column(:acc_z, P)
+    tether_force_twist, tether_moment_twist, aero_moment_twist =
+        column(:tether_force_twist, D), column(:tether_moment_twist, D),
+        column(:aero_moment_twist, D)
+    winch_acc, winch_friction = column(:winch_acc, W), column(:winch_friction, W)
     syslog = StructArray{SysState{P, O, K, D, L, W, T, S, N, F}}((
         table.time, table.t_sim, table.sys_state, cycle, fig_8, table.e_mech, Qw, Qx, Qy,
-        Qz, turn_rates, table.elevation, table.azimuth, azimuth_rate, l_tether, v_reelout,
+        Qz, turn_rates, elevations, azimuths, azimuth_rate, l_tether, v_reelout,
         winch_force, table.depower, table.steering, kcu_steering, set_steering,
-        table.heading, heading_rate, table.course, bearing, attractor, table.v_app,
-        v_wind_gnd, v_wind_200m, v_wind_kite, AoA, side_slip, alpha3, alpha4, CL2, CD2,
+        headings, heading_rate, courses, bearing, attractor, table.v_app,
+        v_wind_gnd, v_wind_200m, v_wind_kite, AoAs, side_slip, alpha3, alpha4, CL2, CD2,
         aero_force_KA_x, aero_force_KA_y, aero_force_KA_z, aero_moment_KA_x,
         aero_moment_KA_y, aero_moment_KA_z, twist_angles, vel_kite, acc, table.X, table.Y,
         table.Z, flap_angle, VX, VY, VZ, aero_force_x, aero_force_y, aero_force_z,
         drag_force_x, drag_force_y, drag_force_z, spring_force, gamma_distribution,
         turn_rate_x, turn_rate_y, turn_rate_z, twist_vel, pulley_len, pulley_vel,
         set_torque, set_speed, set_force, set_ext_force_x, set_ext_force_y,
-        set_ext_force_z, scalar(:var_01), scalar(:var_02), scalar(:var_03), scalar(:var_04),
-        scalar(:var_05), scalar(:var_06), scalar(:var_07), scalar(:var_08), scalar(:var_09),
-        scalar(:var_10), scalar(:var_11), scalar(:var_12), scalar(:var_13), scalar(:var_14),
-        scalar(:var_15), scalar(:var_16)))
+        set_ext_force_z, force_x, force_y, force_z, wind_x, wind_y, wind_z, acc_x, acc_y,
+        acc_z, turn_acc_x, turn_acc_y, turn_acc_z, tether_force_twist, tether_moment_twist,
+        aero_moment_twist, winch_acc, winch_friction, scalar(:var_01), scalar(:var_02),
+        scalar(:var_03), scalar(:var_04), scalar(:var_05), scalar(:var_06), scalar(:var_07),
+        scalar(:var_08), scalar(:var_09), scalar(:var_10), scalar(:var_11), scalar(:var_12),
+        scalar(:var_13), scalar(:var_14), scalar(:var_15), scalar(:var_16)))
     return SysLog{P}(log_name, colmeta, syslog, metadata)
 end

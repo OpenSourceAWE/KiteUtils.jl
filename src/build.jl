@@ -56,15 +56,16 @@ first and the O frames in their last O slots, wings then bodies. [`wing_Q`](@ref
 
 A `_KA` quantity at `k` is in the frame `Q[k]`: `aero_force_KA_x[k]` is a component
 of wing k's force in the frame that `Qw/Qx/Qy/Qz[k]` rotates into ENU. The properties
-`aero_force_KA` and `aero_moment_KA` are wing 1's loads as a mutable 3-vector. The turn
-rates are `KA` too, and every other vector is ENU.
+`aero_force_KA` and `aero_moment_KA` are wing 1's loads as a mutable 3-vector, and
+`elevation`, `azimuth`, `heading`, `course` and `AoA` are wing 1's entry of their per-wing
+vector. The turn rates and turn accelerations are `KA` too, and every other vector is ENU.
 
 Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `twist_angles`, `twist_vel`, `pulley_len`, `pulley_vel`, `l_tether` and
 `v_reelout` hold a complete differential state, so a single row can be
 used to restart a simulation. `flap_angle` is a derived deflection, not
-part of that state, and neither are the `aero_force_*`, `drag_force_*`,
-`spring_force` and `gamma_distribution` loads, which are logged for inspection.
+part of that state, and neither are the `force_*`, `aero_force_*`, `drag_force_*`,
+`*_twist`, `spring_force` and `gamma_distribution` loads, which are logged for inspection.
 
 \$(TYPEDFIELDS)
 \"\"\"
@@ -138,7 +139,6 @@ open(outputfile3,"w") do io
     println(io, "        state = demo_state(P, max_height * i/steps, i/se().sample_freq;")
     println(io, "            wings=K, bodies=O-K, deflections=D, pulleys=L, winches=W,")
     println(io, "            tethers=T, segments=S, panels=N)")
-    println(io, "        elevation_vec[i+1] = asin(state.Z[end]/state.X[end])")
     for key in keys(sysstate)
         println(io, "        " * key * "_vec[i+1] = state." * key)
     end

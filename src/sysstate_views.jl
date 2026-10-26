@@ -252,6 +252,8 @@ end
         return ComponentColumn(sa, AERO_FORCE_KA, 1)
     elseif key === :aero_moment_KA
         return ComponentColumn(sa, AERO_MOMENT_KA, 1)
+    elseif haskey(WING_ANGLES, key)
+        return first.(StructArrays.component(sa, WING_ANGLES[key]))
     else
         return StructArrays.component(sa, key)
     end

@@ -144,8 +144,8 @@ fig_8 [-]:         0
 e_mech [Wh]:       0.0
 orient [-]:        Float32[0.93754053, 0.0, 0.34787613, 0.0]
 turn_rates [rad/s]:Float32[0.0, 0.0, 0.0]
-elevation [rad]:   0.5404195
-azimuth [rad]:     0.0
+elevations [rad]:  Float32[0.5404195]
+azimuths [rad]:    Float32[0.0]
 azimuth_rate [rad/s]:0.0
 l_tether [m]:      Float32[0.0]
 v_reelout [m/s]:   Float32[0.0]
@@ -154,16 +154,16 @@ depower [0..1]:    0.0
 steering [-1..1]:  0.0
 kcu_steering [-1..1]:0.0
 set_steering [-1..1]:0.0
-heading [rad]:     0.0
+headings [rad]:    Float32[0.0]
 heading_rate [rad/s]:0.0
-course [rad]:      0.0
+courses [rad]:     Float32[0.0]
 bearing [rad]:     0.0
 attractor [rad]:   Float32[0.0, 0.0]
 v_app [m/s]:       0.0
 v_wind_gnd [m/s]:  Float32[10.4855, 0.0, -3.08324]
 v_wind_200m [m/s]: Float32[10.4855, 0.0, -3.08324]
 v_wind_kite [m/s]: Float32[10.4855, 0.0, -3.08324]
-AoA [rad]:         0.0
+AoAs [rad]:        Float32[0.0]
 side_slip [rad]:   0.0
 alpha3 [rad]:      0.0
 alpha4 [rad]:      0.0
@@ -205,6 +205,23 @@ set_force [N]:     Float32[0.0]
 set_ext_force_x [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 set_ext_force_y [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 set_ext_force_z [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+force_x [N]:       Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+force_y [N]:       Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+force_z [N]:       Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+wind_x [m/s]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+wind_y [m/s]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+wind_z [m/s]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+acc_x [m/s²]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+acc_y [m/s²]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+acc_z [m/s²]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+turn_acc_x [rad/s²]:Float32[0.0]
+turn_acc_y [rad/s²]:Float32[0.0]
+turn_acc_z [rad/s²]:Float32[0.0]
+tether_force_twist [N]:Float32[]
+tether_moment_twist [Nm]:Float32[]
+aero_moment_twist [Nm]:Float32[]
+winch_acc [m/s²]:  Float32[0.0]
+winch_friction [N]:Float32[0.0]
 var_01 [-]:        0.0
 var_02 [-]:        0.0
 var_03 [-]:        0.0
