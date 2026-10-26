@@ -106,7 +106,6 @@ include("transformations.jl")
 include("trafo.jl")
 
 include("_sysstate.jl")
-# Each single-wing angle and the per-wing field whose first entry it is.
 const WING_ANGLES = (elevation=:elevations, azimuth=:azimuths, heading=:headings,
                      course=:courses, AoA=:AoAs)
 include("sysstate_views.jl")

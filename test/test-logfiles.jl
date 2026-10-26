@@ -301,6 +301,28 @@ end
     syslog = load_log("wing_angles_test").syslog
     @test syslog.elevation == [0.5f0]
     @test syslog[1].elevations == written.elevations
+    syslog.elevation[1] = 0.7
+    syslog.AoA[1] = 0.1
+    @test syslog[1].elevations == [0.7f0, 0.6f0]
+    @test syslog[1].AoAs == [0.1f0, 0]
+end
+
+@testset "turn accelerations are converted out of KS as the turn rates are" begin
+    set_data_path(tempdir())
+    logger = Logger(3, 1; wings=1, bodies=1)
+    written = SysState(3; wings=1, bodies=1)
+    for (axis, value) in zip("xyz", ([1, 2], [3, 4], [5, 6]))
+        getfield(written, Symbol(:turn_rate_, axis)) .= value
+        getfield(written, Symbol(:turn_acc_, axis)) .= value
+    end
+    log!(logger, written)
+    export_log(KiteUtils.sys_log(logger, "turn_acc_KS"))
+    row = import_log("turn_acc_KS"; frame=KS).syslog[1]
+    @test row.turn_rate_x != written.turn_rate_x
+    for axis in "xyz"
+        @test getproperty(row, Symbol(:turn_acc_, axis)) ==
+              getproperty(row, Symbol(:turn_rate_, axis))
+    end
 end
 
 @testset "a log with more wings than oriented frames is rejected on load" begin

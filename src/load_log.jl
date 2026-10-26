@@ -170,7 +170,7 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
         column(:turn_acc_x, O), column(:turn_acc_y, O), column(:turn_acc_z, O)
     # A log predating the per-wing angles holds wing 1's as a scalar.
     wing_angle(name, legacy) =
-        haskey(table, name) ? getproperty(table, name) : fit(scalar(legacy), K)
+        fit(haskey(table, name) ? getproperty(table, name) : scalar(legacy), K)
     elevations = wing_angle(:elevations, :elevation)
     azimuths = wing_angle(:azimuths, :azimuth)
     headings, courses = wing_angle(:headings, :heading), wing_angle(:courses, :course)
