@@ -65,7 +65,7 @@ Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `v_reelout` hold a complete differential state, so a single row can be
 used to restart a simulation. `flap_angle` is a derived deflection, not
 part of that state, and neither are the `force_*`, `aero_force_*`, `drag_force_*`,
-`*_twist`, `spring_force` and `gamma_distribution` loads, which are logged for inspection.
+`spring_force` and `gamma_distribution` loads, which are logged for inspection.
 
 \$(TYPEDFIELDS)
 \"\"\"

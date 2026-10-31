@@ -67,7 +67,6 @@ function syslog(logger::Logger{P, O, K, D, L, W, T, S, N, F, Q}
         l.wind_x_vec, l.wind_y_vec, l.wind_z_vec,
         l.acc_x_vec, l.acc_y_vec, l.acc_z_vec,
         l.turn_acc_x_vec, l.turn_acc_y_vec, l.turn_acc_z_vec,
-        l.tether_force_twist_vec, l.tether_moment_twist_vec, l.aero_moment_twist_vec,
         l.winch_acc_vec, l.winch_friction_vec, l.var_01_vec,
         l.var_02_vec, l.var_03_vec, l.var_04_vec,
         l.var_05_vec, l.var_06_vec, l.var_07_vec,

@@ -100,9 +100,6 @@ function log!(logger::Logger, state::SysState)
     logger.turn_acc_x_vec[i] .= state.turn_acc_x
     logger.turn_acc_y_vec[i] .= state.turn_acc_y
     logger.turn_acc_z_vec[i] .= state.turn_acc_z
-    logger.tether_force_twist_vec[i] .= state.tether_force_twist
-    logger.tether_moment_twist_vec[i] .= state.tether_moment_twist
-    logger.aero_moment_twist_vec[i] .= state.aero_moment_twist
     logger.winch_acc_vec[i] .= state.winch_acc
     logger.winch_friction_vec[i] .= state.winch_friction
     logger.var_01_vec[i] = state.var_01

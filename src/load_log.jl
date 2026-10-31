@@ -211,9 +211,6 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
         column(:force_x, P), column(:force_y, P), column(:force_z, P)
     wind_x, wind_y, wind_z = column(:wind_x, P), column(:wind_y, P), column(:wind_z, P)
     acc_x, acc_y, acc_z = column(:acc_x, P), column(:acc_y, P), column(:acc_z, P)
-    tether_force_twist, tether_moment_twist, aero_moment_twist =
-        column(:tether_force_twist, D), column(:tether_moment_twist, D),
-        column(:aero_moment_twist, D)
     winch_acc, winch_friction = column(:winch_acc, W), column(:winch_friction, W)
     syslog = StructArray{SysState{P, O, K, D, L, W, T, S, N, F}}((
         table.time, table.t_sim, table.sys_state, cycle, fig_8, table.e_mech, Qw, Qx, Qy,
@@ -228,8 +225,8 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
         turn_rate_x, turn_rate_y, turn_rate_z, twist_vel, pulley_len, pulley_vel,
         set_torque, set_speed, set_force, set_ext_force_x, set_ext_force_y,
         set_ext_force_z, force_x, force_y, force_z, wind_x, wind_y, wind_z, acc_x, acc_y,
-        acc_z, turn_acc_x, turn_acc_y, turn_acc_z, tether_force_twist, tether_moment_twist,
-        aero_moment_twist, winch_acc, winch_friction, scalar(:var_01), scalar(:var_02),
+        acc_z, turn_acc_x, turn_acc_y, turn_acc_z, winch_acc, winch_friction,
+        scalar(:var_01), scalar(:var_02),
         scalar(:var_03), scalar(:var_04), scalar(:var_05), scalar(:var_06), scalar(:var_07),
         scalar(:var_08), scalar(:var_09), scalar(:var_10), scalar(:var_11), scalar(:var_12),
         scalar(:var_13), scalar(:var_14), scalar(:var_15), scalar(:var_16)))

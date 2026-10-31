@@ -4,7 +4,7 @@
 
 ### Added
 
-- `SysState` columns for the outputs of a run: `force_x/y/z`, `wind_x/y/z` and `acc_x/y/z` per point, `turn_acc_x/y/z` per wing then body, `tether_force_twist`, `tether_moment_twist` and `aero_moment_twist` per twist surface, and `winch_acc` and `winch_friction` per winch. A log written before they existed reads them as zeros.
+- `SysState` columns for the outputs of a run: `force_x/y/z`, `wind_x/y/z` and `acc_x/y/z` per point, `turn_acc_x/y/z` per wing then body, and `winch_acc` and `winch_friction` per winch. A log written before they existed reads them as zeros.
 
 ### Changed
 

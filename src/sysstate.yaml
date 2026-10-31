@@ -84,9 +84,6 @@ sysstate:
     turn_acc_x: "MVector{O, MyFloat}"   # KA turn acceleration around x, one per wing then body [rad/s²]
     turn_acc_y: "MVector{O, MyFloat}"   # KA turn acceleration around y, one per wing then body [rad/s²]
     turn_acc_z: "MVector{O, MyFloat}"   # KA turn acceleration around z, one per wing then body [rad/s²]
-    tether_force_twist: "MVector{D, MyFloat}"  # tether force on each twist surface [N]
-    tether_moment_twist: "MVector{D, MyFloat}" # tether moment on each twist surface [Nm]
-    aero_moment_twist: "MVector{D, MyFloat}"   # aerodynamic moment on each twist surface [Nm]
     winch_acc: "MVector{W, MyFloat}"    # reel-out acceleration, one per winch [m/s²]
     winch_friction: "MVector{W, MyFloat}" # friction force, one per winch [N]
     var_01: "MyFloat"                   # generic variable 01

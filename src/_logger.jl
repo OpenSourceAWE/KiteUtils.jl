@@ -117,9 +117,6 @@ $(TYPEDFIELDS)
     turn_acc_x_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
     turn_acc_y_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
     turn_acc_z_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
-    tether_force_twist_vec::Vector{MVector{D, F}} = [zero(MVector{D, F}) for _ in 1:Q]
-    tether_moment_twist_vec::Vector{MVector{D, F}} = [zero(MVector{D, F}) for _ in 1:Q]
-    aero_moment_twist_vec::Vector{MVector{D, F}} = [zero(MVector{D, F}) for _ in 1:Q]
     winch_acc_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
     winch_friction_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]
     var_01_vec::Vector{F} = zeros(F, Q)

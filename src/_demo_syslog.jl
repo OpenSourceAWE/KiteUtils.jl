@@ -100,9 +100,6 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; wings=1, duration=10)
     turn_acc_x_vec = Vector{MVector{O, MyFloat}}(undef, steps)
     turn_acc_y_vec = Vector{MVector{O, MyFloat}}(undef, steps)
     turn_acc_z_vec = Vector{MVector{O, MyFloat}}(undef, steps)
-    tether_force_twist_vec = Vector{MVector{D, MyFloat}}(undef, steps)
-    tether_moment_twist_vec = Vector{MVector{D, MyFloat}}(undef, steps)
-    aero_moment_twist_vec = Vector{MVector{D, MyFloat}}(undef, steps)
     winch_acc_vec = Vector{MVector{W, MyFloat}}(undef, steps)
     winch_friction_vec = Vector{MVector{W, MyFloat}}(undef, steps)
     var_01_vec = Vector{MyFloat}(undef, steps)
@@ -209,9 +206,6 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; wings=1, duration=10)
         turn_acc_x_vec[i+1] = state.turn_acc_x
         turn_acc_y_vec[i+1] = state.turn_acc_y
         turn_acc_z_vec[i+1] = state.turn_acc_z
-        tether_force_twist_vec[i+1] = state.tether_force_twist
-        tether_moment_twist_vec[i+1] = state.tether_moment_twist
-        aero_moment_twist_vec[i+1] = state.aero_moment_twist
         winch_acc_vec[i+1] = state.winch_acc
         winch_friction_vec[i+1] = state.winch_friction
         var_01_vec[i+1] = state.var_01
@@ -245,8 +239,8 @@ function demo_syslog(P, O=1, D=0, L=0, W=1, T=W, S=0, N=0; wings=1, duration=10)
                               set_torque_vec, set_speed_vec, set_force_vec, set_ext_force_x_vec, set_ext_force_y_vec, set_ext_force_z_vec, 
                               force_x_vec, force_y_vec, force_z_vec, wind_x_vec, wind_y_vec, wind_z_vec, 
                               acc_x_vec, acc_y_vec, acc_z_vec, turn_acc_x_vec, turn_acc_y_vec, turn_acc_z_vec, 
-                              tether_force_twist_vec, tether_moment_twist_vec, aero_moment_twist_vec, winch_acc_vec, winch_friction_vec, var_01_vec, 
-                              var_02_vec, var_03_vec, var_04_vec, var_05_vec, var_06_vec, var_07_vec, 
-                              var_08_vec, var_09_vec, var_10_vec, var_11_vec, var_12_vec, var_13_vec, 
-                              var_14_vec, var_15_vec, var_16_vec))
+                              winch_acc_vec, winch_friction_vec, var_01_vec, var_02_vec, var_03_vec, var_04_vec, 
+                              var_05_vec, var_06_vec, var_07_vec, var_08_vec, var_09_vec, var_10_vec, 
+                              var_11_vec, var_12_vec, var_13_vec, var_14_vec, var_15_vec, var_16_vec
+                              ))
 end

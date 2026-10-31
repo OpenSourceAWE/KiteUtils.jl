@@ -32,7 +32,7 @@ Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `v_reelout` hold a complete differential state, so a single row can be
 used to restart a simulation. `flap_angle` is a derived deflection, not
 part of that state, and neither are the `force_*`, `aero_force_*`, `drag_force_*`,
-`*_twist`, `spring_force` and `gamma_distribution` loads, which are logged for inspection.
+`spring_force` and `gamma_distribution` loads, which are logged for inspection.
 
 $(TYPEDFIELDS)
 """
@@ -205,12 +205,6 @@ $(TYPEDFIELDS)
     turn_acc_y::MVector{O, F} = zeros(F, O)
     "KA turn acceleration around z, one per wing then body [rad/s²]"
     turn_acc_z::MVector{O, F} = zeros(F, O)
-    "tether force on each twist surface [N]"
-    tether_force_twist::MVector{D, F} = zeros(F, D)
-    "tether moment on each twist surface [Nm]"
-    tether_moment_twist::MVector{D, F} = zeros(F, D)
-    "aerodynamic moment on each twist surface [Nm]"
-    aero_moment_twist::MVector{D, F} = zeros(F, D)
     "reel-out acceleration, one per winch [m/s²]"
     winch_acc::MVector{W, F} = zeros(F, W)
     "friction force, one per winch [N]"

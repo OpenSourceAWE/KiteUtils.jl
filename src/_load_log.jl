@@ -63,11 +63,10 @@ function load_log(filename::String; path="")
                                        table.pulley_vel, table.set_torque, table.set_speed, table.set_force, table.set_ext_force_x, 
                                        table.set_ext_force_y, table.set_ext_force_z, table.force_x, table.force_y, table.force_z, 
                                        table.wind_x, table.wind_y, table.wind_z, table.acc_x, table.acc_y, 
-                                       table.acc_z, table.turn_acc_x, table.turn_acc_y, table.turn_acc_z, table.tether_force_twist, 
-                                       table.tether_moment_twist, table.aero_moment_twist, table.winch_acc, table.winch_friction, table.var_01, 
-                                       table.var_02, table.var_03, table.var_04, table.var_05, table.var_06, 
-                                       table.var_07, table.var_08, table.var_09, table.var_10, table.var_11, 
-                                       table.var_12, table.var_13, table.var_14, table.var_15, table.var_16
-                                       ))
+                                       table.acc_z, table.turn_acc_x, table.turn_acc_y, table.turn_acc_z, table.winch_acc, 
+                                       table.winch_friction, table.var_01, table.var_02, table.var_03, table.var_04, 
+                                       table.var_05, table.var_06, table.var_07, table.var_08, table.var_09, 
+                                       table.var_10, table.var_11, table.var_12, table.var_13, table.var_14, 
+                                       table.var_15, table.var_16))
     return SysLog{P}(basename(fullname[1:end-6]), colmeta, syslog)
 end
