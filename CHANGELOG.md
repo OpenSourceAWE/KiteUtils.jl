@@ -1,6 +1,6 @@
 # Changelog
 
-## KiteUtils v0.14.0 - unreleased
+## Unreleased
 
 ### Added
 
@@ -8,7 +8,11 @@
 
 ### Changed
 
-- BREAKING: `elevation`, `azimuth`, `heading`, `course` and `AoA` are stored per wing, in the `SysState` fields `elevations`, `azimuths`, `headings`, `courses` and `AoAs`. The old names remain properties: on a `SysState` they read and write wing 1, on a `SysLog`'s `syslog` they read wing 1's time series, and an older log loads them into wing 1. Code that reads them as fields, by `getfield`, `fieldnames` or a positional constructor, or reads the `.arrow` columns directly, uses the new names.
+- `elevation`, `azimuth`, `heading`, `course` and `AoA` are stored per wing, in the `SysState` fields `elevations`, `azimuths`, `headings`, `courses` and `AoAs`. The old names remain properties: on a `SysState` they read and write wing 1, on a `SysLog`'s `syslog` they read and write wing 1's time series, and an older log loads them into wing 1.
+
+## KiteUtils v0.14.0 2026-10-22
+
+### Changed
 
 - BREAKING: `azimuth_east` turns anti-clockwise seen from above, `atan(y, x)`, like `azimuth_north` and the wind-frame azimuth; it turned clockwise before. Code that used `-azimuth_east(vec)` as the right-handed angle now uses `azimuth_east(vec)`.
 
