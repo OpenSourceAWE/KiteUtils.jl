@@ -8,7 +8,7 @@ using KiteUtils, Test, StructArrays
     @test typeof(state) == SysState{7, 1, 1, 0, 0, 1, 1, 0, 0, Float32}
     @test state.X[end] == 10.0
     @test all(state.pos[end] .≈ [10, 0, 6.0])
-    @test repr(state) == "time [s]:          0.0\nt_sim [s]:         0.012\nsys_state [-]:     0\ncycle [-]:         0\nfig_8 [-]:         0\ne_mech [Wh]:       0.0\norient [-]:        Float32[0.93754053, 0.0, 0.34787613, 0.0]\nturn_rates [rad/s]:Float32[0.0, 0.0, 0.0]\nelevation [rad]:   0.5404195\nazimuth [rad]:     0.0\nazimuth_rate [rad/s]:0.0\nl_tether [m]:      Float32[0.0]\nv_reelout [m/s]:   Float32[0.0]\nwinch_force [N]:   Float32[0.0]\ndepower [0..1]:    0.0\nsteering [-1..1]:  0.0\nkcu_steering [-1..1]:0.0\nset_steering [-1..1]:0.0\nheading [rad]:     0.0\nheading_rate [rad/s]:0.0\ncourse [rad]:      0.0\nbearing [rad]:     0.0\nattractor [rad]:   Float32[0.0, 0.0]\nv_app [m/s]:       0.0\nv_wind_gnd [m/s]:  Float32[10.4855, 0.0, -3.08324]\nv_wind_200m [m/s]: Float32[10.4855, 0.0, -3.08324]\nv_wind_kite [m/s]: Float32[10.4855, 0.0, -3.08324]\nAoA [rad]:         0.0\nside_slip [rad]:   0.0\nalpha3 [rad]:      0.0\nalpha4 [rad]:      0.0\nCL2 [-]:           0.0\nCD2 [-]:           0.0\naero_force_KA_x [N]:Float32[0.0]\naero_force_KA_y [N]:Float32[0.0]\naero_force_KA_z [N]:Float32[0.0]\naero_moment_KA_x [Nm]:Float32[0.0]\naero_moment_KA_y [Nm]:Float32[0.0]\naero_moment_KA_z [Nm]:Float32[0.0]\ntwist_angles [rad]:Float32[]\nvel_kite [m/s]:    Float32[0.0, 0.0, 0.0]\nacc [m/s²]:        0.0\nX [m]:             Float32[0.0, 1.6666666, 3.3333333, 5.0, 6.6666665, 8.333333, 10.0]\nY [m]:             Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nZ [m]:             Float32[0.0, 0.15380114, 0.6194867, 1.4100224, 2.5474184, 4.063342, 6.0000005]\nflap_angle [rad]:  Float32[]\nVX [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVY [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVZ [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nspring_force [N]:  Float32[]\ngamma_distribution [m²/s]:Float32[]\nturn_rate_x [rad/s]:Float32[0.0]\nturn_rate_y [rad/s]:Float32[0.0]\nturn_rate_z [rad/s]:Float32[0.0]\ntwist_vel [rad/s]: Float32[]\npulley_len [m]:    Float32[]\npulley_vel [m/s]:  Float32[]\nset_torque [Nm]:   Float32[0.0]\nset_speed [m/s]:   Float32[0.0]\nset_force [N]:     Float32[0.0]\nset_ext_force_x [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nset_ext_force_y [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nset_ext_force_z [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nvar_01 [-]:        0.0\nvar_02 [-]:        0.0\nvar_03 [-]:        0.0\nvar_04 [-]:        0.0\nvar_05 [-]:        0.0\nvar_06 [-]:        0.0\nvar_07 [-]:        0.0\nvar_08 [-]:        0.0\nvar_09 [-]:        0.0\nvar_10 [-]:        0.0\nvar_11 [-]:        0.0\nvar_12 [-]:        0.0\nvar_13 [-]:        0.0\nvar_14 [-]:        0.0\nvar_15 [-]:        0.0\nvar_16 [-]:        0.0\n"
+    @test repr(state) == "time [s]:          0.0\nt_sim [s]:         0.012\nsys_state [-]:     0\ncycle [-]:         0\nfig_8 [-]:         0\ne_mech [Wh]:       0.0\norient [-]:        Float32[0.93754053, 0.0, 0.34787613, 0.0]\nturn_rates [rad/s]:Float32[0.0, 0.0, 0.0]\nelevations [rad]:  Float32[0.5404195]\nazimuths [rad]:    Float32[0.0]\nazimuth_rate [rad/s]:0.0\nl_tether [m]:      Float32[0.0]\nv_reelout [m/s]:   Float32[0.0]\nwinch_force [N]:   Float32[0.0]\ndepower [0..1]:    0.0\nsteering [-1..1]:  0.0\nkcu_steering [-1..1]:0.0\nset_steering [-1..1]:0.0\nheadings [rad]:    Float32[0.0]\nheading_rate [rad/s]:0.0\ncourses [rad]:     Float32[0.0]\nbearing [rad]:     0.0\nattractor [rad]:   Float32[0.0, 0.0]\nv_app [m/s]:       0.0\nv_wind_gnd [m/s]:  Float32[10.4855, 0.0, -3.08324]\nv_wind_200m [m/s]: Float32[10.4855, 0.0, -3.08324]\nv_wind_kite [m/s]: Float32[10.4855, 0.0, -3.08324]\nAoAs [rad]:        Float32[0.0]\nside_slip [rad]:   0.0\nalpha3 [rad]:      0.0\nalpha4 [rad]:      0.0\nCL2 [-]:           0.0\nCD2 [-]:           0.0\naero_force_KA_x [N]:Float32[0.0]\naero_force_KA_y [N]:Float32[0.0]\naero_force_KA_z [N]:Float32[0.0]\naero_moment_KA_x [Nm]:Float32[0.0]\naero_moment_KA_y [Nm]:Float32[0.0]\naero_moment_KA_z [Nm]:Float32[0.0]\ntwist_angles [rad]:Float32[]\nvel_kite [m/s]:    Float32[0.0, 0.0, 0.0]\nacc [m/s²]:        0.0\nX [m]:             Float32[0.0, 1.6666666, 3.3333333, 5.0, 6.6666665, 8.333333, 10.0]\nY [m]:             Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nZ [m]:             Float32[0.0, 0.15380114, 0.6194867, 1.4100224, 2.5474184, 4.063342, 6.0000005]\nflap_angle [rad]:  Float32[]\nVX [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVY [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nVZ [m/s]:          Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\naero_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_x [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_y [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\ndrag_force_z [N]:  Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nspring_force [N]:  Float32[]\ngamma_distribution [m²/s]:Float32[]\nturn_rate_x [rad/s]:Float32[0.0]\nturn_rate_y [rad/s]:Float32[0.0]\nturn_rate_z [rad/s]:Float32[0.0]\ntwist_vel [rad/s]: Float32[]\npulley_len [m]:    Float32[]\npulley_vel [m/s]:  Float32[]\nset_torque [Nm]:   Float32[0.0]\nset_speed [m/s]:   Float32[0.0]\nset_force [N]:     Float32[0.0]\nset_ext_force_x [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nset_ext_force_y [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nset_ext_force_z [N]:Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nforce_x [N]:       Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nforce_y [N]:       Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nforce_z [N]:       Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nwind_x [m/s]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nwind_y [m/s]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nwind_z [m/s]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nacc_x [m/s²]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nacc_y [m/s²]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nacc_z [m/s²]:      Float32[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\nturn_acc_x [rad/s²]:Float32[0.0]\nturn_acc_y [rad/s²]:Float32[0.0]\nturn_acc_z [rad/s²]:Float32[0.0]\nwinch_acc [m/s²]:  Float32[0.0]\nwinch_friction [N]:Float32[0.0]\nvar_01 [-]:        0.0\nvar_02 [-]:        0.0\nvar_03 [-]:        0.0\nvar_04 [-]:        0.0\nvar_05 [-]:        0.0\nvar_06 [-]:        0.0\nvar_07 [-]:        0.0\nvar_08 [-]:        0.0\nvar_09 [-]:        0.0\nvar_10 [-]:        0.0\nvar_11 [-]:        0.0\nvar_12 [-]:        0.0\nvar_13 [-]:        0.0\nvar_14 [-]:        0.0\nvar_15 [-]:        0.0\nvar_16 [-]:        0.0\n"
     state = KiteUtils.demo_state_4p(7)
     @test typeof(state) == SysState{11, 1, 1, 0, 0, 1, 1, 0, 0, Float32}
     @test state.X[end] ≈ 13.62487f0
@@ -114,10 +114,16 @@ end
         @test isfinite(row.heading_rate)
         # Every archived log predates these columns.
         @test length(row.pulley_len) == length(row.gamma_distribution) == 0
-        for field in (:set_ext_force_x, :set_ext_force_y, :set_ext_force_z)
+        for field in (:set_ext_force_x, :set_ext_force_y, :set_ext_force_z, :force_x,
+                      :wind_y, :acc_z)
             @test length(getproperty(row, field)) == length(row.X)
             @test all(iszero, getproperty(row, field))
         end
+        # Their single-wing angles are scalars, and read back as wing 1's.
+        table = load_log(name; debug=true)
+        @test length(row.elevations) == 1
+        @test log.syslog.elevation == table.elevation
+        @test log.syslog.course == table.course
     end
     # A log with no twist_angles column defaults it to zero rather than garbage.
     old = load_log("sim_log"; frame=KS)
@@ -279,6 +285,44 @@ end
         @test getproperty(row, field) == getproperty(written, field)
     end
     @test all(iszero, row.aero_moment_KA_x)
+end
+
+@testset "the single-wing angles read and write wing 1 of the per-wing ones" begin
+    set_data_path(tempdir())
+    logger = Logger(3, 1; wings=2, bodies=1)
+    written = SysState(3; wings=2, bodies=1)
+    written.elevations .= [0.5, 0.6]
+    written.azimuth = 0.25
+    @test written.elevation == 0.5f0
+    @test written.azimuths == [0.25f0, 0]
+    @test :AoA in propertynames(written)
+    log!(logger, written)
+    save_log(logger, "wing_angles_test")
+    syslog = load_log("wing_angles_test").syslog
+    @test syslog.elevation == [0.5f0]
+    @test syslog[1].elevations == written.elevations
+    syslog.elevation[1] = 0.7
+    syslog.AoA[1] = 0.1
+    @test syslog[1].elevations == [0.7f0, 0.6f0]
+    @test syslog[1].AoAs == [0.1f0, 0]
+end
+
+@testset "turn accelerations are converted out of KS as the turn rates are" begin
+    set_data_path(tempdir())
+    logger = Logger(3, 1; wings=1, bodies=1)
+    written = SysState(3; wings=1, bodies=1)
+    for (axis, value) in zip("xyz", ([1, 2], [3, 4], [5, 6]))
+        getfield(written, Symbol(:turn_rate_, axis)) .= value
+        getfield(written, Symbol(:turn_acc_, axis)) .= value
+    end
+    log!(logger, written)
+    export_log(KiteUtils.sys_log(logger, "turn_acc_KS"))
+    row = import_log("turn_acc_KS"; frame=KS).syslog[1]
+    @test row.turn_rate_x != written.turn_rate_x
+    for axis in "xyz"
+        @test getproperty(row, Symbol(:turn_acc_, axis)) ==
+              getproperty(row, Symbol(:turn_rate_, axis))
+    end
 end
 
 @testset "a log with more wings than oriented frames is rejected on load" begin

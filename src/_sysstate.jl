@@ -23,14 +23,15 @@ first and the O frames in their last O slots, wings then bodies. [`wing_Q`](@ref
 
 A `_KA` quantity at `k` is in the frame `Q[k]`: `aero_force_KA_x[k]` is a component
 of wing k's force in the frame that `Qw/Qx/Qy/Qz[k]` rotates into ENU. The properties
-`aero_force_KA` and `aero_moment_KA` are wing 1's loads as a mutable 3-vector. The turn
-rates are `KA` too, and every other vector is ENU.
+`aero_force_KA` and `aero_moment_KA` are wing 1's loads as a mutable 3-vector, and
+`elevation`, `azimuth`, `heading`, `course` and `AoA` are wing 1's entry of their per-wing
+vector. The turn rates and turn accelerations are `KA` too, and every other vector is ENU.
 
 Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `twist_angles`, `twist_vel`, `pulley_len`, `pulley_vel`, `l_tether` and
 `v_reelout` hold a complete differential state, so a single row can be
 used to restart a simulation. `flap_angle` is a derived deflection, not
-part of that state, and neither are the `aero_force_*`, `drag_force_*`,
+part of that state, and neither are the `force_*`, `aero_force_*`, `drag_force_*`,
 `spring_force` and `gamma_distribution` loads, which are logged for inspection.
 
 $(TYPEDFIELDS)
@@ -58,10 +59,10 @@ $(TYPEDFIELDS)
     Qz::MVector{O, F} = zeros(F, O)
     "turn rates around the KA body x, y and z axis [rad/s]"
     turn_rates::MVector{3, F} = zeros(F, 3)
-    "elevation angle [rad]"
-    elevation::F = 0
-    "azimuth angle in wind reference frame [rad]"
-    azimuth::F = 0
+    "elevation angle, one per wing [rad]"
+    elevations::MVector{K, F} = zeros(F, K)
+    "azimuth angle in wind reference frame, one per wing [rad]"
+    azimuths::MVector{K, F} = zeros(F, K)
     "azimuth rate [rad/s]"
     azimuth_rate::F = 0
     "tether length, one per tether [m]"
@@ -78,12 +79,12 @@ $(TYPEDFIELDS)
     kcu_steering::F = 0
     "set value of the steering [-1..1]"
     set_steering::F = 0
-    "heading angle [rad]"
-    heading::F = 0
+    "heading angle, one per wing [rad]"
+    headings::MVector{K, F} = zeros(F, K)
     "heading rate [rad/s]"
     heading_rate::F = 0
-    "course angle [rad]"
-    course::F = 0
+    "course angle, one per wing [rad]"
+    courses::MVector{K, F} = zeros(F, K)
     "bearing angle (set value of heading/ course) [rad]"
     bearing::F = 0
     "attractor coordinates (azimuth, elevation) [rad]"
@@ -96,8 +97,8 @@ $(TYPEDFIELDS)
     v_wind_200m::MVector{3, F} = zeros(F, 3)
     "wind vector at the height of the kite [m/s]"
     v_wind_kite::MVector{3, F} = zeros(F, 3)
-    "angle of attack [rad]"
-    AoA::F = 0
+    "angle of attack, one per wing [rad]"
+    AoAs::MVector{K, F} = zeros(F, K)
     "side slip angle [rad]"
     side_slip::F = 0
     "angle of attack at particle C [rad]"
@@ -180,6 +181,34 @@ $(TYPEDFIELDS)
     set_ext_force_y::MVector{P, F} = zeros(F, P)
     "external force applied to each point in z, ENU reference frame [N]"
     set_ext_force_z::MVector{P, F} = zeros(F, P)
+    "net force on each point in x, ENU reference frame [N]"
+    force_x::MVector{P, F} = zeros(F, P)
+    "net force on each point in y, ENU reference frame [N]"
+    force_y::MVector{P, F} = zeros(F, P)
+    "net force on each point in z, ENU reference frame [N]"
+    force_z::MVector{P, F} = zeros(F, P)
+    "wind at each point in x, ENU reference frame [m/s]"
+    wind_x::MVector{P, F} = zeros(F, P)
+    "wind at each point in y, ENU reference frame [m/s]"
+    wind_y::MVector{P, F} = zeros(F, P)
+    "wind at each point in z, ENU reference frame [m/s]"
+    wind_z::MVector{P, F} = zeros(F, P)
+    "acceleration in x; points first, the last O wings then bodies [m/s²]"
+    acc_x::MVector{P, F} = zeros(F, P)
+    "acceleration in y; points first, the last O wings then bodies [m/s²]"
+    acc_y::MVector{P, F} = zeros(F, P)
+    "acceleration in z; points first, the last O wings then bodies [m/s²]"
+    acc_z::MVector{P, F} = zeros(F, P)
+    "KA turn acceleration around x, one per wing then body [rad/s²]"
+    turn_acc_x::MVector{O, F} = zeros(F, O)
+    "KA turn acceleration around y, one per wing then body [rad/s²]"
+    turn_acc_y::MVector{O, F} = zeros(F, O)
+    "KA turn acceleration around z, one per wing then body [rad/s²]"
+    turn_acc_z::MVector{O, F} = zeros(F, O)
+    "reel-out acceleration, one per winch [m/s²]"
+    winch_acc::MVector{W, F} = zeros(F, W)
+    "friction force, one per winch [N]"
+    winch_friction::MVector{W, F} = zeros(F, W)
     "generic variable 01"
     var_01::F = 0
     "generic variable 02"

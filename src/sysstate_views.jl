@@ -172,6 +172,16 @@ Base.@propagate_inbounds function Base.getindex(c::ComponentColumn{SA, T, C}, t:
         StructArrays.component(c.sa, C[3])[t][c.i])
 end
 
+# Time series of wing 1's entry of a per-wing field: `column[t]` reads and writes it.
+struct WingOneColumn{V, T} <: AbstractVector{T}
+    entries::V
+end
+WingOneColumn(entries::V) where {V} = WingOneColumn{V, eltype(eltype(entries))}(entries)
+Base.size(c::WingOneColumn) = size(c.entries)
+Base.@propagate_inbounds Base.getindex(c::WingOneColumn, t::Int) = c.entries[t][1]
+Base.@propagate_inbounds Base.setindex!(c::WingOneColumn, v, t::Int) =
+    (c.entries[t][1] = v; c)
+
 # `syslog.pos[i]` -> the ComponentColumn time series of point i.
 struct PosColumns{SA, T} <: AbstractVector{ComponentColumn{SA, T, POSITION}}
     sa::SA
@@ -252,6 +262,8 @@ end
         return ComponentColumn(sa, AERO_FORCE_KA, 1)
     elseif key === :aero_moment_KA
         return ComponentColumn(sa, AERO_MOMENT_KA, 1)
+    elseif haskey(WING_ANGLES, key)
+        return WingOneColumn(StructArrays.component(sa, WING_ANGLES[key]))
     else
         return StructArrays.component(sa, key)
     end
