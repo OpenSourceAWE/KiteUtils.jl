@@ -1,6 +1,16 @@
 # Changelog
 
-## KiteUtils v0.14.0 - unreleased
+## Unreleased
+
+### Added
+
+- `SysState` columns for the outputs of a run: `force_x/y/z`, `wind_x/y/z` and `acc_x/y/z` per point, `turn_acc_x/y/z` per wing then body, and `winch_acc` and `winch_friction` per winch. A log written before they existed reads them as zeros.
+
+### Changed
+
+- `elevation`, `azimuth`, `heading`, `course` and `AoA` are stored per wing, in the `SysState` fields `elevations`, `azimuths`, `headings`, `courses` and `AoAs`. The old names remain properties: on a `SysState` they read and write wing 1, on a `SysLog`'s `syslog` they read and write wing 1's time series, and an older log loads them into wing 1.
+
+## KiteUtils v0.14.0 2026-10-22
 
 ### Changed
 

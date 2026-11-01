@@ -106,6 +106,8 @@ include("transformations.jl")
 include("trafo.jl")
 
 include("_sysstate.jl")
+const WING_ANGLES = (elevation=:elevations, azimuth=:azimuths, heading=:headings,
+                     course=:courses, AoA=:AoAs)
 include("sysstate_views.jl")
 
 @inline function Base.getproperty(st::SysState, sym::Symbol)
@@ -119,6 +121,8 @@ include("sysstate_views.jl")
         return ComponentVec(st, AERO_FORCE_KA, 1)
     elseif sym === :aero_moment_KA
         return ComponentVec(st, AERO_MOMENT_KA, 1)
+    elseif haskey(WING_ANGLES, sym)
+        return getfield(st, WING_ANGLES[sym])[1]
     else
         return getfield(st, sym)
     end
@@ -133,6 +137,9 @@ end
     elseif sym === :aero_moment_KA
         ComponentVec(st, AERO_MOMENT_KA, 1) .= v
         return v
+    elseif haskey(WING_ANGLES, sym)
+        getfield(st, WING_ANGLES[sym])[1] = v
+        return v
     elseif sym === :pos || sym === :orients
         error("Set individual elements instead, e.g. `st.$sym[i] = ...`")
     else
@@ -141,7 +148,7 @@ end
     end
 end
 Base.propertynames(st::SysState) = (fieldnames(typeof(st))..., :orient, :orients, :pos,
-                                     :aero_force_KA, :aero_moment_KA)
+                                     :aero_force_KA, :aero_moment_KA, keys(WING_ANGLES)...)
 
 include("_show.jl")
 
