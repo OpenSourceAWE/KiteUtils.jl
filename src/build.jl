@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2022 Uwe Fechner
 # SPDX-License-Identifier: MIT
 
-# Script to create the files _sysstate.jl, _show.jl, _demo_syslog.jl, _logger.jl, _log.jl, 
-# _syslog.jl and _load_log.jl from the file sysstate.yaml.  
+# Script to create the files _sysstate.jl, _show.jl, _demo_syslog.jl, _logger.jl, _log.jl
+# and _syslog.jl from the file sysstate.yaml.
 using YAML, OrderedCollections
 
 include("yaml_utils.jl")
@@ -79,7 +79,6 @@ outputfile3 = joinpath("src", "_demo_syslog.jl")
 outputfile4 = joinpath("src", "_logger.jl")
 outputfile5 = joinpath("src", "_log.jl")
 outputfile6 = joinpath("src", "_syslog.jl")
-outputfile7 = joinpath("src", "_load_log.jl")
 
 # read the file sysstate.yaml
 sysstate = YAML.load_file(inputfile, dicttype=OrderedDict{String,Any})["sysstate"]
@@ -267,66 +266,5 @@ open(outputfile6,"w") do io
     end
     println(io, "))")
     println(io, "    view(preallocated, 1:length(logger))")
-    println(io, "end")
-end
-HEADER = """
-\"\"\"
-    load_log(filename::String; path="")
-
-Read a log file that was saved as .arrow file.
-\"\"\"
-load_log(P, filename::String) = load_log(filename)
-function load_log(filename::String; path="")
-    if path == ""
-        path = DATA_PATH[1]
-    end
-    fullname = filename
-    if ! isfile(filename)
-        if isnothing(findlast(isequal('.'), filename))
-            fullname = joinpath(path, basename(filename)) * ".arrow"
-        else
-            fullname = joinpath(path, basename(filename)) 
-        end
-    end
-    table   = Arrow.Table(fullname)
-    P =  length(table.Z[1])
-    O =  length(table.Qw[1])
-    D =  haskey(table, :flap_angle) ? length(table.flap_angle[1]) : 0
-    L =  haskey(table, :pulley_len) ? length(table.pulley_len[1]) : 0
-    T =  eltype(table.Z[1])
-    colmeta = Dict(:var_01=>Arrow.getmetadata(table.var_01)["name"],
-                   :var_02=>Arrow.getmetadata(table.var_02)["name"],
-                   :var_03=>Arrow.getmetadata(table.var_03)["name"],
-                   :var_04=>Arrow.getmetadata(table.var_04)["name"],
-                   :var_05=>Arrow.getmetadata(table.var_05)["name"],
-                   :var_06=>Arrow.getmetadata(table.var_06)["name"],
-                   :var_07=>Arrow.getmetadata(table.var_07)["name"],
-                   :var_08=>Arrow.getmetadata(table.var_08)["name"],
-                   :var_09=>Arrow.getmetadata(table.var_09)["name"],
-                   :var_10=>Arrow.getmetadata(table.var_10)["name"],
-                   :var_11=>Arrow.getmetadata(table.var_11)["name"],
-                   :var_12=>Arrow.getmetadata(table.var_12)["name"],
-                   :var_13=>Arrow.getmetadata(table.var_13)["name"],
-                   :var_14=>Arrow.getmetadata(table.var_14)["name"],
-                   :var_15=>Arrow.getmetadata(table.var_15)["name"],
-                   :var_16=>Arrow.getmetadata(table.var_16)["name"],
-    )
-    # example_metadata = KiteUtils.Arrow.getmetadata(table.var_01)
-    syslog = StructArray{SysState{P, O, K, D, L, W, T, S, N, F}}(("""
-open(outputfile7,"w") do io
-    print(io, COMMENT)
-    print(io, HEADER)
-    for (i, key) in pairs(collect(keys(sysstate)))
-        if i == length(keys(sysstate))
-            print(io, "table." * key)
-        else
-            print(io, "table." * key * ", ")
-        end
-        if i % 5 == 0
-            print(io, "\n" * " " ^ 39)   
-        end
-    end
-    println(io, "))")
-    println(io, "    return SysLog{P}(basename(fullname[1:end-6]), colmeta, syslog)")
     println(io, "end")
 end
