@@ -484,3 +484,40 @@ end
     save_log(loaded, false)
     @test load_log("resave_target").colmeta == colmeta
 end
+
+"""A `SysState` whose every entry holds a value no other entry holds."""
+function state_of_distinct_values(points; counts...)
+    state = SysState(points; counts...)
+    value = 0
+    for field in fieldnames(typeof(state))
+        current = getfield(state, field)
+        if current isa AbstractVector
+            for i in eachindex(current)
+                current[i] = value += 1
+            end
+        else
+            setfield!(state, field, oftype(current, value += 1))
+        end
+    end
+    return state
+end
+
+@testset "a log loads back as the type and values logged: $counts" for counts in (
+    (; winches=0),
+    (; wings=0),
+    (; orients=0, wings=0, winches=0, tethers=0, deflections=0, pulleys=0, segments=0,
+       panels=0, precision=Float64),
+    (; winches=2, tethers=5, wings=4, orients=4, deflections=3, pulleys=2, segments=6,
+       panels=7),
+)
+    path = mktempdir()
+    written = state_of_distinct_values(3; counts...)
+    logger = Logger(3, 1; counts...)
+    log!(logger, written)
+    save_log(logger, "round_trip", false; path)
+    row = load_log("round_trip"; path).syslog[1]
+    @test typeof(row) == typeof(written)
+    for field in fieldnames(typeof(written))
+        @test getfield(row, field) == getfield(written, field)
+    end
+end

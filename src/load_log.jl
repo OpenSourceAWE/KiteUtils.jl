@@ -109,10 +109,10 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
     twist_angles = fit(twist_angles, D)
     # Only columns the file actually has may size W; the zero fallbacks above are
     # fixed-width placeholders and would otherwise force every log to four.
-    W = maximum((entries(getproperty(table, name))
+    W = maximum(entries(getproperty(table, name))
         for name in (:v_reelout, :winch_force, :force,
                      :set_torque, :set_speed, :set_force, :winch_acc, :winch_friction)
-        if haskey(table, name)); init=1)
+        if haskey(table, name))
     T = entries(table.l_tether)
     l_tether, v_reelout = fit(table.l_tether, T), fit(table.v_reelout, W)
     winch_force = fit(winch_force, W)
