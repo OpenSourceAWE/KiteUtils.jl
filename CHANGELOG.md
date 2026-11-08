@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- `load_log` reads a log with no winch back as one with no winch; it took every such log for one winch, and reading a row then threw a `DimensionMismatch`.
+
 ## KiteUtils v0.14.1 2026-11-01
 
 ### Added

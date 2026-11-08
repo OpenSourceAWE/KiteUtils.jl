@@ -234,34 +234,45 @@ end
     @test load_log("created_override").metadata["created"] == "mine"
 end
 
-@testset "KiteUtils.jl: csv round trip  " begin
+"""
+    state_of_distinct_values(points, first_value=0; counts...)
+
+A `SysState` whose every entry holds a value no other entry holds, counting up from
+`first_value`; integer fields hold it rounded down.
+"""
+function state_of_distinct_values(points, first_value=0; counts...)
+    state = SysState(points; counts...)
+    value = first_value
+    for field in fieldnames(typeof(state))
+        current = getfield(state, field)
+        if current isa AbstractVector
+            for i in eachindex(current)
+                current[i] = value += 1
+            end
+        elseif current isa Integer
+            setfield!(state, field, floor(typeof(current), value += 1))
+        else
+            setfield!(state, field, oftype(current, value += 1))
+        end
+    end
+    return state
+end
+
+@testset "a csv log reads back every column logged: $counts" for counts in (
+    (; wings=2, bodies=1, deflections=2, pulleys=4, winches=2, segments=5),
+    (; winches=0),
+)
     # export_log writes every SysState column, so import_log has to read every one
     # back: a column it does not name comes back zeroed, and nothing says so.
     set_data_path(tempdir())
-    P, D, L, W, S = 3, 2, 4, 2, 5
-    logger = Logger(P, 2; wings=2, bodies=1, deflections=D, pulleys=L, winches=W,
-                    segments=S)
-    written = map(1:2) do step
-        ss = SysState(P; wings=2, bodies=1, deflections=D, pulleys=L, winches=W,
-                      segments=S)
-        # One distinct value per field, so a column read into the wrong field, or
-        # not read at all, cannot pass.
-        for (i, field) in enumerate(fieldnames(SysState))
-            value = getfield(ss, field)
-            if value isa AbstractVector
-                value .= [10i + j + step / 8 for j in eachindex(value)]
-            elseif value isa Integer
-                setfield!(ss, field, Int16(10i + step))
-            else
-                setfield!(ss, field, typeof(value)(10i + step / 8))
-            end
-        end
-        log!(logger, ss)
-        ss
-    end
+    points = 3
+    logger = Logger(points, 2; counts...)
+    written = [state_of_distinct_values(points, 1000step + step / 8; counts...)
+               for step in 1:2]
+    foreach(state -> log!(logger, state), written)
     export_log(KiteUtils.sys_log(logger, "csv_round_trip"))
     read_back = import_log("csv_round_trip")
-    @test read_back isa SysLog{P}
+    @test read_back isa SysLog{points}
     @test length(read_back.syslog) == 2
     for step in 1:2, field in fieldnames(SysState)
         @test getproperty(read_back.syslog[step], field) ==
@@ -483,4 +494,26 @@ end
     loaded.name = "resave_target"
     save_log(loaded, false)
     @test load_log("resave_target").colmeta == colmeta
+end
+
+@testset "a log loads back as the type and values logged: $counts" for counts in (
+    (; winches=0),
+    (; wings=0),
+    (; orients=0, wings=0, winches=0, tethers=0, deflections=0, pulleys=0, segments=0,
+       panels=0, precision=Float64),
+    (; wings=0, orients=1, deflections=0, pulleys=0, winches=0, tethers=0, segments=1,
+       panels=0, precision=Float64),
+    (; winches=2, tethers=5, wings=4, orients=6, deflections=3, pulleys=2, segments=6,
+       panels=7),
+)
+    path = mktempdir()
+    written = state_of_distinct_values(3; counts...)
+    logger = Logger(3, 1; counts...)
+    log!(logger, written)
+    save_log(logger, "round_trip", false; path)
+    row = load_log("round_trip"; path).syslog[1]
+    @test typeof(row) == typeof(written)
+    for field in fieldnames(typeof(written))
+        @test getfield(row, field) == getfield(written, field)
+    end
 end
