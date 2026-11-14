@@ -119,5 +119,5 @@ end
 function se_angle(vectorENU, elevation, azimuth, respos)
     vectorSE = fromW2SE(vectorENU, elevation, azimuth)
     angle = atan(vectorSE[begin+1], vectorSE[begin])
-    angle < 0 && respos ? angle + 2π : angle
+    respos && angle < 0 ? angle + 2π : angle
 end

@@ -24,6 +24,18 @@ function attitude_with_heading(elevation, azimuth, heading)
     hcat(-nose, cross(radial, -nose), radial)
 end
 
+# A number like a symbolic variable: arithmetic builds a value, and a comparison does not
+# yield a Bool.
+struct Traced <: Real
+    value::Float64
+end
+Base.:*(a::Float64, b::Traced) = Traced(a * b.value)
+Base.:+(a::Traced, b::Traced) = Traced(a.value + b.value)
+Base.:-(a::Traced) = Traced(-a.value)
+Base.zero(::Type{Traced}) = Traced(0.0)
+Base.atan(y::Traced, x::Traced) = Traced(atan(y.value, x.value))
+Base.:<(a::Traced, b::Real) = Traced(a.value - b)
+
 attitudes = [(r, p, y) for r in deg2rad.(-150:37:150) for p in deg2rad.(-80:23:80)
                        for y in deg2rad.(-170:41:170)]
 positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
@@ -128,6 +140,12 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         end
         # Kite east of the station, flying south: to the right seen from the station.
         @test calc_course([0.0, -10, 0], 0.0, 0.0) ≈ π/2
+    end
+    @testset "heading and course trace symbolic arguments when not wrapped to 0 .. 2π" begin
+        velocity = Traced.([0.0, -10, 0])
+        @test calc_course(velocity, 0.0, 0.0; respos=false).value ≈ π/2
+        nose_south = Traced.(hcat([0.0, 1, 0], [-1.0, 0, 0], [0.0, 0, 1]))
+        @test calc_heading(nose_south, 0.0, 0.0; respos=false).value ≈ π/2
     end
     @testset "logs declare their frame convention" begin
         data_path = get_data_path()
