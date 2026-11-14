@@ -124,8 +124,8 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
     @testset "heading turns right-handed about the outward radial from zenith" begin
         for (elevation, azimuth) in positions, heading in deg2rad.(-165:15:165)
             attitude = attitude_with_heading(elevation, azimuth, heading)
-            @test isapprox(calc_heading(attitude, elevation, azimuth; respos=false), heading;
-                           atol=1e-12)
+            @test isapprox(calc_heading(attitude, elevation, azimuth; respos=false),
+                           heading; atol=1e-12)
         end
         # Kite east of the station, nose south: to the right seen from the station.
         nose_south = hcat([0.0, 1, 0], [-1.0, 0, 0], [0.0, 0, 1])
@@ -141,7 +141,7 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
         # Kite east of the station, flying south: to the right seen from the station.
         @test calc_course([0.0, -10, 0], 0.0, 0.0) ≈ π/2
     end
-    @testset "heading and course trace symbolic arguments when not wrapped to 0 .. 2π" begin
+    @testset "heading and course trace symbolic arguments with respos=false" begin
         velocity = Traced.([0.0, -10, 0])
         @test calc_course(velocity, 0.0, 0.0; respos=false).value ≈ π/2
         nose_south = Traced.(hcat([0.0, 1, 0], [-1.0, 0, 0], [0.0, 0, 1]))
