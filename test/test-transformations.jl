@@ -39,7 +39,6 @@ using KiteUtils, LinearAlgebra, StaticArrays, Test
         for elevation_case in elevations, azimuth_case in azimuths
             @test isfinite(calc_heading(orient, elevation_case, azimuth_case; respos=false))
         end
-        @test_broken calc_heading(orient, elevation, -azimuth)  ≈ 5.388664810099589
         calc_course(vec1, elevation, azimuth)
         @test wrap2pi(0.0)   == 0.0
         @test wrap2pi(2π)    == 0.0

@@ -103,7 +103,7 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
             for (elevation, azimuth) in positions
                 @test calc_heading(q_KA, elevation, azimuth) ≈
                       heading_KS_reference(euler, elevation, azimuth)
-                # Euler angles are always KS, so the old call sites keep working.
+                # An attitude given as Euler angles is read as KS.
                 @test calc_heading(euler, elevation, azimuth) ≈
                       heading_KS_reference(euler, elevation, azimuth)
             end

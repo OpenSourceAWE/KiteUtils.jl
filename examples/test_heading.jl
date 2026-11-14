@@ -188,19 +188,6 @@ function calc_kite_pos(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     return center + r * cos(turn_angle) * e1 + r * sin(turn_angle) * e2
 end
 
-"""
-    calc_clock_angle(turn_angle; x=100.0, z=0.0, r=20.0)
-
-Compute the clock angle of the kite: the rotation of the kite's x-axis (flight direction)
-around the tether axis (z_kite), measured from the world-up direction projected onto
-the plane perpendicular to the tether. Returns the angle in radian.
-"""
-function calc_clock_angle(turn_angle; x = 100.0, z = 0.0, r = 20.0)
-    orientation = collect(calc_orientation(turn_angle; x = x, z = z, r = r))
-    el, az = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
-    calc_heading(orientation, el, az; respos = false)
-end
-
 # Compute data for multiple θ values
 THETA = [30, 45, 60, 75]
 turn_angles = 0:1:360
@@ -209,14 +196,10 @@ ys_all = Vector{Vector{Float64}}()
 zs_all = Vector{Vector{Float64}}()
 headings_all = Vector{Vector{Float64}}()
 psi_dot_all = Vector{Vector{Float64}}()
-clock_angle_all = Vector{Vector{Float64}}()
-clock_angle_rate_all = Vector{Vector{Float64}}()
 y_labels = String[]
 z_labels = String[]
 h_labels = String[]
 pd_labels = LaTeXString[]
-clock_angle_labels = String[]
-car_labels = String[]
 
 for θ in THETA
     local dt
@@ -249,27 +232,6 @@ for θ in THETA
     dh[end] = (h_unwrap[end] - h_unwrap[end-1]) / dt
     push!(psi_dot_all, dh)
     push!(pd_labels, L"\dot{\Psi}~(\theta=%$(θ)^\circ)")
-    push!(clock_angle_all, [rad2deg(calc_clock_angle(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
-    push!(clock_angle_labels, "clock angle (θ=$(θ)°)")
-    # Compute clock angle rate using finite differences with unwrapping
-    ca = clock_angle_all[end]
-    ca_unwrap = copy(ca)
-    for j = 2:lastindex(ca_unwrap)
-        while ca_unwrap[j] - ca_unwrap[j-1] > 180
-            ca_unwrap[j] -= 360
-        end
-        while ca_unwrap[j] - ca_unwrap[j-1] < -180
-            ca_unwrap[j] += 360
-        end
-    end
-    dca = similar(ca)
-    for j = 2:(lastindex(ca_unwrap)-1)
-        dca[j] = (ca_unwrap[j+1] - ca_unwrap[j-1]) / (2 * dt)
-    end
-    dca[1] = (ca_unwrap[2] - ca_unwrap[1]) / dt
-    dca[end] = (ca_unwrap[end] - ca_unwrap[end-1]) / dt
-    push!(clock_angle_rate_all, dca)
-    push!(car_labels, "clock angle rate (θ=$(θ)°)")
 end
 
 function plot_heading_and_position(
@@ -279,12 +241,8 @@ function plot_heading_and_position(
     zs_all,
     headings_all,
     psi_dot_all,
-    clock_angle_all,
-    clock_angle_rate_all,
     h_labels,
     pd_labels,
-    clock_angle_labels,
-    car_labels,
 )
     # The first channel shows y (solid) and z (dotted) in the same color for each θ
     colors = ["#0072B2", "#E69F00", "#009E73", "#CC79A7"][eachindex(theta)]
@@ -294,14 +252,12 @@ function plot_heading_and_position(
         collect(turn_angles),
         [ys_all; zs_all],
         headings_all,
-        psi_dot_all,
-        clock_angle_all,
-        clock_angle_rate_all;
+        psi_dot_all;
         xlabel = "turn angle [°]",
-        ylabels = ["y, z [m]", "Ψ [°]", L"\dot{\Psi}~[^\circ/^\circ]", "clock angle [°]", "clock angle rate [°/°]"],
-        labels = [yz_labels, h_labels, pd_labels, clock_angle_labels, car_labels],
-        linestyle = [yz_styles, nothing, nothing, nothing, nothing],
-        color = [[colors; colors], colors, colors, colors, colors],
+        ylabels = ["y, z [m]", "Ψ [°]", L"\dot{\Psi}~[^\circ/^\circ]"],
+        labels = [yz_labels, h_labels, pd_labels],
+        linestyle = [yz_styles, nothing, nothing],
+        color = [[colors; colors], colors, colors],
         fig = "heading and position",
         disp = true,
     )
@@ -314,10 +270,6 @@ plot_heading_and_position(
     zs_all,
     headings_all,
     psi_dot_all,
-    clock_angle_all,
-    clock_angle_rate_all,
     h_labels,
     pd_labels,
-    clock_angle_labels,
-    car_labels,
 )

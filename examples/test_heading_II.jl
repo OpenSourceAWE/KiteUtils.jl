@@ -13,8 +13,7 @@ using KiteUtils
 using LinearAlgebra: cross, dot, normalize
 using Rotations: QuatRotation
 
-# Azimuth of the circle center [rad]: downwind of a wind from the north-west, so the
-# heading curves must match those of test_heading.jl, whose circle is centered east.
+# Azimuth of the circle center from east [rad]
 center_azimuth = deg2rad(-45)
 
 circle_center(x, z) = [x * cos(center_azimuth), x * sin(center_azimuth), z]
@@ -151,45 +150,25 @@ function calc_kite_heading(turn_angle; x = 100.0, z = 0.0, r = 20.0)
     calc_heading(orientation, el, az; respos = false)
 end
 
-"""
-    calc_clock_angle(turn_angle; x=100.0, z=0.0, r=20.0)
-
-Compute the clock angle of the kite: the rotation of the kite's x-axis (flight direction)
-around the tether axis (z_kite), measured from the world-up direction projected onto
-the plane perpendicular to the tether. Returns the angle in radian.
-"""
-function calc_clock_angle(turn_angle; x = 100.0, z = 0.0, r = 20.0)
-    orientation = collect(calc_orientation(turn_angle; x = x, z = z, r = r))
-    el, az = calc_elevation_azimuth(turn_angle; x = x, z = z, r = r)
-    calc_heading(orientation, el, az; respos = false)
-end
-
 # Compute data for multiple θ values
 THETA = [30, 45, 60, 75]
 turn_angles = 0:1:360
 tether_length = 50.0
 headings_all = Vector{Vector{Float64}}()
-clock_angle_all = Vector{Vector{Float64}}()
 
 for θ in THETA
     r = tether_length * sin(deg2rad(θ))  # r is the radius of the circle
     x = r / tan(deg2rad(θ))
     push!(headings_all,
           [rad2deg(calc_kite_heading(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
-    push!(clock_angle_all,
-          [rad2deg(calc_clock_angle(deg2rad(ta); x = x, z = 0.1, r = r)) for ta in turn_angles])
 end
 
 plotx(
     collect(turn_angles),
-    headings_all,
-    clock_angle_all;
+    headings_all;
     xlabel = "turn angle [deg]",
-    ylabels = ["heading [deg]", "clock angle [deg]"],
-    labels = [
-        ["Ψ (θ=$(θ)°)" for θ in THETA],
-        ["clock angle (θ=$(θ)°)" for θ in THETA],
-    ],
-    fig = "heading and clock angle",
+    ylabels = ["heading [deg]"],
+    labels = [["Ψ (θ=$(θ)°)" for θ in THETA]],
+    fig = "heading",
     disp = true,
 )
