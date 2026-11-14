@@ -73,6 +73,8 @@ export aero_geometry_file, fpc_settings, fpp_settings, se, se_dict,
 export calculate_rotational_inertia
 export AbstractKiteModel
 export init!, next_step!, update_sys_state!
+public change_value, get_comment, get_unit, insert_yaml_scalar_in_section, readfile,  # yaml files
+    update_yaml_scalar, writefile
 
 """
     const MyFloat = Float32
