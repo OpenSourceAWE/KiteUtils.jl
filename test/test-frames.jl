@@ -4,16 +4,37 @@
 using LinearAlgebra, Rotations, StaticArrays, Test
 using KiteUtils
 
-# The KS chain as it was before the calculations moved onto KA. Kept here, and only
-# here, so that the KA formulation can be shown to reproduce it exactly.
-function heading_KS_reference(orientation, elevation, azimuth; upwind_dir=-pi/2,
-                              respos=true)
-    down_wind_direction = wrap2pi(upwind_dir + π)
-    headingEG = fromEX2EG(fromKS2EX(SVector(1.0, 0.0, 0.0), orientation))
-    headingSE = fromW2SE(fromEG2W(headingEG, down_wind_direction), elevation, azimuth)
+# The heading built from Euler angles through the NED chain, kept here, and only here, so
+# that the KA formulation can be shown to reproduce it exactly.
+function heading_KS_reference(orientation, elevation, azimuth)
+    nose_ENU = fromNED2ENU(fromKS2EX(SVector(1.0, 0.0, 0.0), orientation))
+    headingSE = fromW2SE(nose_ENU, elevation, azimuth)
     angle = atan(headingSE[2], headingSE[1])
-    angle < 0 && respos ? angle + 2π : angle
+    angle < 0 ? angle + 2π : angle
 end
+
+# A `KA` attitude at the kite position `(elevation, azimuth)` with the up axis along the
+# outward radial and the nose turned by `heading` from zenith, right-handed about that axis.
+function attitude_with_heading(elevation, azimuth, heading)
+    radial = SVector(cos(elevation) * cos(azimuth), cos(elevation) * sin(azimuth),
+                     sin(elevation))
+    zenith = SVector(-sin(elevation) * cos(azimuth), -sin(elevation) * sin(azimuth),
+                     cos(elevation))
+    nose = cos(heading) * zenith + sin(heading) * cross(radial, zenith)
+    hcat(-nose, cross(radial, -nose), radial)
+end
+
+# A number like a symbolic variable: arithmetic builds a value, and a comparison does not
+# yield a Bool.
+struct Traced <: Real
+    value::Float64
+end
+Base.:*(a::Float64, b::Traced) = Traced(a * b.value)
+Base.:+(a::Traced, b::Traced) = Traced(a.value + b.value)
+Base.:-(a::Traced) = Traced(-a.value)
+Base.zero(::Type{Traced}) = Traced(0.0)
+Base.atan(y::Traced, x::Traced) = Traced(atan(y.value, x.value))
+Base.:<(a::Traced, b::Real) = Traced(a.value - b)
 
 attitudes = [(r, p, y) for r in deg2rad.(-150:37:150) for p in deg2rad.(-80:23:80)
                        for y in deg2rad.(-170:41:170)]
@@ -87,18 +108,44 @@ positions = [(deg2rad(el), deg2rad(az)) for el in (5, 30, 60, 85)
             @test all(euler_KS((roll, pitch, yaw) |> collect) .≈ (roll, pitch, yaw))
         end
     end
-    @testset "heading: KA equals the old KS chain" begin
+    @testset "heading: KA equals the Euler-angle chain" begin
         for (roll, pitch, yaw) in attitudes
             euler = [roll, pitch, yaw]
             q_KA = fromKS2KA(QuatRotation(euler2rot(roll, pitch, yaw)))
             for (elevation, azimuth) in positions
                 @test calc_heading(q_KA, elevation, azimuth) ≈
                       heading_KS_reference(euler, elevation, azimuth)
-                # Euler angles are always KS, so the old call sites keep working.
+                # An attitude given as Euler angles is read as KS.
                 @test calc_heading(euler, elevation, azimuth) ≈
                       heading_KS_reference(euler, elevation, azimuth)
             end
         end
+    end
+    @testset "heading turns right-handed about the outward radial from zenith" begin
+        for (elevation, azimuth) in positions, heading in deg2rad.(-165:15:165)
+            attitude = attitude_with_heading(elevation, azimuth, heading)
+            @test isapprox(calc_heading(attitude, elevation, azimuth; respos=false),
+                           heading; atol=1e-12)
+        end
+        # Kite east of the station, nose south: to the right seen from the station.
+        nose_south = hcat([0.0, 1, 0], [-1.0, 0, 0], [0.0, 0, 1])
+        @test calc_heading(nose_south, 0.0, 0.0) ≈ π/2
+    end
+    @testset "course reads the heading's angle for a velocity along the nose" begin
+        for (elevation, azimuth) in positions, heading in deg2rad.(15:30:345)
+            velocity = -10 * attitude_with_heading(elevation, azimuth, heading)[:, 1]
+            @test calc_course(velocity, elevation, azimuth) ≈
+                  calc_heading(attitude_with_heading(elevation, azimuth, heading),
+                               elevation, azimuth)
+        end
+        # Kite east of the station, flying south: to the right seen from the station.
+        @test calc_course([0.0, -10, 0], 0.0, 0.0) ≈ π/2
+    end
+    @testset "heading and course trace symbolic arguments with respos=false" begin
+        velocity = Traced.([0.0, -10, 0])
+        @test calc_course(velocity, 0.0, 0.0; respos=false).value ≈ π/2
+        nose_south = Traced.(hcat([0.0, 1, 0], [-1.0, 0, 0], [0.0, 0, 1]))
+        @test calc_heading(nose_south, 0.0, 0.0; respos=false).value ≈ π/2
     end
     @testset "logs declare their frame convention" begin
         data_path = get_data_path()

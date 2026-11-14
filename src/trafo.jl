@@ -19,22 +19,21 @@ function fromENU2EG(pointENU)
     ENU2EG * pointENU
 end
 
- """
-     fromW2SE(vector, elevation, azimuth)
+"""
+    fromW2SE(vector, elevation, azimuth)
 
- Transform a (velocity-) vector (x,y,z) from Wind to Small Earth reference frame .
- """
+Transform a vector from a horizontal, z-up frame to the Small Earth (SE) frame at the kite
+position `(elevation, azimuth)` [rad]: ENU with [`azimuth_east`](@ref), or the Wind frame
+with the wind-frame azimuth. SE has x up the sphere towards zenith, y to the right seen
+from the ground station and z along the outward radial.
+"""
 function fromW2SE(vector, elevation, azimuth)
-    rotate_first_step = @SMatrix[0  0  1;
-                                 0  1  0;
-                                -1  0  0]
-    rotate_elevation = @SMatrix[cos(elevation) 0 sin(elevation);
-                                0              1         0;
-                             -sin(elevation)   0   cos(elevation)]
-    rotate_azimuth = @SMatrix[1         0       0;
-                              0  cos(-azimuth)   -sin(-azimuth);
-                              0  sin(-azimuth)    cos(-azimuth)]
-    rotate_elevation * rotate_azimuth * rotate_first_step * vector
+    up_sphere = SVector(-sin(elevation) * cos(azimuth), -sin(elevation) * sin(azimuth),
+                        cos(elevation))
+    right = SVector(sin(azimuth), -cos(azimuth), zero(azimuth))
+    radial = SVector(cos(elevation) * cos(azimuth), cos(elevation) * sin(azimuth),
+                     sin(elevation))
+    SVector(up_sphere ⋅ vector, right ⋅ vector, radial ⋅ vector)
 end
 
 """ 
@@ -87,54 +86,38 @@ function calc_heading_w(attitude, down_wind_direction = pi/2.0)
 end
 
 """
-    calc_heading(attitude, elevation, azimuth; upwind_dir=-pi/2, respos=true)
+    calc_heading(attitude, elevation, azimuth; respos=true)
 
-Calculate the heading angle of the kite in radians. The heading is the direction the nose 
-of the kite is pointing to, expressed in the Small Earth (SE) reference frame.
+Heading angle of the kite [rad]: the direction its nose points in the Small Earth frame,
+zero towards zenith and positive right-handed about the outward radial, so a quarter turn
+points the nose to the right as seen from the ground station.
 
-# Arguments
-- `attitude`:    Orientation of the kite as a `KA` quaternion or rotation matrix, or as
-                 Euler angles (roll, pitch, yaw) in radian, which are `KS` (measured
-                 against NED)
-- `elevation`:   Elevation angle of the kite in radians
-- `azimuth`:     Azimuth angle of the kite in radians
-- `upwind_dir`:  Direction the wind is coming from in radians; zero at north; clockwise 
-                 positive from above (default: -π/2, wind from west)
-- `respos`:      If true, return angle in range [0, 2π]; if false, return in range [-π, π] 
-                 (default: true)
-
-# Returns
-The heading angle in radians, measured from the positive x-axis of the SE reference frame.
+- `attitude`: a `KA` quaternion or rotation matrix, or Euler angles (roll, pitch, yaw)
+  [rad] against NED, which are `KS`; see [`orient_matrix`](@ref)
+- `elevation`, `azimuth`: kite position [rad], `azimuth` as [`azimuth_east`](@ref)
+- `respos`: return the angle in 0 .. 2π if true, else in -π .. π
 """
-function calc_heading(attitude, elevation, azimuth; upwind_dir=-pi/2, respos=true)
-    down_wind_direction = wrap2pi(upwind_dir + π)
-    headingSE = fromW2SE(calc_heading_w(attitude, down_wind_direction),
-                         elevation, azimuth)
-    angle = atan(headingSE[begin+1], headingSE[begin])
-    if angle < 0 && respos
-        angle += 2π
-    end
-    angle
+function calc_heading(attitude, elevation, azimuth; respos=true)
+    nose = -orient_matrix(attitude)[:, 1]
+    se_angle(nose, elevation, azimuth, respos)
 end
 
 """
-    calc_course(velocityENU, elevation, azimuth, down_wind_direction = π/2, respos=true)
+    calc_course(velocityENU, elevation, azimuth; respos=true)
 
-Calculate the course angle in radian.
+Course angle of the kite [rad]: the direction of its velocity in the Small Earth frame,
+with the angle convention of [`calc_heading`](@ref).
 
-- velocityENU:         Kite velocity in EastNorthUp reference frame
-- down_wind_direction: The direction the wind is going to; zero at north;
-                       clockwise positive from above; default: going to east.
-- respos:              If true, the result is in the range 0 .. 2π, otherwise -π .. π
+- `velocityENU`: kite velocity in ENU [m/s]
+- `elevation`, `azimuth`: kite position [rad], `azimuth` as [`azimuth_east`](@ref)
+- `respos`: return the angle in 0 .. 2π if true, else in -π .. π
 """
-function calc_course(velocityENU, elevation, azimuth, upwind_dir=-pi/2, respos=true)
-    down_wind_direction = wrap2pi(upwind_dir + π)
-    velocityEG = fromENU2EG(velocityENU)
-    velocityW = fromEG2W(velocityEG, down_wind_direction)
-    velocitySE = fromW2SE(velocityW, elevation, azimuth)
-    angle = atan(velocitySE.y, velocitySE.x)
-    if angle < 0  && respos
-        angle += 2π
-    end
-    return(angle)
+function calc_course(velocityENU, elevation, azimuth; respos=true)
+    se_angle(velocityENU, elevation, azimuth, respos)
+end
+
+function se_angle(vectorENU, elevation, azimuth, respos)
+    vectorSE = fromW2SE(vectorENU, elevation, azimuth)
+    angle = atan(vectorSE[begin+1], vectorSE[begin])
+    respos && angle < 0 ? angle + 2π : angle
 end

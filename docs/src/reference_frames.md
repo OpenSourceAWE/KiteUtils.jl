@@ -112,18 +112,14 @@ out of a load never mixes the two.
 
 ## SE frame
 
-The **SE** (Small Earth) reference frame is neither a world nor a body frame: it is the
-plane tangential to the unit half-sphere around the ground station, touching it at the
-position of the kite. It follows the kite's position but not its attitude, so a direction
-expressed in it varies only with the attitude. It is defined as follows:
-- **x**: towards zenith, so the heading is zero when the nose points up the sphere
-- **y**: completing the right-handed set
-- **z**: from the kite back towards the ground station
+The **SE** (Small Earth) reference frame is neither a world nor a body frame: it is the plane tangential to the unit half-sphere around the ground station, touching it at the position of the kite, completed by the outward radial. It follows the kite's position but not its attitude, so a direction expressed in it varies only with the attitude. Like ENU it is right-handed with z pointing away from the ground. It is defined as follows:
+- **x**: up the sphere, towards zenith
+- **y**: to the right as seen from the ground station
+- **z**: along the outward radial, from the ground station through the kite
 
-An SE vector carries no body convention. A vector is resolved to ENU first, then passed
-through `fromENU2EG`, `fromEG2W` and `fromW2SE`, none of which take a convention.
-[`fromENU2NED`](@ref) converts between those two frames only and does not apply to an SE
-vector. See [Small earth reference frame](@ref) for the role of the frame.
+The heading and the course are the angle of a direction in the xy plane, measured from x towards y: zero towards zenith, positive as a right-handed rotation about the outward radial. See [Heading Angle](@ref).
+
+An SE vector carries no body convention. A vector is resolved to ENU first, then passed through [`fromW2SE`](@ref) with [`azimuth_east`](@ref) as the azimuth; no wind direction enters. [`fromENU2NED`](@ref) converts between those two frames only and does not apply to an SE vector. See [Small earth reference frame](@ref) for the role of the frame.
 
 ## Wind direction
 The `upwind_dir` (degrees) is the direction the wind is coming from. Zero is at north; clockwise positive.
@@ -138,7 +134,7 @@ The same wind is also available as the vector `wind_vec` (m/s, ENU frame), and `
 The position of the kite can be described with two angles, the azimuth angle φ and the elevation angle β .The elevation angle is zero when the height of the kite is zero, and 90° when it is at Zenith.
 Three azimuth angles are used, the azimuth angle in the wind reference frame and $\mathrm{azimuth\_east}$ and $\mathrm{azimuth\_north}$. All three are defined positive anti-clockwise when seen from above, a positive rotation about the up axis of the ENU frame; $\mathrm{azimuth\_east}$ is zero at east and equals $\mathrm{atan}(y, x)$, $\mathrm{azimuth\_north}$ is zero at north. In the log file and the system state $\mathrm{azimuth}$ in wind reference frame is used (for KiteUtils 0.8.2 and higher).
 
-The function `calc_heading()` uses this same wind-frame azimuth convention.
+`calc_heading()` and `calc_course()` take $\mathrm{azimuth\_east}$, so they need no wind direction. For the default wind from the west the wind-frame azimuth equals it.
 
 ## Orientation of the kite
 The orientation is stored as a quaternion, and can be reported as roll, pitch and yaw.
@@ -181,14 +177,6 @@ fly the kite on a prescribed trajectory that is adapted to the wind conditions.
 
 ![Small earth reference frame](small_earth.png)
 
-In Fig. 5.1 the vectors $x_k, y_k$ and $z_k$ define the body-fixed kite reference frame
-in the `KS` convention. In this
-chapter, the combination of the wing and the kite control unit (KCU) is seen as kite.
-The $y_k$ axis points to the right looking in flight direction, the $z_k$ axis is
-pointing downwards from the position of the kite parallel to the upper part of the tether,
-and the $x_k$ axis is orthogonal to $y_k$ and $z_k$ . The heading angle ψ is the angle between the
-direction towards zenith and the vector $x_k$ as projected on the tangential plane touching
-the position of the kite on the half sphere. If tether is not straight, $z_k$ and $z_{SE}$ are not
-aligned.
+In Fig. 5.1 the vectors $x_k, y_k$ and $z_k$ define the body-fixed kite reference frame in the `KS` convention. In this chapter, the combination of the wing and the kite control unit (KCU) is seen as kite. The $y_k$ axis points to the right looking in flight direction, the $z_k$ axis is pointing downwards from the position of the kite parallel to the upper part of the tether, and the $x_k$ axis is orthogonal to $y_k$ and $z_k$ . The heading angle ψ is the angle between the direction towards zenith and the vector $x_k$ as projected on the tangential plane touching the position of the kite on the half sphere. The figure is taken from the thesis, whose heading turns the other way: in this package a positive heading is a right-handed rotation about the outward radial, so the nose turns to the right as seen from the ground station. If the tether is not straight, $z_k$ is not antiparallel to $z_{SE}$.
 
 Fechner U. A Methodology for the Design of Kite-Power Control Systems. 2016. 212 p. https://doi.org/10.4233/uuid:85efaf4c-9dce-4111-bc91-7171b9da4b77
