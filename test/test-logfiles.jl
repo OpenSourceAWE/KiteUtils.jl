@@ -15,6 +15,7 @@ using KiteUtils, Test, StructArrays
     @test state.Y[end] ≈ -2.885
     @test state.Y[end-1] ≈ 2.885
     @test demo_state_4p(7).t_sim == 0.014
+    @test demo_state_4p(7, 6.0, 5.0).time == 5.0
     set_data_path(joinpath(@__DIR__, "..", "data"))
     filename="transition"
     # An archived .csv, exported long before the convention was recorded.

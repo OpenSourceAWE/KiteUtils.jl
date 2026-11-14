@@ -405,6 +405,12 @@ function Settings(project; relax=false)
 end
 const SETTINGS = Settings()
 const _SE_DICTS = IdDict{Settings, Dict{String, Any}}()
+# The project each independent instance was loaded from; the global SETTINGS uses PROJECT.
+const _SE_PROJECTS = IdDict{Settings, String}()
+# The directory the global SETTINGS were loaded from.
+const _SETTINGS_DIR = Ref("")
+# Set by set_data_path, so that se() checks the new path only once.
+const _DATA_PATH_MOVED = Ref(false)
 
 """
     set_data_path(data_path="")
@@ -412,7 +418,9 @@ const _SE_DICTS = IdDict{Settings, Dict{String, Any}}()
 Set the directory for log and config files.
 
 If called without argument, use the data path of the package to obtain the default settings
-when calling se().
+when calling se(). If the new directory contains the active project file, the next call of
+se() reloads the global settings from it; otherwise the loaded settings are kept, so that a
+directory that only holds log files can be used.
 """
 function set_data_path(data_path="")
     if data_path==""
@@ -420,7 +428,7 @@ function set_data_path(data_path="")
     end
     if data_path != DATA_PATH[1]
         DATA_PATH[1] = data_path
-        SETTINGS.segments == 0 # enforce reloading of settings.yaml
+        _DATA_PATH_MOVED[] = true
     end
 end
 
@@ -685,15 +693,21 @@ function se(project=PROJECT; relax=false)
 end
 
 """
-    se(settings::Settings, project=PROJECT; relax=false)
+    se(settings::Settings, project=nothing; relax=false)
 
 Update function for the [`Settings`](@ref) struct.
 
-The settings.yaml file to load is determined by the content active PROJECT, which defaults to `system.yaml`.
+The settings.yaml file to load is determined by the content of the project file. If `project`
+is omitted, the global settings use the active PROJECT, which defaults to `system.yaml`, and an
+independent instance uses the project it was loaded from. Only loading the global settings
+changes the active PROJECT.
 The project file must be located in the directory specified by the data path [`get_data_path`](@ref).
 """
-function se(settings::Settings, project=PROJECT; relax=false)
+function se(settings::Settings, project=nothing; relax=false)
     global PROJECT
+    is_global = settings === SETTINGS
+    own_project = is_global ? PROJECT : get(_SE_PROJECTS, settings, PROJECT)
+    project = something(project, own_project)
 
     # Process project path: remove leading "data/" if present
     path_parts = splitpath(project)
@@ -702,7 +716,15 @@ function se(settings::Settings, project=PROJECT; relax=false)
         processed_project = joinpath(path_parts[2:end]...)
     end
 
-    if settings.segments == 0 || processed_project != PROJECT
+    # The global settings follow the data path if it holds the project file, so that
+    # set_data_path takes effect, while a path holding only log files keeps them.
+    moved = false
+    if is_global && _DATA_PATH_MOVED[]
+        _DATA_PATH_MOVED[] = false
+        moved = settings.segments != 0 && abspath(DATA_PATH[1]) != _SETTINGS_DIR[] &&
+                isfile(joinpath(DATA_PATH[1], processed_project))
+    end
+    if settings.segments == 0 || processed_project != own_project || moved
         # determine which sim_settings to load
         project_path = joinpath(DATA_PATH[1], processed_project)
         dict = YAML.load_file(project_path)
@@ -749,7 +771,12 @@ function se(settings::Settings, project=PROJECT; relax=false)
             throw(ArgumentError("Invalid profile_law $(settings.profile_law) in $sim_settings_path; " *
                                  "must be 0..6 (0=CONST, 1=EXP, 2=LOG, 3=EXPLOG, 4=CUSTOM_LOG, 5=CUSTOM_EXP, 6=CUSTOM_JET)"))
         end
-        PROJECT = processed_project
+        if is_global
+            PROJECT = processed_project
+            _SETTINGS_DIR[] = abspath(DATA_PATH[1])
+        else
+            _SE_PROJECTS[settings] = processed_project
+        end
     end
     return settings
 end
