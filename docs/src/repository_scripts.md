@@ -39,6 +39,7 @@ Without any parameters or dialog, the script shall quickly make a new checkout/b
 - copy each default configuration file, such as `.JETLSConfig.toml.default`, to its local name without the `.default` suffix (here `.JETLSConfig.toml`), but only if the local file does not exist yet, so that local changes are kept; the local files are not tracked by git
 - resolve, which fixes small issues such as a pinned version that is not yet available on every package server
 - instantiate the manifest and precompile the main package environment and the examples environment
+- as the last step, after all other steps succeeded, record the full Julia version (e.g. `1.12.4`) in the file `install_version_<major.minor>.txt` (e.g. `install_version_1.12.txt`) in the root folder, so that `run_julia` can detect a later change of the Julia version; these files are not tracked by git
 
 The `install` script shall terminate with an error code if any of these steps fails.
 
@@ -68,6 +69,11 @@ Usually it is started with the alias `jl`, which makes it easy to launch and re-
 **Purpose:**
 
 - set environment variables if needed
+- check that the Julia version did not change since the installation: if the file
+  `install_version_<major.minor>.txt` exists and the version it contains differs from the
+  version of the active Julia, e.g. after a patch update by `juliaup`, print a warning asking to
+  run `bin/install` again and terminate with an error code; if the file does not exist, skip
+  the check
 - assemble the parameters for starting Julia:
   - first, the parameter `--project` to use the local project file
   - then, parameters for multi-threading and multi-processing as needed by the project
