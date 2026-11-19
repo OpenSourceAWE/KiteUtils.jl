@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- BREAKING: the heading and the course turn right-handed about the outward radial, from the ground station through the kite, like the azimuths turn about up: a nose or velocity to the right as seen from the ground station is `+π/2`, where it was `-π/2`. Zero still points to zenith. `calc_heading(attitude, elevation, azimuth; respos=true)` and `calc_course(velocityENU, elevation, azimuth; respos=true)` take `azimuth_east` and no wind direction; `upwind_dir`, and `calc_course`'s positional `upwind_dir` and `respos`, are gone. For the default wind from the west the old wind-frame azimuth is the same number, so such a call only changes sign.
+- BREAKING: the Small Earth frame is right-handed with z along the outward radial: x up the sphere, y to the right as seen from the ground station. `fromW2SE` returns the y and z components with the opposite sign.
+
 ## KiteUtils v0.14.2 2026-11-08
 
 ### Fixed
