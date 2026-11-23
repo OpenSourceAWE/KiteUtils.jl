@@ -64,6 +64,7 @@ sysstate:
     turn_rate_y: "MVector{O, MyFloat}"  # KA turn rate around y, one per wing then body [rad/s]
     turn_rate_z: "MVector{O, MyFloat}"  # KA turn rate around z, one per wing then body [rad/s]
     twist_vel: "MVector{D, MyFloat}"    # twist rate, one per twist_surface [rad/s]
+    twist_moments: "MVector{D, MyFloat}" # aerodynamic moment about the twist axis, one per twist_surface [Nm]
     pulley_len: "MVector{L, MyFloat}"   # length of the first leg of each pulley [m]
     pulley_vel: "MVector{L, MyFloat}"   # rate of change of pulley_len [m/s]
     set_torque: "MVector{W, MyFloat}"   # torque setting, one per winch [Nm]
