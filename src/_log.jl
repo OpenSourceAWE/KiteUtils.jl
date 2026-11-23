@@ -80,6 +80,7 @@ function log!(logger::Logger, state::SysState)
     logger.turn_rate_y_vec[i] .= state.turn_rate_y
     logger.turn_rate_z_vec[i] .= state.turn_rate_z
     logger.twist_vel_vec[i] .= state.twist_vel
+    logger.twist_moments_vec[i] .= state.twist_moments
     logger.pulley_len_vec[i] .= state.pulley_len
     logger.pulley_vel_vec[i] .= state.pulley_vel
     logger.set_torque_vec[i] .= state.set_torque

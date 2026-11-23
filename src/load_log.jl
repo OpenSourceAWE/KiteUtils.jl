@@ -124,7 +124,7 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
     v_wind_kite = fit(v_wind_kite, 3)
     L = haskey(table, :pulley_len) ? entries(table.pulley_len) : 0
     VX, VY, VZ = column(:VX, P), column(:VY, P), column(:VZ, P)
-    twist_vel = column(:twist_vel, D)
+    twist_vel, twist_moments = column(:twist_vel, D), column(:twist_moments, D)
     pulley_len, pulley_vel = column(:pulley_len, L), column(:pulley_vel, L)
     # Orientation back-compat: new logs store Qw/Qx/Qy/Qz (one entry per oriented
     # frame); old logs store a single `orient` quaternion column.
@@ -222,8 +222,8 @@ function syslog_from_table(table, log_name, colmeta, convention::FrameConvention
         aero_moment_KA_y, aero_moment_KA_z, twist_angles, vel_kite, acc, table.X, table.Y,
         table.Z, flap_angle, VX, VY, VZ, aero_force_x, aero_force_y, aero_force_z,
         drag_force_x, drag_force_y, drag_force_z, spring_force, gamma_distribution,
-        turn_rate_x, turn_rate_y, turn_rate_z, twist_vel, pulley_len, pulley_vel,
-        set_torque, set_speed, set_force, set_ext_force_x, set_ext_force_y,
+        turn_rate_x, turn_rate_y, turn_rate_z, twist_vel, twist_moments, pulley_len,
+        pulley_vel, set_torque, set_speed, set_force, set_ext_force_x, set_ext_force_y,
         set_ext_force_z, force_x, force_y, force_z, wind_x, wind_y, wind_z, acc_x, acc_y,
         acc_z, turn_acc_x, turn_acc_y, turn_acc_z, winch_acc, winch_friction,
         scalar(:var_01), scalar(:var_02),

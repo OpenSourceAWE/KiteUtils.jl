@@ -97,6 +97,7 @@ $(TYPEDFIELDS)
     turn_rate_y_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
     turn_rate_z_vec::Vector{MVector{O, F}} = [zero(MVector{O, F}) for _ in 1:Q]
     twist_vel_vec::Vector{MVector{D, F}} = [zero(MVector{D, F}) for _ in 1:Q]
+    twist_moments_vec::Vector{MVector{D, F}} = [zero(MVector{D, F}) for _ in 1:Q]
     pulley_len_vec::Vector{MVector{L, F}} = [zero(MVector{L, F}) for _ in 1:Q]
     pulley_vel_vec::Vector{MVector{L, F}} = [zero(MVector{L, F}) for _ in 1:Q]
     set_torque_vec::Vector{MVector{W, F}} = [zero(MVector{W, F}) for _ in 1:Q]

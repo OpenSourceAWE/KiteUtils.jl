@@ -32,7 +32,8 @@ Together `X/Y/Z`, `VX/VY/VZ`, `Qw/Qx/Qy/Qz`, `turn_rate_x/y/z`,
 `v_reelout` hold a complete differential state, so a single row can be
 used to restart a simulation. `flap_angle` is a derived deflection, not
 part of that state, and neither are the `force_*`, `aero_force_*`, `drag_force_*`,
-`spring_force` and `gamma_distribution` loads, which are logged for inspection.
+`spring_force`, `gamma_distribution` and `twist_moments` loads, which are logged for
+inspection.
 
 $(TYPEDFIELDS)
 """
@@ -165,6 +166,8 @@ $(TYPEDFIELDS)
     turn_rate_z::MVector{O, F} = zeros(F, O)
     "twist rate, one per twist_surface [rad/s]"
     twist_vel::MVector{D, F} = zeros(F, D)
+    "aerodynamic moment about the twist axis, one per twist_surface [Nm]"
+    twist_moments::MVector{D, F} = zeros(F, D)
     "length of the first leg of each pulley [m]"
     pulley_len::MVector{L, F} = zeros(F, L)
     "rate of change of pulley_len [m/s]"

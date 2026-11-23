@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `SysState` column `twist_moments`: the aerodynamic moment about each twist surface's twist axis [Nm], logged and read back by `load_log` like `twist_vel`. A log written before it existed reads it as zeros.
+
 ## KiteUtils v0.14.2 2026-11-08
 
 ### Fixed
